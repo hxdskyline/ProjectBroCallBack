@@ -47,6 +47,7 @@ namespace Combat
         private BattleFighterSpawnDefinition[] _playerFighterDefinitions;
         private int _enemyFighterCount;
         private UnitStaticAttributes? _enemyStaticAttributes;
+        private BattleFighterSpawnDefinition[] _enemyDefinitions;
         private TerrainType _currentTerrain = TerrainType.Plain;
         private WeatherType _currentWeather = WeatherType.Sunny;
         private int _artifactAtkPerDeadCat;
@@ -58,6 +59,7 @@ namespace Combat
         private bool _soldiersPhaseEnded;
         private bool _enemyBillboardDestroyed;
         private bool _playerBillboardDestroyed;
+        private bool _hasEnemyBillboard = true;
 
         // 区域遮罩系统
         private GameObject _overlay1Neutral, _overlay1Green, _overlay1Red;   // Layer 1, sortingOrder -999, 外圈
@@ -103,9 +105,19 @@ namespace Combat
             _enemyFighterCount = Mathf.Max(1, enemyFighterCount);
         }
 
+        public void ConfigureHasEnemyBillboard(bool hasEnemyBillboard)
+        {
+            _hasEnemyBillboard = hasEnemyBillboard;
+        }
+
         public void ConfigureEnemyStats(UnitStaticAttributes stats)
         {
             _enemyStaticAttributes = stats;
+        }
+
+        public void ConfigureEnemyDefinitions(BattleFighterSpawnDefinition[] defs)
+        {
+            _enemyDefinitions = defs;
         }
 
         public void ConfigureTerrainWeather(TerrainType terrain, WeatherType weather)
@@ -169,22 +181,47 @@ namespace Combat
             ClearOldAvatars();
             SpawnBattleBackground();
 
-            BattleSpawnResult result = BattleSpawner.SpawnEnemiesOnly(
-                transform,
-                new BattleSpawnConfig
-                {
-                    FighterPrefab = _fighterPrefab,
-                    EnemyAvatarDefinition = _enemyAvatarDefinition,
-                    EnemyFighterCount = _enemyFighterCount > 0 ? _enemyFighterCount : _fightersPerCamp,
-                    SpawnAreaMin = _spawnAreaMin,
-                    SpawnAreaMax = _spawnAreaMax,
-                    SpawnMinDistance = _spawnMinDistance,
-                    SpawnTryCount = _spawnTryCount,
-                    FighterScale = _fighterScale,
-                    EnemyTint = _enemyTint,
-                    EnemyUnitType = _enemyUnitType,
-                    EnemyStaticAttributes = _enemyStaticAttributes
-                });
+            BattleSpawnResult result;
+
+            if (_enemyDefinitions != null && _enemyDefinitions.Length > 0)
+            {
+                // 使用每个敌人的独立定义（支持混合敌人类型）
+                result = BattleSpawner.SpawnEnemiesFromDefinitions(
+                    transform,
+                    _enemyDefinitions,
+                    _enemyAvatarDefinition,
+                    new BattleSpawnConfig
+                    {
+                        FighterPrefab = _fighterPrefab,
+                        SpawnAreaMin = _spawnAreaMin,
+                        SpawnAreaMax = _spawnAreaMax,
+                        SpawnMinDistance = _spawnMinDistance,
+                        SpawnTryCount = _spawnTryCount,
+                        FighterScale = _fighterScale,
+                        EnemyTint = _enemyTint,
+                        EnemyUnitType = _enemyUnitType
+                    });
+            }
+            else
+            {
+                // 使用统一属性（兼容旧配置）
+                result = BattleSpawner.SpawnEnemiesOnly(
+                    transform,
+                    new BattleSpawnConfig
+                    {
+                        FighterPrefab = _fighterPrefab,
+                        EnemyAvatarDefinition = _enemyAvatarDefinition,
+                        EnemyFighterCount = _enemyFighterCount > 0 ? _enemyFighterCount : _fightersPerCamp,
+                        SpawnAreaMin = _spawnAreaMin,
+                        SpawnAreaMax = _spawnAreaMax,
+                        SpawnMinDistance = _spawnMinDistance,
+                        SpawnTryCount = _spawnTryCount,
+                        FighterScale = _fighterScale,
+                        EnemyTint = _enemyTint,
+                        EnemyUnitType = _enemyUnitType,
+                        EnemyStaticAttributes = _enemyStaticAttributes
+                    });
+            }
 
             _enemyFighters = result.EnemyFighters;
             _playerFighters = new BattleFighter[0];
@@ -192,7 +229,7 @@ namespace Combat
             // 初始化看板视觉（仅视觉，不激活攻击）
             InitializeBillboardVisuals();
 
-            Debug.Log($"[BattleManager] Prepare scene: {_enemyFighters.Length} enemies placed");
+            Debug.Log($"[BattleManager] Prepare scene: {_enemyFighters.Length} enemies placed (fromDefs={_enemyDefinitions != null})");
         }
 
         /// <summary>
@@ -456,32 +493,103 @@ namespace Combat
                 _battlefieldRing.Initialize(GetComponent<Canvas>(), transform as RectTransform);
             }
 
-            BattleSpawnResult result = BattleSpawner.Spawn(
-                transform,
-                new BattleSpawnConfig
+            BattleSpawnResult result;
+
+            if (_enemyDefinitions != null && _enemyDefinitions.Length > 0)
+            {
+                // 混合敌人类型：分别生成玩家和敌人
+                var playerResult = BattleSpawner.Spawn(
+                    transform,
+                    new BattleSpawnConfig
+                    {
+                        FighterPrefab = _fighterPrefab,
+                        PlayerAvatarDefinition = _playerAvatarDefinition,
+                        EnemyAvatarDefinition = _enemyAvatarDefinition,
+                        FightersPerCamp = 0,
+                        EnemyFighterCount = 0,
+                        SpawnAreaMin = _spawnAreaMin,
+                        SpawnAreaMax = _spawnAreaMax,
+                        SpawnMinDistance = _spawnMinDistance,
+                        SpawnTryCount = _spawnTryCount,
+                        FighterScale = _fighterScale,
+                        PlayerTint = _playerTint,
+                        EnemyTint = _enemyTint,
+                        PlayerFighterDefinitions = _playerFighterDefinitions,
+                        PlayerUnitType = _playerUnitType,
+                        EnemyUnitType = _enemyUnitType
+                    });
+
+                var enemyResult = BattleSpawner.SpawnEnemiesFromDefinitions(
+                    transform,
+                    _enemyDefinitions,
+                    _enemyAvatarDefinition,
+                    new BattleSpawnConfig
+                    {
+                        FighterPrefab = _fighterPrefab,
+                        SpawnAreaMin = _spawnAreaMin,
+                        SpawnAreaMax = _spawnAreaMax,
+                        SpawnMinDistance = _spawnMinDistance,
+                        SpawnTryCount = _spawnTryCount,
+                        FighterScale = _fighterScale,
+                        EnemyTint = _enemyTint,
+                        EnemyUnitType = _enemyUnitType
+                    });
+
+                // 设置交叉引用
+                var playerFighters = playerResult.PlayerFighters;
+                var enemyFighters = enemyResult.EnemyFighters;
+                for (int i = 0; i < playerFighters.Length; i++)
                 {
-                    FighterPrefab = _fighterPrefab,
-                    PlayerAvatarDefinition = _playerAvatarDefinition,
-                    EnemyAvatarDefinition = _enemyAvatarDefinition,
-                    FightersPerCamp = _fightersPerCamp,
-                    EnemyFighterCount = _enemyFighterCount > 0 ? _enemyFighterCount : _fightersPerCamp,
-                    SpawnAreaMin = _spawnAreaMin,
-                    SpawnAreaMax = _spawnAreaMax,
-                    SpawnMinDistance = _spawnMinDistance,
-                    SpawnTryCount = _spawnTryCount,
-                    FighterScale = _fighterScale,
-                    PlayerTint = _playerTint,
-                    EnemyTint = _enemyTint,
-                    PlayerFighterDefinitions = _playerFighterDefinitions,
-                    PlayerUnitType = _playerUnitType,
-                    EnemyUnitType = _enemyUnitType,
-                    EnemyStaticAttributes = _enemyStaticAttributes
-                });
+                    if (playerFighters[i]?.RuntimeAttributes != null)
+                    {
+                        playerFighters[i].RuntimeAttributes.OwnerFighter = playerFighters[i];
+                        playerFighters[i].RuntimeAttributes.Allies = playerFighters;
+                        playerFighters[i].RuntimeAttributes.Enemies = enemyFighters;
+                    }
+                }
+                for (int i = 0; i < enemyFighters.Length; i++)
+                {
+                    if (enemyFighters[i]?.RuntimeAttributes != null)
+                    {
+                        enemyFighters[i].RuntimeAttributes.OwnerFighter = enemyFighters[i];
+                        enemyFighters[i].RuntimeAttributes.Allies = enemyFighters;
+                        enemyFighters[i].RuntimeAttributes.Enemies = playerFighters;
+                    }
+                }
 
-            _playerFighters = result.PlayerFighters;
-            _enemyFighters = result.EnemyFighters;
+                _playerFighters = playerFighters;
+                _enemyFighters = enemyFighters;
+                result = new BattleSpawnResult { PlayerFighters = playerFighters, EnemyFighters = enemyFighters };
+            }
+            else
+            {
+                result = BattleSpawner.Spawn(
+                    transform,
+                    new BattleSpawnConfig
+                    {
+                        FighterPrefab = _fighterPrefab,
+                        PlayerAvatarDefinition = _playerAvatarDefinition,
+                        EnemyAvatarDefinition = _enemyAvatarDefinition,
+                        FightersPerCamp = _fightersPerCamp,
+                        EnemyFighterCount = _enemyFighterCount > 0 ? _enemyFighterCount : _fightersPerCamp,
+                        SpawnAreaMin = _spawnAreaMin,
+                        SpawnAreaMax = _spawnAreaMax,
+                        SpawnMinDistance = _spawnMinDistance,
+                        SpawnTryCount = _spawnTryCount,
+                        FighterScale = _fighterScale,
+                        PlayerTint = _playerTint,
+                        EnemyTint = _enemyTint,
+                        PlayerFighterDefinitions = _playerFighterDefinitions,
+                        PlayerUnitType = _playerUnitType,
+                        EnemyUnitType = _enemyUnitType,
+                        EnemyStaticAttributes = _enemyStaticAttributes
+                    });
 
-            Debug.Log($"[BattleManager] Demo fighters ready. Player={_playerFighters.Length}, Enemy={_enemyFighters.Length}");
+                _playerFighters = result.PlayerFighters;
+                _enemyFighters = result.EnemyFighters;
+            }
+
+            Debug.Log($"[BattleManager] Demo fighters ready. Player={_playerFighters.Length}, Enemy={_enemyFighters.Length} (fromDefs={_enemyDefinitions != null})");
         }
 
         /// <summary>
@@ -584,7 +692,14 @@ namespace Combat
                     // 正常战斗阶段：双方小兵互殴
                     if (_simulation.Tick(dt, out bool playerVictory))
                     {
-                        // 一方小兵全灭 → 进入看板阶段，不直接结束战斗
+                        if (!_hasEnemyBillboard)
+                        {
+                            // 无敌方看板：敌人小兵死光即胜利
+                            Debug.Log("[BattleManager] 小兵阶段结束，无敌方看板，直接结算");
+                            EndBattle(playerVictory);
+                            yield break;
+                        }
+                        // 有敌方看板 → 进入看板阶段
                         _soldiersPhaseEnded = true;
                         Debug.Log("[BattleManager] 小兵阶段结束，进入看板阶段");
                     }

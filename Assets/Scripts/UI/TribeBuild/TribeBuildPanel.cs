@@ -8,6 +8,9 @@ using Camp;
 /// </summary>
 public class TribeBuildPanel : UIPanel
 {
+    private Text _infoText;
+    private Text _enemyText;
+
     public override void Initialize()
     {
         base.Initialize();
@@ -37,49 +40,65 @@ public class TribeBuildPanel : UIPanel
         var title = CreateText("Title", "族群构筑", 32, Color.white);
         title.rectTransform.anchoredPosition = new Vector2(0, 400);
 
+        _infoText = CreateText("Info", "", 20, Color.yellow);
+        _infoText.rectTransform.anchoredPosition = new Vector2(0, 320);
+
+        _enemyText = CreateText("EnemyInfo", "", 32, Color.white);
+        _enemyText.rectTransform.anchoredPosition = new Vector2(0, 280);
+
         // 操作按钮
         var battleBtn = CreateButton("BattleButton", "开始战斗", OnStartBattle);
         battleBtn.anchoredPosition = new Vector2(0, 0);
 
         var closeBtn = CreateButton("CloseButton", "关闭", OnClose);
         closeBtn.anchoredPosition = new Vector2(0, -80);
+    }
 
-        // 显示当前信息
+    public override void Show()
+    {
+        base.Show();
+        RefreshInfo();
+    }
+
+    private void RefreshInfo()
+    {
         var dataManager = GameManager.Instance?.DataManager;
-        if (dataManager != null)
+        var gfc = GameFlowController.Instance;
+        if (dataManager == null) return;
+
+        int round = gfc != null ? gfc.CurrentRound : dataManager.GetCurrentRound();
+        long catFood = dataManager.GetCatFood();
+        int leadership = dataManager.GetLeadership();
+
+        _infoText.text = $"第 {round} 关 | 猫粮: {catFood} | 领导力: {leadership}";
+
+        // 显示敌人信息
+        var campaign = GameManager.Instance?.BattleCampaignRuntime;
+        if (campaign != null)
         {
-            int round = dataManager.GetCurrentRound();
-            long catFood = dataManager.GetCatFood();
-            int leadership = dataManager.GetLeadership();
-
-            var infoText = CreateText("Info", $"第 {round} 关 | 猫粮: {catFood} | 领导力: {leadership}", 20, Color.yellow);
-            infoText.rectTransform.anchoredPosition = new Vector2(0, 320);
-
-            // 显示敌人信息
-            var campaign = GameManager.Instance?.BattleCampaignRuntime;
-            if (campaign != null)
+            int[] enemyIds = campaign.GetEnemyUnitIdsForBattle(round);
+            if (enemyIds != null && enemyIds.Length > 0)
             {
-                int[] enemyIds = campaign.GetEnemyUnitIdsForBattle(round);
-                if (enemyIds != null && enemyIds.Length > 0)
+                var enemyCounts = new System.Collections.Generic.Dictionary<int, int>();
+                foreach (int id in enemyIds)
                 {
-                    var enemyCounts = new System.Collections.Generic.Dictionary<int, int>();
-                    foreach (int id in enemyIds)
-                    {
-                        if (enemyCounts.ContainsKey(id)) enemyCounts[id]++;
-                        else enemyCounts[id] = 1;
-                    }
-
-                    var parts = new System.Collections.Generic.List<string>();
-                    foreach (var kv in enemyCounts)
-                    {
-                        var cfg = TribeConfigLoader.Instance?.GetFighterConfig(kv.Key);
-                        string name = cfg?.fighterName ?? $"#{kv.Key}";
-                        parts.Add(kv.Value > 1 ? $"{name}x{kv.Value}" : name);
-                    }
-
-                    var enemyText = CreateText("EnemyInfo", $"敌人: {string.Join("、", parts)}", 32, Color.white);
-                    enemyText.rectTransform.anchoredPosition = new Vector2(0, 280);
+                    if (enemyCounts.ContainsKey(id)) enemyCounts[id]++;
+                    else enemyCounts[id] = 1;
                 }
+
+                var parts = new System.Collections.Generic.List<string>();
+                foreach (var kv in enemyCounts)
+                {
+                    var cfg = TribeConfigLoader.Instance?.GetFighterConfig(kv.Key);
+                    string name = cfg?.fighterName ?? $"#{kv.Key}";
+                    parts.Add(kv.Value > 1 ? $"{name}x{kv.Value}" : name);
+                }
+
+                _enemyText.text = $"敌人: {string.Join("、", parts)}";
+            }
+            else
+            {
+                _enemyText.text = "";
             }
         }
     }

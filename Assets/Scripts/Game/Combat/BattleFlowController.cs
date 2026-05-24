@@ -27,7 +27,9 @@ namespace Combat
             Action<bool> onBattleEnded,
             UnitStaticAttributes? enemyStats = null,
             TerrainType terrain = TerrainType.Plain,
-            WeatherType weather = WeatherType.Sunny)
+            WeatherType weather = WeatherType.Sunny,
+            BattleFighterSpawnDefinition[] enemyDefinitions = null,
+            bool hasEnemyBillboard = true)
         {
             EnsureBattleManager();
 
@@ -38,10 +40,17 @@ namespace Combat
             _battleManager.ConfigureEnemyFighterCount(enemyFighterCount);
             _battleManager.ConfigurePlayerFighters(playerFighterDefinitions);
             _battleManager.ConfigureTerrainWeather(terrain, weather);
-            if (enemyStats.HasValue)
+            _battleManager.ConfigureHasEnemyBillboard(hasEnemyBillboard);
+
+            if (enemyDefinitions != null && enemyDefinitions.Length > 0)
+            {
+                _battleManager.ConfigureEnemyDefinitions(enemyDefinitions);
+            }
+            else if (enemyStats.HasValue)
             {
                 _battleManager.ConfigureEnemyStats(enemyStats.Value);
             }
+
             _battleManager.Initialize(levelId);
             _battleManager.StartBattle();
 
@@ -57,17 +66,26 @@ namespace Combat
             int enemyFighterCount,
             UnitStaticAttributes? enemyStats = null,
             TerrainType terrain = TerrainType.Plain,
-            WeatherType weather = WeatherType.Sunny)
+            WeatherType weather = WeatherType.Sunny,
+            BattleFighterSpawnDefinition[] enemyDefinitions = null,
+            bool hasEnemyBillboard = true)
         {
             EnsureBattleManager();
 
             _battleManager.ConfigureDemoAvatars(null, enemyDefinition);
             _battleManager.ConfigureEnemyFighterCount(enemyFighterCount);
             _battleManager.ConfigureTerrainWeather(terrain, weather);
-            if (enemyStats.HasValue)
+            _battleManager.ConfigureHasEnemyBillboard(hasEnemyBillboard);
+
+            if (enemyDefinitions != null && enemyDefinitions.Length > 0)
+            {
+                _battleManager.ConfigureEnemyDefinitions(enemyDefinitions);
+            }
+            else if (enemyStats.HasValue)
             {
                 _battleManager.ConfigureEnemyStats(enemyStats.Value);
             }
+
             _battleManager.Initialize(levelId);
             _battleManager.BuildPrepareScene();
         }

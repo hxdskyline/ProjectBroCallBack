@@ -418,14 +418,28 @@ public class GameFlowController : MonoBehaviour
         {
             hotSpringPanel.ShowHotSpring(() =>
             {
-                _tribeBuildPanel = _uiManager.ShowPanel<TribeBuildPanel>(UIManager.UILayer.Normal);
+                // 温泉选择完成后，标记节点已完成，回到地图选下一关
+                CompleteNonBattleNode();
             });
         }
         else
         {
             Debug.LogWarning("[GameFlowController] HotSpringPanel not found, skip healing");
-            _tribeBuildPanel = _uiManager.ShowPanel<TribeBuildPanel>(UIManager.UILayer.Normal);
+            CompleteNonBattleNode();
         }
+    }
+
+    /// <summary>
+    /// 非战斗节点（温泉/商店/事件）完成后，标记已访问并回到地图
+    /// </summary>
+    private void CompleteNonBattleNode()
+    {
+        if (_currentRegionMap != null && _currentNodeId >= 0)
+        {
+            _currentRegionMap.MarkNodeVisited(_currentNodeId);
+            _currentRegionMap.UpdateAvailableNodes(_currentNodeId);
+        }
+        EnterMapSelection();
     }
 
     /// <summary>
@@ -464,6 +478,30 @@ public class GameFlowController : MonoBehaviour
 
         // Avatar 定义
         var enemyAvatar = LoadAvatarDefinition("enemy");
+
+        // 尝试从 fighter_config 构建每个敌人的独立定义（支持混合敌人类型）
+        BattleFighterSpawnDefinition[] enemyDefs = null;
+        if (enemyIds != null && enemyIds.Length > 0)
+        {
+            var defs = new List<BattleFighterSpawnDefinition>();
+            foreach (int id in enemyIds)
+            {
+                var cfg = Camp.TribeConfigLoader.Instance?.GetFighterConfig(id);
+                if (cfg != null)
+                {
+                    // 尝试加载该兵种的专属 avatar，失败则用通用 enemy avatar
+                    string address = $"data/avatar/definitions/{cfg.avatarId.ToLower()}_avataranimdef";
+                    var avatar = GameManager.Instance.ResourceManager.LoadResource<AvatarAnimationDefinition>(address);
+                    if (avatar == null)
+                        avatar = enemyAvatar;
+                    defs.Add(new BattleFighterSpawnDefinition(
+                        cfg.fighterName, cfg.ToStaticAttributes(), avatar,
+                        1.0f, (Camp.TribeType)cfg.tribeType, cfg.fighterId));
+                }
+            }
+            if (defs.Count == enemyIds.Length)
+                enemyDefs = defs.ToArray();
+        }
         var playerDefs = BuildPlayerFighterDefinitions(enemyAvatar);
 
         // 如果没有玩家单位，用默认 avatar 生成
@@ -478,7 +516,10 @@ public class GameFlowController : MonoBehaviour
             };
         }
 
-        GameLogger.Log("GFC", $"BattleStart enemies={enemyCount} scenario={scenario.terrain}/{scenario.weather}");
+        GameLogger.Log("GFC", $"BattleStart enemies={enemyCount} scenario={scenario.terrain}/{scenario.weather} fromDefs={enemyDefs != null}");
+
+        // 是否有敌方看板
+        bool hasEnemyBillboard = campaign.HasEnemyBillboardForBattle(battleNumber);
 
         // 启动战斗
         _battleFlowController = new BattleFlowController();
@@ -490,9 +531,11 @@ public class GameFlowController : MonoBehaviour
             enemyFighterCount: enemyCount,
             playerFighterDefinitions: playerDefs,
             onBattleEnded: OnBattleEndedFromScene,
-            enemyStats: enemyStats,
+            enemyStats: enemyDefs == null ? enemyStats : null,
             terrain: scenario.terrain,
-            weather: scenario.weather);
+            weather: scenario.weather,
+            enemyDefinitions: enemyDefs,
+            hasEnemyBillboard: hasEnemyBillboard);
     }
 
     private BattleFighterSpawnDefinition[] BuildPlayerFighterDefinitions(AvatarAnimationDefinition fallbackAvatar)
@@ -511,8 +554,8 @@ public class GameFlowController : MonoBehaviour
 
                 var avatar = LoadAvatarDefinition(cfg.avatarId);
                 var attrs = cfg.ToStaticAttributes();
-                // 使用当前 HP（战后可能不满血）
-                attrs.MaxHp = unit.currentHp > 0 ? (int)Mathf.Max(unit.currentHp, cfg.hp) : cfg.hp;
+                // 使用当前 HP（战后可能不满血），不超过配置最大值
+                attrs.MaxHp = unit.currentHp > 0 ? (int)Mathf.Min(unit.currentHp, cfg.hp) : cfg.hp;
 
                 playerDefs.Add(new BattleFighterSpawnDefinition(
                     cfg.fighterName,
@@ -740,9 +783,9 @@ public class GameFlowController : MonoBehaviour
 
         if (enemyFighterIds == null || enemyFighterIds.Count == 0)
         {
-            // 没有可招募的敌方兵种，直接进入构筑阶段
-            Debug.Log("[GameFlowController] 没有可招募的敌方兵种，直接进入构筑阶段");
-            EnterBuildPhase();
+            // 没有可招募的敌方兵种，直接进入选关
+            Debug.Log("[GameFlowController] 没有可招募的敌方兵种，直接进入选关");
+            EnterMapSelection();
             return;
         }
 
@@ -765,9 +808,8 @@ public class GameFlowController : MonoBehaviour
             }
         }
 
-        // 招募完成后进入构筑阶段（命运/抉择/猫市），再选关
-        // 文档流程：战斗 → 招募 → 构筑 → 选关
-        EnterBuildPhase();
+        // 招募完成后进入选关
+        EnterMapSelection();
     }
 
     /// <summary>

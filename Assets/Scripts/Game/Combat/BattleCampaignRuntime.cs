@@ -54,6 +54,7 @@ namespace Combat
         private readonly bool[] _hasShopByBattle;
         private readonly bool[] _hasNewTribeEventByBattle;
         private readonly bool[] _hasRandomEventByBattle;
+        private readonly bool[] _hasEnemyBillboardByBattle;
         private readonly int[] _catFoodRewardByBattle;
 
         // Enemy type names (loaded from enemyTypes in config)
@@ -79,6 +80,7 @@ namespace Combat
                 out _hasShopByBattle,
                 out _hasNewTribeEventByBattle,
                 out _hasRandomEventByBattle,
+                out _hasEnemyBillboardByBattle,
                 out _catFoodRewardByBattle,
                 out _enemyStatsByBattle);
             ResetProgress();
@@ -176,6 +178,13 @@ namespace Combat
             if (_hasRandomEventByBattle == null || _hasRandomEventByBattle.Length == 0) return false;
             int index = Mathf.Clamp(battleNumber - 1, 0, _hasRandomEventByBattle.Length - 1);
             return _hasRandomEventByBattle[index];
+        }
+
+        public bool HasEnemyBillboardForBattle(int battleNumber)
+        {
+            if (_hasEnemyBillboardByBattle == null || _hasEnemyBillboardByBattle.Length == 0) return true;
+            int index = Mathf.Clamp(battleNumber - 1, 0, _hasEnemyBillboardByBattle.Length - 1);
+            return _hasEnemyBillboardByBattle[index];
         }
 
         public int GetPopupPriority(string eventType)
@@ -326,6 +335,7 @@ namespace Combat
             out bool[] hasShopByBattle,
             out bool[] hasNewTribeEventByBattle,
             out bool[] hasRandomEventByBattle,
+            out bool[] hasEnemyBillboardByBattle,
             out int[] catFoodRewardByBattle,
             out UnitStaticAttributes[] enemyStatsByBattle)
         {
@@ -339,6 +349,7 @@ namespace Combat
                     out hasShopByBattle,
                     out hasNewTribeEventByBattle,
                     out hasRandomEventByBattle,
+                    out hasEnemyBillboardByBattle,
                     out catFoodRewardByBattle,
                     out enemyStatsByBattle);
             }
@@ -386,6 +397,7 @@ namespace Combat
                         out hasShopByBattle,
                         out hasNewTribeEventByBattle,
                         out hasRandomEventByBattle,
+                        out hasEnemyBillboardByBattle,
                         out catFoodRewardByBattle,
                         out enemyStatsByBattle);
                 }
@@ -397,6 +409,7 @@ namespace Combat
                 hasShopByBattle = new bool[count];
                 hasNewTribeEventByBattle = new bool[count];
                 hasRandomEventByBattle = new bool[count];
+                hasEnemyBillboardByBattle = new bool[count];
                 catFoodRewardByBattle = new int[count];
                 enemyStatsByBattle = new UnitStaticAttributes[count];
 
@@ -442,6 +455,7 @@ namespace Combat
                     hasShopByBattle[i] = ReadBool(levelJson, "hasShop");
                     hasNewTribeEventByBattle[i] = ReadBool(levelJson, "hasNewTribeEvent");
                     hasRandomEventByBattle[i] = ReadBool(levelJson, "hasRandomEvent");
+                    hasEnemyBillboardByBattle[i] = ReadBool(levelJson, "hasEnemyBillboard", true);
 
                     // Parse enemyStats: could be legacy (object with attack/defense/hp) or new (object with difficulty keys)
                     if (levelJson.Keys.Contains("enemyStats"))
@@ -560,6 +574,7 @@ namespace Combat
                     out hasShopByBattle,
                     out hasNewTribeEventByBattle,
                     out hasRandomEventByBattle,
+                    out hasEnemyBillboardByBattle,
                     out catFoodRewardByBattle,
                     out enemyStatsByBattle);
             }
@@ -571,6 +586,7 @@ namespace Combat
             out bool[] hasShopByBattle,
             out bool[] hasNewTribeEventByBattle,
             out bool[] hasRandomEventByBattle,
+            out bool[] hasEnemyBillboardByBattle,
             out int[] catFoodRewardByBattle,
             out UnitStaticAttributes[] enemyStatsByBattle)
         {
@@ -579,6 +595,7 @@ namespace Combat
             hasShopByBattle = new[] { false };
             hasNewTribeEventByBattle = new[] { false };
             hasRandomEventByBattle = new[] { false };
+            hasEnemyBillboardByBattle = new[] { true };
             catFoodRewardByBattle = new[] { 0 };
             enemyStatsByBattle = new[] { UnitStaticAttributes.Default };
             return new[] { new[] { 1 } };
@@ -606,6 +623,12 @@ namespace Combat
             return json.Keys.Contains(key)
                 && bool.TryParse(json[key].ToString(), out bool v)
                 && v;
+        }
+
+        private static bool ReadBool(JsonData json, string key, bool defaultValue)
+        {
+            if (!json.Keys.Contains(key)) return defaultValue;
+            return bool.TryParse(json[key].ToString(), out bool v) && v;
         }
 
         private static string ReadString(JsonData json, string key, string defaultValue)

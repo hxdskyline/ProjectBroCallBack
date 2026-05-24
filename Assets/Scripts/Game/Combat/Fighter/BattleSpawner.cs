@@ -204,6 +204,36 @@ namespace Combat.Fighter
         }
 
         /// <summary>
+        /// 从定义数组生成敌方单位（支持混合敌人类型）
+        /// </summary>
+        public static BattleSpawnResult SpawnEnemiesFromDefinitions(
+            Transform parent,
+            BattleFighterSpawnDefinition[] definitions,
+            AvatarAnimationDefinition defaultAvatar,
+            BattleSpawnConfig config)
+        {
+            List<Vector3> occupiedPositions = new List<Vector3>(definitions.Length);
+
+            BattleFighter[] enemyFighters = CreateFighterGroupFromDefinitions(
+                parent,
+                BattleCamp.Enemy,
+                definitions,
+                defaultAvatar,
+                occupiedPositions,
+                false,
+                config.EnemyTint,
+                config);
+
+            LoadGroupIdle(enemyFighters);
+
+            return new BattleSpawnResult
+            {
+                PlayerFighters = new BattleFighter[0],
+                EnemyFighters = enemyFighters
+            };
+        }
+
+        /// <summary>
         /// 仅生成敌方单位（准备阶段用）
         /// </summary>
         public static BattleSpawnResult SpawnEnemiesOnly(Transform parent, BattleSpawnConfig config)

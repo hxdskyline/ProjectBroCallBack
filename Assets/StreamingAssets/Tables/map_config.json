@@ -1,9 +1,14 @@
 {
   "layersPerRegion": 15,
-  "minNodesPerLayer": 2,
-  "maxNodesPerLayer": 4,
-  "hotSpringLayers": [5, 10],
-  "eliteLayers": [5, 10],
-  "shopChance": 0.15,
-  "eventChance": 0.15
+  "regionCount": 3,
+  "specialLayerBoss": 15,
+  "specialLayerHotSpringAndShop": 14,
+  "startLayer": 1,
+  "normalLayerCounts": [2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4],
+  "specialQuotaPerRegion": {
+    "hotSpring": 3,
+    "shop": 3,
+    "elite": 3,
+    "event": 3
+  }
 }

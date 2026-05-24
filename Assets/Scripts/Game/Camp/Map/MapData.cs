@@ -56,19 +56,23 @@ namespace Camp
         /// </summary>
         public void UpdateAvailableNodes(int visitedNodeId)
         {
-            var visited = GetNode(visitedNodeId);
-            if (visited == null) return;
+            // 先将所有 Available 节点重置为 Locked（错过的就不能再选了）
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                if (nodes[i] != null && nodes[i].state == MapNodeState.Available)
+                    nodes[i].state = MapNodeState.Locked;
+            }
 
             // 将已访问节点的后续节点设为 Available
-            if (visited.nextNodeIds != null)
+            var visited = GetNode(visitedNodeId);
+            if (visited == null || visited.nextNodeIds == null) return;
+
+            for (int i = 0; i < visited.nextNodeIds.Count; i++)
             {
-                for (int i = 0; i < visited.nextNodeIds.Count; i++)
+                var next = GetNode(visited.nextNodeIds[i]);
+                if (next != null && next.state == MapNodeState.Locked)
                 {
-                    var next = GetNode(visited.nextNodeIds[i]);
-                    if (next != null && next.state == MapNodeState.Locked)
-                    {
-                        next.state = MapNodeState.Available;
-                    }
+                    next.state = MapNodeState.Available;
                 }
             }
         }

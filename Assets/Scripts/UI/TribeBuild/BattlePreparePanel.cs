@@ -103,20 +103,44 @@ public class BattlePreparePanel : UIPanel
         var scenario = scenarios.Count > 0 ? scenarios[0] : default;
         int enemyCount = enemyIds?.Length ?? 3;
 
-        // 加载敌方 avatar
+        // 加载通用敌方 avatar（作为回退）
         var enemyAvatar = GameFlowController.Instance.LoadAvatarDefinition("enemy");
-        if (enemyAvatar == null)
-            enemyAvatar = AvatarAnimationDefinition.CreateRuntime("enemy",
-                "avatartemp/panglaoshu1", "avatartemp/panglaoshu2");
+
+        // 尝试从 fighter_config 构建每个敌人的独立定义（支持混合敌人类型）
+        Combat.Fighter.BattleFighterSpawnDefinition[] enemyDefs = null;
+        if (enemyIds != null && enemyIds.Length > 0)
+        {
+            var defs = new List<Combat.Fighter.BattleFighterSpawnDefinition>();
+            foreach (int id in enemyIds)
+            {
+                var cfg = Camp.TribeConfigLoader.Instance?.GetFighterConfig(id);
+                if (cfg != null)
+                {
+                    // 尝试加载该兵种的专属 avatar，失败则用通用 enemy avatar
+                    string address = $"data/avatar/definitions/{cfg.avatarId.ToLower()}_avataranimdef";
+                    var avatar = GameManager.Instance.ResourceManager.LoadResource<AvatarAnimationDefinition>(address);
+                    if (avatar == null)
+                        avatar = enemyAvatar;
+                    defs.Add(new Combat.Fighter.BattleFighterSpawnDefinition(
+                        cfg.fighterName, cfg.ToStaticAttributes(), avatar,
+                        1.0f, (Camp.TribeType)cfg.tribeType, cfg.fighterId));
+                }
+            }
+            if (defs.Count == enemyIds.Length)
+                enemyDefs = defs.ToArray();
+        }
 
         _prepBattleFlow = new BattleFlowController();
+        bool hasEnemyBillboard = GameManager.Instance.BattleCampaignRuntime.HasEnemyBillboardForBattle(_battleNumber);
         _prepBattleFlow.StartBattlePrepare(
             levelId: _battleNumber,
             enemyDefinition: enemyAvatar,
             enemyFighterCount: enemyCount,
-            enemyStats: enemyStats,
+            enemyStats: enemyDefs == null ? enemyStats : null,
             terrain: scenario.terrain,
-            weather: scenario.weather);
+            weather: scenario.weather,
+            enemyDefinitions: enemyDefs,
+            hasEnemyBillboard: hasEnemyBillboard);
 
         _prepBattleManager = _prepBattleFlow.BattleManager;
     }

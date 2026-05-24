@@ -10,8 +10,11 @@ namespace Camp
     public class MapNode
     {
         public int id;
-        public int column;        // 层级索引 (0-14)
-        public int row;           // 行索引
+        public int layer;         // 层号 (1-15)
+        public int index;         // 层内序号 (1-N)
+        public string nodeCode;   // 节点编号 "x-y"
+        public int column;        // = layer - 1，向后兼容
+        public int row;           // = index - 1，向后兼容
         public MapNodeType nodeType;
         public MapNodeState state;
         public int battleNumber;  // 对应关卡编号
