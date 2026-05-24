@@ -1,0 +1,849 @@
+{
+  "affixes": [
+    {
+      "affixId": "GEN_F1",
+      "displayName": "战斗本能",
+      "fighterId": 0,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        700
+      ]
+    },
+    {
+      "affixId": "GEN_F5",
+      "displayName": "生命之力",
+      "fighterId": 0,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        701
+      ]
+    },
+    {
+      "affixId": "TAB_L1",
+      "displayName": "精准射击",
+      "fighterId": 1000,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        502
+      ]
+    },
+    {
+      "affixId": "TAB_F1",
+      "displayName": "狸花精准",
+      "fighterId": 1000,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        702
+      ]
+    },
+    {
+      "affixId": "TAB_F5",
+      "displayName": "顽强生命",
+      "fighterId": 1000,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        703
+      ]
+    },
+    {
+      "affixId": "TAB1_L1",
+      "displayName": "穿甲箭",
+      "fighterId": 1001,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        503
+      ]
+    },
+    {
+      "affixId": "TAB1_L5",
+      "displayName": "猎鹰之眼",
+      "fighterId": 1001,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        504
+      ]
+    },
+    {
+      "affixId": "TAB1_H5",
+      "displayName": "猎鹰之心",
+      "fighterId": 1001,
+      "tier": "High",
+      "weight": 8,
+      "buffIds": [
+        601
+      ],
+      "upgradeFrom": "TAB1_L5"
+    },
+    {
+      "affixId": "TAB1_F1",
+      "displayName": "矛术精通",
+      "fighterId": 1001,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        704
+      ]
+    },
+    {
+      "affixId": "TAB1_F5",
+      "displayName": "猫之韧性",
+      "fighterId": 1001,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        705
+      ]
+    },
+    {
+      "affixId": "TAB2_L1",
+      "displayName": "暗影突袭",
+      "fighterId": 1002,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        505
+      ]
+    },
+    {
+      "affixId": "TAB2_F1",
+      "displayName": "匕首精通",
+      "fighterId": 1002,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        706
+      ]
+    },
+    {
+      "affixId": "TAB3_L1",
+      "displayName": "致命瞄准",
+      "fighterId": 1003,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        506
+      ]
+    },
+    {
+      "affixId": "TAB3_F1",
+      "displayName": "精准射击",
+      "fighterId": 1003,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        707
+      ]
+    },
+    {
+      "affixId": "ORGL_L2",
+      "displayName": "嗜血",
+      "fighterId": 2000,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        507
+      ]
+    },
+    {
+      "affixId": "ORGL_L5",
+      "displayName": "厚甲",
+      "fighterId": 2000,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        508
+      ]
+    },
+    {
+      "affixId": "ORGL_H2",
+      "displayName": "嗜血狂怒",
+      "fighterId": 2000,
+      "tier": "High",
+      "weight": 8,
+      "buffIds": [
+        602
+      ],
+      "upgradeFrom": "ORGL_L2"
+    },
+    {
+      "affixId": "ORGL_F1",
+      "displayName": "胃口大开",
+      "fighterId": 2000,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        708
+      ]
+    },
+    {
+      "affixId": "ORGL_F4",
+      "displayName": "厚实皮毛",
+      "fighterId": 2000,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        709
+      ]
+    },
+    {
+      "affixId": "ORG1_L1",
+      "displayName": "鸡腿猛击",
+      "fighterId": 2001,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        509
+      ]
+    },
+    {
+      "affixId": "ORG1_L3",
+      "displayName": "厚皮",
+      "fighterId": 2001,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        510
+      ]
+    },
+    {
+      "affixId": "ORG1_F1",
+      "displayName": "猛击",
+      "fighterId": 2001,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        710
+      ]
+    },
+    {
+      "affixId": "ORG1_F3",
+      "displayName": "厚血",
+      "fighterId": 2001,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        711
+      ]
+    },
+    {
+      "affixId": "ORG2_L1",
+      "displayName": "蝇群噬咬",
+      "fighterId": 2002,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        511
+      ]
+    },
+    {
+      "affixId": "ORG2_L5",
+      "displayName": "虫壳",
+      "fighterId": 2002,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        512
+      ]
+    },
+    {
+      "affixId": "ORG2_F1",
+      "displayName": "叮咬",
+      "fighterId": 2002,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        712
+      ]
+    },
+    {
+      "affixId": "ORG2_F5",
+      "displayName": "虫甲",
+      "fighterId": 2002,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        713
+      ]
+    },
+    {
+      "affixId": "ORG3_L2",
+      "displayName": "灼热之体",
+      "fighterId": 2003,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        513
+      ]
+    },
+    {
+      "affixId": "ORG3_L3",
+      "displayName": "火焰吐息",
+      "fighterId": 2003,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        514
+      ]
+    },
+    {
+      "affixId": "ORG3_F2",
+      "displayName": "熔岩体",
+      "fighterId": 2003,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        714
+      ]
+    },
+    {
+      "affixId": "ORG3_F3",
+      "displayName": "火焰之力",
+      "fighterId": 2003,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        715
+      ]
+    },
+    {
+      "affixId": "COWL_L1",
+      "displayName": "骨刺强化",
+      "fighterId": 3000,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        515
+      ]
+    },
+    {
+      "affixId": "COWL_L4",
+      "displayName": "白骨之握",
+      "fighterId": 3000,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        516
+      ]
+    },
+    {
+      "affixId": "COWL_F1",
+      "displayName": "亡灵之力",
+      "fighterId": 3000,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        716
+      ]
+    },
+    {
+      "affixId": "COWL_F4",
+      "displayName": "亡者之路",
+      "fighterId": 3000,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        717
+      ]
+    },
+    {
+      "affixId": "COW1_L1",
+      "displayName": "侍僧之力",
+      "fighterId": 3001,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        517
+      ]
+    },
+    {
+      "affixId": "COW1_L4",
+      "displayName": "亡者之握",
+      "fighterId": 3001,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        518
+      ]
+    },
+    {
+      "affixId": "COW1_F1",
+      "displayName": "骸骨之刃",
+      "fighterId": 3001,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        718
+      ]
+    },
+    {
+      "affixId": "COW1_F4",
+      "displayName": "骸骨之体",
+      "fighterId": 3001,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        719
+      ]
+    },
+    {
+      "affixId": "COW2_L1",
+      "displayName": "绞杀",
+      "fighterId": 3002,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        519
+      ]
+    },
+    {
+      "affixId": "COW2_L4",
+      "displayName": "血肉护甲",
+      "fighterId": 3002,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        520
+      ]
+    },
+    {
+      "affixId": "COW2_F1",
+      "displayName": "绞杀之力",
+      "fighterId": 3002,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        720
+      ]
+    },
+    {
+      "affixId": "COW2_F4",
+      "displayName": "血肉之体",
+      "fighterId": 3002,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        721
+      ]
+    },
+    {
+      "affixId": "SIAM_L1",
+      "displayName": "寒冰之触",
+      "fighterId": 4000,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        521
+      ]
+    },
+    {
+      "affixId": "SIAM_L4",
+      "displayName": "冰霜之心",
+      "fighterId": 4000,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        522
+      ]
+    },
+    {
+      "affixId": "SIAM_F1",
+      "displayName": "冰霜血脉",
+      "fighterId": 4000,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        722
+      ]
+    },
+    {
+      "affixId": "SIAM_F3",
+      "displayName": "冰晶",
+      "fighterId": 4000,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        723
+      ]
+    },
+    {
+      "affixId": "SIAM1_L1",
+      "displayName": "灵能冲击",
+      "fighterId": 4001,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        523
+      ]
+    },
+    {
+      "affixId": "SIAM1_L5",
+      "displayName": "灵能之体",
+      "fighterId": 4001,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        524
+      ]
+    },
+    {
+      "affixId": "SIAM1_F1",
+      "displayName": "灵能之刃",
+      "fighterId": 4001,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        724
+      ]
+    },
+    {
+      "affixId": "SIAM1_F5",
+      "displayName": "灵能之体",
+      "fighterId": 4001,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        725
+      ]
+    },
+    {
+      "affixId": "SIAM2_L1",
+      "displayName": "龙息",
+      "fighterId": 4002,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        525
+      ]
+    },
+    {
+      "affixId": "SIAM2_L4",
+      "displayName": "龙之血脉",
+      "fighterId": 4002,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        526
+      ]
+    },
+    {
+      "affixId": "SIAM2_F1",
+      "displayName": "龙之吐息",
+      "fighterId": 4002,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        726
+      ]
+    },
+    {
+      "affixId": "SIAM2_F4",
+      "displayName": "龙之血脉",
+      "fighterId": 4002,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        727
+      ]
+    },
+    {
+      "affixId": "SIAM3_L1",
+      "displayName": "灵能化身",
+      "fighterId": 4003,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        527
+      ]
+    },
+    {
+      "affixId": "SIAM3_L4",
+      "displayName": "灵能之体",
+      "fighterId": 4003,
+      "tier": "Low",
+      "weight": 10,
+      "buffIds": [
+        528
+      ]
+    },
+    {
+      "affixId": "SIAM3_F1",
+      "displayName": "灵能之刃",
+      "fighterId": 4003,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        728
+      ]
+    },
+    {
+      "affixId": "SIAM3_F4",
+      "displayName": "灵能之体",
+      "fighterId": 4003,
+      "tier": "Fixed",
+      "weight": 6,
+      "buffIds": [
+        729
+      ]
+    },
+    {
+      "affixId": "TAB_H1",
+      "displayName": "精准猎手",
+      "fighterId": 1000,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "TAB_L1",
+      "buffIds": [
+        730
+      ]
+    },
+    {
+      "affixId": "TAB2_H1",
+      "displayName": "暗影连击",
+      "fighterId": 1002,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "TAB2_L1",
+      "buffIds": [
+        731
+      ]
+    },
+    {
+      "affixId": "TAB3_H1",
+      "displayName": "致命猎杀",
+      "fighterId": 1003,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "TAB3_L1",
+      "buffIds": [
+        732
+      ]
+    },
+    {
+      "affixId": "ORG1_H1",
+      "displayName": "猛击风暴",
+      "fighterId": 2001,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "ORG1_L1",
+      "buffIds": [
+        733
+      ]
+    },
+    {
+      "affixId": "ORG1_H3",
+      "displayName": "铁皮",
+      "fighterId": 2001,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "ORG1_L3",
+      "buffIds": [
+        734
+      ]
+    },
+    {
+      "affixId": "ORG2_H1",
+      "displayName": "蝇群狂潮",
+      "fighterId": 2002,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "ORG2_L1",
+      "buffIds": [
+        735
+      ]
+    },
+    {
+      "affixId": "ORG2_H5",
+      "displayName": "虫壳硬化",
+      "fighterId": 2002,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "ORG2_L5",
+      "buffIds": [
+        736
+      ]
+    },
+    {
+      "affixId": "ORG3_H2",
+      "displayName": "烈焰之体",
+      "fighterId": 2003,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "ORG3_L2",
+      "buffIds": [
+        737
+      ]
+    },
+    {
+      "affixId": "ORG3_H3",
+      "displayName": "火焰风暴",
+      "fighterId": 2003,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "ORG3_L3",
+      "buffIds": [
+        738
+      ]
+    },
+    {
+      "affixId": "COWL_H1",
+      "displayName": "骨刺风暴",
+      "fighterId": 3000,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "COWL_L1",
+      "buffIds": [
+        739
+      ]
+    },
+    {
+      "affixId": "COWL_H4",
+      "displayName": "白骨之墙",
+      "fighterId": 3000,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "COWL_L4",
+      "buffIds": [
+        740
+      ]
+    },
+    {
+      "affixId": "COW1_H1",
+      "displayName": "侍僧狂怒",
+      "fighterId": 3001,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "COW1_L1",
+      "buffIds": [
+        741
+      ]
+    },
+    {
+      "affixId": "COW1_H4",
+      "displayName": "亡者之墙",
+      "fighterId": 3001,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "COW1_L4",
+      "buffIds": [
+        742
+      ]
+    },
+    {
+      "affixId": "COW2_H1",
+      "displayName": "绞杀风暴",
+      "fighterId": 3002,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "COW2_L1",
+      "buffIds": [
+        743
+      ]
+    },
+    {
+      "affixId": "COW2_H4",
+      "displayName": "血肉之墙",
+      "fighterId": 3002,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "COW2_L4",
+      "buffIds": [
+        744
+      ]
+    },
+    {
+      "affixId": "SIAM_H1",
+      "displayName": "冰霜风暴",
+      "fighterId": 4000,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "SIAM_L1",
+      "buffIds": [
+        745
+      ]
+    },
+    {
+      "affixId": "SIAM_H4",
+      "displayName": "冰封之心",
+      "fighterId": 4000,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "SIAM_L4",
+      "buffIds": [
+        746
+      ]
+    },
+    {
+      "affixId": "SIAM1_H1",
+      "displayName": "灵能风暴",
+      "fighterId": 4001,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "SIAM1_L1",
+      "buffIds": [
+        747
+      ]
+    },
+    {
+      "affixId": "SIAM1_H5",
+      "displayName": "灵能护盾",
+      "fighterId": 4001,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "SIAM1_L5",
+      "buffIds": [
+        748
+      ]
+    },
+    {
+      "affixId": "SIAM2_H1",
+      "displayName": "龙息风暴",
+      "fighterId": 4002,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "SIAM2_L1",
+      "buffIds": [
+        749
+      ]
+    },
+    {
+      "affixId": "SIAM2_H4",
+      "displayName": "龙鳞护体",
+      "fighterId": 4002,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "SIAM2_L4",
+      "buffIds": [
+        750
+      ]
+    },
+    {
+      "affixId": "SIAM3_H1",
+      "displayName": "灵能爆发",
+      "fighterId": 4003,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "SIAM3_L1",
+      "buffIds": [
+        751
+      ]
+    },
+    {
+      "affixId": "SIAM3_H4",
+      "displayName": "灵能壁垒",
+      "fighterId": 4003,
+      "tier": "High",
+      "weight": 8,
+      "upgradeFrom": "SIAM3_L4",
+      "buffIds": [
+        752
+      ]
+    }
+  ]
+}

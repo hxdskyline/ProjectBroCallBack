@@ -1,0 +1,9 @@
+{
+  "layersPerRegion": 15,
+  "minNodesPerLayer": 2,
+  "maxNodesPerLayer": 4,
+  "hotSpringLayers": [5, 10],
+  "eliteLayers": [5, 10],
+  "shopChance": 0.15,
+  "eventChance": 0.15
+}

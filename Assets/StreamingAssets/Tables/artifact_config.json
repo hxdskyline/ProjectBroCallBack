@@ -1,0 +1,147 @@
+{
+  "artifacts": [
+    {
+      "id": "Artifact_CatPawAmulet",
+      "name": "猫爪护符",
+      "description": "全体攻击力+5%",
+      "scope": "all",
+      "effects": [
+        { "statType": "Attack", "isPercent": true, "value": 0.05, "gameEffect": 0 }
+      ]
+    },
+    {
+      "id": "Artifact_CatEyeGem",
+      "name": "猫眼宝石",
+      "description": "全体防御力+5%",
+      "scope": "all",
+      "effects": [
+        { "statType": "Defense", "isPercent": true, "value": 0.05, "gameEffect": 1 }
+      ]
+    },
+    {
+      "id": "Artifact_CatTailPendant",
+      "name": "猫尾吊坠",
+      "description": "全体生命值+5%",
+      "scope": "all",
+      "effects": [
+        { "statType": "Hp", "isPercent": true, "value": 0.05, "gameEffect": 2 }
+      ]
+    },
+    {
+      "id": "Artifact_CatBell",
+      "name": "猫铃铛",
+      "description": "全体移动速度+5%",
+      "scope": "all",
+      "effects": [
+        { "statType": "MoveSpeed", "isPercent": true, "value": 0.05, "gameEffect": 3 }
+      ]
+    },
+    {
+      "id": "Artifact_CatPawRing",
+      "name": "猫爪戒指",
+      "description": "全体攻击力+10%",
+      "scope": "all",
+      "effects": [
+        { "statType": "Attack", "isPercent": true, "value": 0.10, "gameEffect": 0 }
+      ]
+    },
+    {
+      "id": "Artifact_CatShieldBadge",
+      "name": "猫盾徽章",
+      "description": "全体防御力+10%",
+      "scope": "all",
+      "effects": [
+        { "statType": "Defense", "isPercent": true, "value": 0.10, "gameEffect": 1 }
+      ]
+    },
+    {
+      "id": "Artifact_CatHeartStone",
+      "name": "猫心石",
+      "description": "全体生命值+10%",
+      "scope": "all",
+      "effects": [
+        { "statType": "Hp", "isPercent": true, "value": 0.10, "gameEffect": 2 }
+      ]
+    },
+    {
+      "id": "Artifact_CatWindFeather",
+      "name": "猫风之羽",
+      "description": "全体移动速度+10%",
+      "scope": "all",
+      "effects": [
+        { "statType": "MoveSpeed", "isPercent": true, "value": 0.10, "gameEffect": 3 }
+      ]
+    },
+    {
+      "id": "Artifact_CatCrown",
+      "name": "猫王冠",
+      "description": "全属性+3%",
+      "scope": "all",
+      "effects": [
+        { "statType": "AllPercent", "isPercent": true, "value": 0.03, "gameEffect": 4 }
+      ]
+    },
+    {
+      "id": "Artifact_CatSoulCrystal",
+      "name": "猫魂水晶",
+      "description": "全体攻击力+15%",
+      "scope": "all",
+      "effects": [
+        { "statType": "Attack", "isPercent": true, "value": 0.15, "gameEffect": 0 }
+      ]
+    },
+    {
+      "id": "Artifact_CatSpiritShield",
+      "name": "猫灵护盾",
+      "description": "全体防御力+15%",
+      "scope": "all",
+      "effects": [
+        { "statType": "Defense", "isPercent": true, "value": 0.15, "gameEffect": 1 }
+      ]
+    },
+    {
+      "id": "Artifact_CatGodEye",
+      "name": "猫神之眼",
+      "description": "全属性+5%",
+      "scope": "all",
+      "effects": [
+        { "statType": "AllPercent", "isPercent": true, "value": 0.05, "gameEffect": 4 }
+      ]
+    },
+    {
+      "id": "Artifact_GaleBoots",
+      "name": "疾风之靴",
+      "description": "全体移动速度+300",
+      "scope": "all",
+      "effects": [
+        { "statType": "MoveSpeed", "isPercent": false, "value": 300, "gameEffect": 13 }
+      ]
+    },
+    {
+      "id": "Artifact_CatRampFlat",
+      "name": "猫爬架",
+      "description": "全体生命值+500",
+      "scope": "all",
+      "effects": [
+        { "statType": "Hp", "isPercent": false, "value": 500, "gameEffect": 12 }
+      ]
+    },
+    {
+      "id": "Artifact_FlySwatter",
+      "name": "苍蝇拍",
+      "description": "全体攻击力+20",
+      "scope": "all",
+      "effects": [
+        { "statType": "Attack", "isPercent": false, "value": 20, "gameEffect": 10 }
+      ]
+    }
+  ],
+  "dropPools": {
+    "battle_normal":    { "artifactIds": ["Artifact_CatPawAmulet", "Artifact_CatEyeGem", "Artifact_CatTailPendant", "Artifact_CatBell"], "dropRate": 0.1 },
+    "battle_hard":      { "artifactIds": ["Artifact_CatPawRing", "Artifact_CatShieldBadge", "Artifact_CatHeartStone", "Artifact_CatWindFeather"], "dropRate": 0.15 },
+    "battle_bloodbath": { "artifactIds": ["Artifact_CatCrown", "Artifact_CatSoulCrystal", "Artifact_CatSpiritShield", "Artifact_CatGodEye", "Artifact_GaleBoots"], "dropRate": 0.2 },
+    "prayer_free":      { "artifactIds": ["Artifact_CatPawAmulet", "Artifact_CatEyeGem", "Artifact_CatTailPendant"] },
+    "prayer_low":       { "artifactIds": ["Artifact_CatBell", "Artifact_CatPawRing", "Artifact_CatShieldBadge"] },
+    "prayer_high":      { "artifactIds": ["Artifact_CatHeartStone", "Artifact_CatWindFeather", "Artifact_CatCrown", "Artifact_CatSoulCrystal", "Artifact_CatSpiritShield", "Artifact_CatGodEye", "Artifact_GaleBoots", "Artifact_CatRampFlat", "Artifact_FlySwatter"] }
+  }
+}

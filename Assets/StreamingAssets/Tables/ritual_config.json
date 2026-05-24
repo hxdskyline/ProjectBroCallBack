@@ -1,0 +1,36 @@
+{
+  "tiers": [
+    {
+      "tierName": "free",
+      "displayName": "免费祈愿",
+      "cost": 0,
+      "drawCount": 3,
+      "blessings": [
+        { "type": "LeaderStatBoostTemporary", "weight": 30, "statTypes": ["Attack","Defense","Hp"], "minAmount": 10, "maxAmount": 30 },
+        { "type": "Consumable",               "weight": 30, "minCount": 1, "maxCount": 1 },
+        { "type": "CatFood",                  "weight": 20, "minAmount": 50, "maxAmount": 150 }
+      ]
+    },
+    {
+      "tierName": "low",
+      "displayName": "普通祈愿",
+      "cost": 300,
+      "drawCount": 3,
+      "blessings": [
+        { "type": "LeaderStatBoostPermanent", "weight": 40, "statTypes": ["Attack","Defense","Hp"], "minAmount": 20, "maxAmount": 50 },
+        { "type": "Consumable",               "weight": 30, "minCount": 1, "maxCount": 2 },
+        { "type": "CatFood",                  "weight": 20, "minAmount": 100, "maxAmount": 300 }
+      ]
+    },
+    {
+      "tierName": "high",
+      "displayName": "盛大祈愿",
+      "cost": 600,
+      "drawCount": 3,
+      "blessings": [
+        { "type": "LeaderStatBoostPercent",   "weight": 50, "statTypes": ["Attack","Defense","Hp"], "minPercent": 0.05, "maxPercent": 0.15 },
+        { "type": "CatFood",                  "weight": 50, "minAmount": 300, "maxAmount": 800 }
+      ]
+    }
+  ]
+}

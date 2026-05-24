@@ -1,0 +1,578 @@
+{
+  "tribeAuras": [
+    {
+      "tribeType": 1,
+      "tribeName": "狸花猫族",
+      "tierAuras": [
+        {
+          "tier": 1,
+          "unitName": "丛林弓箭手",
+          "selectionRule": "pick2of4",
+          "options": [
+            {
+              "auraId": "tabby_t1_piercing_arrow",
+              "auraName": "穿刺箭",
+              "description": "20%概率穿透一个敌人",
+              "scope": "Tabby | T1 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": false, "value": 0, "gameEffectType": 100 }
+              ]
+            },
+            {
+              "auraId": "tabby_t1_poison_arrow",
+              "auraName": "毒箭",
+              "description": "30%概率附加5层毒",
+              "scope": "Tabby | T1 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": false, "value": 0, "gameEffectType": 101 }
+              ]
+            },
+            {
+              "auraId": "tabby_t1_precision",
+              "auraName": "精准",
+              "description": "对标记目标的伤害+40%",
+              "scope": "Tabby | T1 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": true, "value": 0.4, "gameEffectType": 102 }
+              ]
+            },
+            {
+              "auraId": "tabby_t1_guerrilla",
+              "auraName": "游击",
+              "description": "每攻击3次，自动位移一小段并闪避下次攻击",
+              "scope": "Tabby | T1 | Soldier",
+              "effects": [
+                { "statType": "MoveSpeed", "isPercent": false, "value": 0, "gameEffectType": 103 }
+              ]
+            }
+          ]
+        },
+        {
+          "tier": 2,
+          "unitName": "暗影刺客",
+          "fixedAura": {
+            "auraId": "tabby_t2_deadly_poison",
+            "auraName": "致命毒药",
+            "description": "对标记目标的毒伤+100%",
+            "scope": "Tabby | T2 | Soldier",
+            "effects": [
+              { "statType": "Attack", "isPercent": true, "value": 1.0, "gameEffectType": 104 }
+            ]
+          },
+          "selectionRule": "pick1of2",
+          "options": [
+            {
+              "auraId": "tabby_t2_assassination",
+              "auraName": "暗杀艺术",
+              "description": "隐匿期间，对标记目标的伤害+100%",
+              "scope": "Tabby | T2 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": true, "value": 1.0, "gameEffectType": 105 }
+              ]
+            },
+            {
+              "auraId": "tabby_t2_trap_master",
+              "auraName": "陷阱大师",
+              "description": "捕兽夹可同时存在2个，定身时间+2秒",
+              "scope": "Tabby | T2 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": false, "value": 0, "gameEffectType": 106 }
+              ]
+            }
+          ]
+        },
+        {
+          "tier": 3,
+          "unitName": "狩猎大师",
+          "selectionRule": "pick1of2",
+          "options": [
+            {
+              "auraId": "tabby_t3_hunt_call",
+              "auraName": "猎群号令",
+              "description": "召唤的猎豹数量+1，猎豹攻击力+3",
+              "scope": "Tabby | T3 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": false, "value": 3, "gameEffectType": -1 }
+              ]
+            },
+            {
+              "auraId": "tabby_t3_apex_predator",
+              "auraName": "顶级掠食者",
+              "description": "狩猎大师攻击标记目标时，溅射周围敌人造成50%伤害",
+              "scope": "Tabby | T3 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": true, "value": 0.5, "gameEffectType": -1 }
+              ]
+            }
+          ]
+        }
+      ],
+      "generalAuras": {
+        "selectionRule": "pick1of4",
+        "options": [
+          {
+            "auraId": "tabby_gen_deadly_mark",
+            "auraName": "致命印记",
+            "description": "狩猎印记的易伤效果+20%（变为+50%）",
+            "scope": "Tabby",
+            "effects": [
+              { "statType": "Attack", "isPercent": true, "value": 0.2, "gameEffectType": 107 }
+            ]
+          },
+          {
+            "auraId": "tabby_gen_wind_blessing",
+            "auraName": "风之祝福",
+            "description": "隐匿持续时间+2秒，伤害加成提升至100%",
+            "scope": "Tabby",
+            "effects": [
+              { "statType": "MoveSpeed", "isPercent": true, "value": 0.1, "gameEffectType": 108 }
+            ]
+          },
+          {
+            "auraId": "tabby_gen_jungle_friend",
+            "auraName": "丛林之友",
+            "description": "狩猎大师召唤的猎豹数量+1",
+            "scope": "Tabby",
+            "requiredUnitName": "狩猎大师",
+            "effects": [
+              { "statType": "Attack", "isPercent": false, "value": 2, "gameEffectType": 109 }
+            ]
+          },
+          {
+            "auraId": "tabby_gen_hunt_feast",
+            "auraName": "狩猎盛宴",
+            "description": "击杀被标记敌人，所有狸花猫恢复10%生命",
+            "scope": "Tabby",
+            "effects": [
+              { "statType": "Hp", "isPercent": true, "value": 0.1, "gameEffectType": 110 }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "tribeType": 2,
+      "tribeName": "大橘猫族",
+      "tierAuras": [
+        {
+          "tier": 1,
+          "unitName": "吃瓜小猫",
+          "selectionRule": "pick2of4",
+          "options": [
+            {
+              "auraId": "orange_t1_double_axe",
+              "auraName": "双斧",
+              "description": "攻击速度+30%",
+              "scope": "Orange | T1 | Soldier",
+              "effects": [
+                { "statType": "AttackSpeed", "isPercent": true, "value": 1.0, "gameEffectType": 200 }
+              ]
+            },
+            {
+              "auraId": "orange_t1_chicken_leg",
+              "auraName": "鸡腿",
+              "description": "攻击附带5%生命窃取",
+              "scope": "Orange | T1 | Soldier",
+              "effects": [
+                { "statType": "Hp", "isPercent": true, "value": 0.05, "gameEffectType": 201 }
+              ]
+            },
+            {
+              "auraId": "orange_t1_berserker",
+              "auraName": "狂战士",
+              "description": "生命低于30%时，攻击力+50%",
+              "scope": "Orange | T1 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": true, "value": 0.5, "gameEffectType": 202 }
+              ]
+            },
+            {
+              "auraId": "orange_t1_charge",
+              "auraName": "冲锋",
+              "description": "开场5秒内移动速度+100%，首次攻击晕眩敌人1秒",
+              "scope": "Orange | T1 | Soldier",
+              "effects": [
+                { "statType": "MoveSpeed", "isPercent": true, "value": 1.0, "gameEffectType": 203 }
+              ]
+            }
+          ]
+        },
+        {
+          "tier": 2,
+          "unitName": "蝇群",
+          "fixedAura": {
+            "auraId": "orange_t2_swarm",
+            "auraName": "集群",
+            "description": "每只蝇为周围友军提供+2%攻击速度",
+            "scope": "Orange | T2 | Soldier",
+            "effects": [
+              { "statType": "AttackSpeed", "isPercent": true, "value": 0.02, "gameEffectType": 204 }
+            ]
+          },
+          "selectionRule": "pick1of2",
+          "options": [
+            {
+              "auraId": "orange_t2_enhanced_explode",
+              "auraName": "强化自爆",
+              "description": "自爆伤害+50%，范围+30%",
+              "scope": "Orange | T2 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": true, "value": 0.5, "gameEffectType": 205 }
+              ]
+            },
+            {
+              "auraId": "orange_t2_poison_fly",
+              "auraName": "剧毒蝇",
+              "description": "蝇群攻击附加1层毒（每秒3点，6秒）",
+              "scope": "Orange | T2 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": false, "value": 0, "gameEffectType": 206 }
+              ]
+            }
+          ]
+        },
+        {
+          "tier": 3,
+          "unitName": "战神",
+          "selectionRule": "pick1of2",
+          "options": [
+            {
+              "auraId": "orange_t3_god_of_war",
+              "auraName": "战神之怒",
+              "description": "每次击杀永久攻击力+2（本场）",
+              "scope": "Orange | T3 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": false, "value": 2, "gameEffectType": -1 }
+              ]
+            },
+            {
+              "auraId": "orange_t3_whirlwind",
+              "auraName": "旋风斩强化",
+              "description": "旋风斩范围+30%，伤害+20%",
+              "scope": "Orange | T3 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": true, "value": 0.2, "gameEffectType": -1 }
+              ]
+            }
+          ]
+        }
+      ],
+      "generalAuras": {
+        "selectionRule": "pick1of4",
+        "options": [
+          {
+            "auraId": "orange_gen_big_appetite",
+            "auraName": "胃口大开",
+            "description": "每次进食额外获得1层饱食",
+            "scope": "Orange | Leader",
+            "effects": [
+              { "statType": "Hp", "isPercent": true, "value": 0.02, "gameEffectType": 207 }
+            ]
+          },
+          {
+            "auraId": "orange_gen_fine_brew",
+            "auraName": "精酿",
+            "description": "酒雾的易伤效果提升至+75%",
+            "scope": "Orange",
+            "effects": [
+              { "statType": "Attack", "isPercent": true, "value": 0.25, "gameEffectType": 208 }
+            ]
+          },
+          {
+            "auraId": "orange_gen_warrior_will",
+            "auraName": "战神意志",
+            "description": "战神降临冷却-20秒，持续时间+5秒",
+            "scope": "Orange",
+            "effects": [
+              { "statType": "AttackSpeed", "isPercent": false, "value": 0, "gameEffectType": 209 }
+            ]
+          },
+          {
+            "auraId": "orange_gen_burning_fight",
+            "auraName": "燃烧斗志",
+            "description": "每层饱食增加2%火焰伤害",
+            "scope": "Orange",
+            "effects": [
+              { "statType": "Attack", "isPercent": true, "value": 0.02, "gameEffectType": 210 }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "tribeType": 3,
+      "tribeName": "奶牛猫族",
+      "tierAuras": [
+        {
+          "tier": 1,
+          "unitName": "侍僧",
+          "selectionRule": "pick2of4",
+          "options": [
+            {
+              "auraId": "cow_t1_poison_claw",
+              "auraName": "淬毒之爪",
+              "description": "侍僧攻击附加1层毒（每秒3点，6秒）",
+              "scope": "Cow | T1 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": false, "value": 0, "gameEffectType": 300 }
+              ]
+            },
+            {
+              "auraId": "cow_t1_deadly_feast",
+              "auraName": "亡者供养",
+              "description": "侍僧死亡时产生2具尸体",
+              "scope": "Cow | T1 | Soldier",
+              "effects": [
+                { "statType": "Hp", "isPercent": false, "value": 0, "gameEffectType": 301 }
+              ]
+            },
+            {
+              "auraId": "cow_t1_bone_growth",
+              "auraName": "骨质增生",
+              "description": "侍僧生命值+10，护甲+2",
+              "scope": "Cow | T1 | Soldier",
+              "effects": [
+                { "statType": "Hp", "isPercent": false, "value": 10, "gameEffectType": -1 },
+                { "statType": "Defense", "isPercent": false, "value": 2, "gameEffectType": -1 }
+              ]
+            },
+            {
+              "auraId": "cow_t1_soul_link",
+              "auraName": "灵魂连接",
+              "description": "侍僧受到的30%伤害转移给族长",
+              "scope": "Cow | T1 | Soldier",
+              "effects": [
+                { "statType": "Hp", "isPercent": true, "value": 0.3, "gameEffectType": 302 }
+              ]
+            }
+          ]
+        },
+        {
+          "tier": 2,
+          "unitName": "绞肉机",
+          "fixedAura": {
+            "auraId": "cow_t2_meat_mill",
+            "auraName": "血肉磨坊",
+            "description": "绞肉机每存储一具尸体，周围友军攻击速度+1%",
+            "scope": "Cow | T2 | Soldier",
+            "effects": [
+              { "statType": "AttackSpeed", "isPercent": true, "value": 0.01, "gameEffectType": 303 }
+            ]
+          },
+          "selectionRule": "pick1of2",
+          "options": [
+            {
+              "auraId": "cow_t2_efficient_corpse",
+              "auraName": "高效分尸",
+              "description": "分尸效果提升至'算作3具'",
+              "scope": "Cow | T2 | Soldier",
+              "effects": [
+                { "statType": "Hp", "isPercent": false, "value": 0, "gameEffectType": 304 }
+              ]
+            },
+            {
+              "auraId": "cow_t2_corpse_explode",
+              "auraName": "尸爆",
+              "description": "绞肉机死亡时，引爆所有储存的尸体，每具对周围造成10点法术伤害",
+              "scope": "Cow | T2 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": false, "value": 10, "gameEffectType": 305 }
+              ]
+            }
+          ]
+        }
+      ],
+      "generalAuras": {
+        "selectionRule": "pick1of4",
+        "options": [
+          {
+            "auraId": "cow_gen_undead_commander",
+            "auraName": "亡灵统帅",
+            "description": "族长每拥有10点攻击力，所有友军攻速+5%",
+            "scope": "Cow",
+            "effects": [
+              { "statType": "AttackSpeed", "isPercent": true, "value": 0.05, "gameEffectType": 306 }
+            ]
+          },
+          {
+            "auraId": "cow_gen_bone_wall_enhance",
+            "auraName": "骨墙强化",
+            "description": "骨墙生命值+50，且受到攻击时反弹5点物理伤害",
+            "scope": "Cow",
+            "effects": [
+              { "statType": "Hp", "isPercent": false, "value": 50, "gameEffectType": 307 }
+            ]
+          },
+          {
+            "auraId": "cow_gen_resurrect_mastery",
+            "auraName": "转生精通",
+            "description": "转生仪式复活的单位属性提升至75%",
+            "scope": "Cow",
+            "effects": [
+              { "statType": "Hp", "isPercent": true, "value": 0.25, "gameEffectType": 308 }
+            ]
+          },
+          {
+            "auraId": "cow_gen_plaguebearer",
+            "auraName": "瘟疫使者",
+            "description": "所有毒伤害+50%，毒层数上限+5",
+            "scope": "Cow",
+            "effects": [
+              { "statType": "Attack", "isPercent": true, "value": 0.5, "gameEffectType": 309 }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "tribeType": 4,
+      "tribeName": "暹罗猫族",
+      "tierAuras": [
+        {
+          "tier": 1,
+          "unitName": "灵能学徒",
+          "selectionRule": "pick2of4",
+          "options": [
+            {
+              "auraId": "siamese_t1_spell_burst",
+              "auraName": "法术迸发",
+              "description": "普攻变为小范围溅射（50%伤害）",
+              "scope": "Siamese | T1 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": true, "value": 0.5, "gameEffectType": 400 }
+              ]
+            },
+            {
+              "auraId": "siamese_t1_ice_tentacle",
+              "auraName": "寒冰触须",
+              "description": "普攻附加1层冰霜减速（移速-20%，可叠3层）",
+              "scope": "Siamese | T1 | Soldier",
+              "effects": [
+                { "statType": "MoveSpeed", "isPercent": true, "value": -0.2, "gameEffectType": 401 }
+              ]
+            },
+            {
+              "auraId": "siamese_t1_mana_shield",
+              "auraName": "法力护盾",
+              "description": "受到伤害时消耗法力抵消（每点法力抵2伤害）",
+              "scope": "Siamese | T1 | Soldier",
+              "effects": [
+                { "statType": "Hp", "isPercent": false, "value": 0, "gameEffectType": 402 }
+              ]
+            },
+            {
+              "auraId": "siamese_t1_elemental_affinity",
+              "auraName": "元素亲和",
+              "description": "每次施法回复2点法力",
+              "scope": "Siamese | T1 | Soldier",
+              "effects": [
+                { "statType": "Hp", "isPercent": false, "value": 2, "gameEffectType": 403 }
+              ]
+            }
+          ]
+        },
+        {
+          "tier": 2,
+          "unitName": "龙裔术士",
+          "fixedAura": {
+            "auraId": "siamese_t2_dragon_blood",
+            "auraName": "龙族血脉",
+            "description": "生命值+10，法术吸血10%",
+            "scope": "Siamese | T2 | Soldier",
+            "effects": [
+              { "statType": "Hp", "isPercent": false, "value": 10, "gameEffectType": -1 },
+              { "statType": "Hp", "isPercent": true, "value": 0.1, "gameEffectType": 404 }
+            ]
+          },
+          "selectionRule": "pick1of2",
+          "options": [
+            {
+              "auraId": "siamese_t2_double_breath",
+              "auraName": "双重吐息",
+              "description": "龙息术可连续喷两次（第二发伤害减半）",
+              "scope": "Siamese | T2 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": true, "value": 0.5, "gameEffectType": 405 }
+              ]
+            },
+            {
+              "auraId": "siamese_t2_frost_nova",
+              "auraName": "冰霜新星",
+              "description": "龙息术改为冰霜，伤害不变但附加冻结1秒",
+              "scope": "Siamese | T2 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": false, "value": 0, "gameEffectType": 406 }
+              ]
+            }
+          ]
+        },
+        {
+          "tier": 3,
+          "unitName": "灵能化身",
+          "selectionRule": "pick1of2",
+          "options": [
+            {
+              "auraId": "siamese_t3_arcane_surge",
+              "auraName": "奥术涌动",
+              "description": "化身期间法术伤害+30%，持续时间+5秒",
+              "scope": "Siamese | T3 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": true, "value": 0.3, "gameEffectType": -1 }
+              ]
+            },
+            {
+              "auraId": "siamese_t3_spell_echo",
+              "auraName": "法术回响",
+              "description": "友方法术伤害光环从+20%提升至+30%",
+              "scope": "Siamese | T3 | Soldier",
+              "effects": [
+                { "statType": "Attack", "isPercent": true, "value": 0.1, "gameEffectType": -1 }
+              ]
+            }
+          ]
+        }
+      ],
+      "generalAuras": {
+        "selectionRule": "pick1of4",
+        "options": [
+          {
+            "auraId": "siamese_gen_dragon_mastery",
+            "auraName": "龙语精通",
+            "description": "充能上限+5，每层效果+3%",
+            "scope": "Siamese",
+            "effects": [
+              { "statType": "Attack", "isPercent": true, "value": 0.03, "gameEffectType": 407 }
+            ]
+          },
+          {
+            "auraId": "siamese_gen_void_resonance",
+            "auraName": "虚空共鸣",
+            "description": "相位转移对敌人使用时，结束时造成30法伤",
+            "scope": "Siamese",
+            "effects": [
+              { "statType": "Attack", "isPercent": false, "value": 30, "gameEffectType": 408 }
+            ]
+          },
+          {
+            "auraId": "siamese_gen_storm_eye",
+            "auraName": "风暴之眼",
+            "description": "烈焰风暴范围+30%，燃烧时间+4秒",
+            "scope": "Siamese",
+            "effects": [
+              { "statType": "Attack", "isPercent": true, "value": 0.3, "gameEffectType": 409 }
+            ]
+          },
+          {
+            "auraId": "siamese_gen_overload",
+            "auraName": "灵能过载",
+            "description": "满充能时，下一次法术双倍伤害，然后清零",
+            "scope": "Siamese",
+            "effects": [
+              { "statType": "Attack", "isPercent": true, "value": 1.0, "gameEffectType": 410 }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

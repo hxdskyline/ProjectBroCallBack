@@ -1,0 +1,72 @@
+{
+  "effects": {
+    "poison": {
+      "displayName": "毒",
+      "maxStacks": 5,
+      "tickInterval": 1.0,
+      "defaultDuration": 6.0,
+      "defaultDps": 3.0,
+      "description": "每秒受到 {dps} 点伤害，持续 {duration} 秒，可叠加 {maxStacks} 层"
+    },
+    "bleed": {
+      "displayName": "流血",
+      "maxStacks": 3,
+      "tickInterval": 1.0,
+      "defaultDuration": 4.0,
+      "defaultDps": 5.0,
+      "description": "每秒受到 {dps} 点伤害，持续 {duration} 秒，可叠加 {maxStacks} 层"
+    },
+    "burn": {
+      "displayName": "燃烧",
+      "maxStacks": 3,
+      "tickInterval": 1.0,
+      "defaultDuration": 4.0,
+      "defaultDps": 5.0,
+      "description": "每秒受到 {dps} 点伤害，持续 {duration} 秒，可叠加 {maxStacks} 层"
+    },
+    "freeze": {
+      "displayName": "冻结",
+      "maxStacks": 1,
+      "defaultDuration": 3.0,
+      "description": "无法移动和攻击，持续 {duration} 秒"
+    },
+    "slow": {
+      "displayName": "减速",
+      "maxStacks": 3,
+      "additive": true,
+      "defaultDuration": 4.0,
+      "defaultReduction": 0.2,
+      "maxReduction": 0.9,
+      "description": "移动速度降低 {reduction}%，持续 {duration} 秒，可叠加 {maxStacks} 层"
+    },
+    "hunt_mark": {
+      "displayName": "狩猎印记",
+      "maxStacks": 1,
+      "defaultDuration": 5.0,
+      "defaultDamageBonus": 0.3,
+      "description": "受到的伤害增加 {bonus}%，持续 {duration} 秒"
+    },
+    "fullness_stack": {
+      "displayName": "饱食",
+      "maxStacks": 999,
+      "permanent": true,
+      "hpPerStack": 2,
+      "atkPerStack": 1,
+      "description": "每层增加 {hp} 生命和 {atk} 攻击力（本场战斗）"
+    },
+    "dragon_charge": {
+      "displayName": "龙语充能",
+      "maxStacks": 10,
+      "permanent": true,
+      "spellDamagePercentPerStack": 2,
+      "description": "每层增加 {percent}% 法术伤害和施法速度（本场战斗）"
+    },
+    "hunter_focus": {
+      "displayName": "猎手专注",
+      "maxStacks": 999,
+      "permanent": true,
+      "markedDamagePercentPerStack": 5,
+      "description": "每层增加 {percent}% 对标记目标的伤害（本场战斗）"
+    }
+  }
+}

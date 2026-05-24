@@ -1,0 +1,113 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: data
+  m_EditorClassIdentifier: 
+  m_GroupName: data
+  m_Data:
+    m_SerializedData: []
+  m_GUID: e696d05551cb30542b25aa5cf6e32377
+  m_SerializeEntries:
+  - m_GUID: 31d080bbf47946a99e67db72dd8e9f0d
+    m_Address: data/avatar/definitions/xianluo_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 45e4aaf657fb48989606cbaf73984ba5
+    m_Address: data/avatar/definitions/jituiyongshi_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 47ac81f44b87fd74b87a7df731ce985f
+    m_Address: data/avatar/definitions/hero_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 532e0f0caaab407cbfc1d486c95ce592
+    m_Address: data/avatar/definitions/lingnengxuetu_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 70bc8fb24c634754a2cf9474b1606a5c
+    m_Address: data/avatar/definitions/cangying_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8796dcde6b2c46c1ad1dc3886e9609ea
+    m_Address: data/avatar/definitions/maoqishi_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8f7d6efb6d4a4a90a0d65f62c2b0e4e1
+    m_Address: data/avatar/definitions/daju_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9c42c0fde5bc4ac7be935559fab3b7f0
+    m_Address: data/avatar/definitions/longyishushi_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a3b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2
+    m_Address: data/avatar/definitions/jiaorouche_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: aa96527464494264882972de01326c10
+    m_Address: data/avatar/definitions/lihua_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b359296d1f484e3c9a7a4029ae14994b
+    m_Address: data/avatar/definitions/panglaoshu_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b376febd7a8e9884395b17ee63085149
+    m_Address: data/avatar/definitions/enemy_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b4c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3
+    m_Address: data/avatar/definitions/nainiuleader_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: be5ddf8e315845728ff31964add37385
+    m_Address: data/avatar/definitions/maomao_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: befb7a359daa4220bfe785826a5d94ed
+    m_Address: data/avatar/definitions/dajuleader_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c5b7082f42154cf7bfb90efcc37f7cd1
+    m_Address: data/avatar/definitions/laoshu_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ccace67db2f4406984b06885d88be62d
+    m_Address: data/avatar/definitions/youxia_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f90ff5971dbf4393850376119d241d4b
+    m_Address: data/avatar/definitions/nainiu_avataranimdef
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: b0cb04daf1b1e23438d53f0230c0832a, type: 2}
+  m_SchemaSet:
+    m_Schemas: []

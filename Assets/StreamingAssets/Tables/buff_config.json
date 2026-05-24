@@ -1,0 +1,1682 @@
+{
+  "buffs": [
+    {
+      "buffId": 300,
+      "buffName": "饕餮",
+      "description": "击杀回血10%最大生命",
+      "gameEffectType": 300,
+      "effectParam1": 0.1,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0
+    },
+    {
+      "buffId": 301,
+      "buffName": "牧群领袖",
+      "description": "每个友方单位+1攻击",
+      "gameEffectType": 301,
+      "effectParam1": 1.0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0
+    },
+    {
+      "buffId": 302,
+      "buffName": "狩猎印记",
+      "description": "攻击标记目标，被标记目标受伤+30%",
+      "gameEffectType": 302,
+      "effectParam1": 0.3,
+      "effectParam2": 5.0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0
+    },
+    {
+      "buffId": 303,
+      "buffName": "龙语回响",
+      "description": "施法时对随机敌人造成10点火伤",
+      "gameEffectType": 303,
+      "effectParam1": 10.0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0
+    },
+    {
+      "buffId": 401,
+      "buffName": "影遁",
+      "description": "移动速度+30%",
+      "gameEffectType": 202,
+      "effectParam1": 0.3,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0
+    },
+    {
+      "buffId": 402,
+      "buffName": "狩猎本能",
+      "description": "攻击时30%概率标记目标",
+      "gameEffectType": 302,
+      "effectParam1": 0.3,
+      "effectParam2": 5.0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0
+    },
+    {
+      "buffId": 403,
+      "buffName": "召唤猎豹",
+      "description": "击杀时召唤一只猎豹协助战斗",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0
+    },
+    {
+      "buffId": 404,
+      "buffName": "蜂群飞舞",
+      "description": "移动速度+50%，攻击速度+20%",
+      "gameEffectType": 202,
+      "effectParam1": 0.5,
+      "effectParam2": 0.2,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0
+    },
+    {
+      "buffId": 405,
+      "buffName": "熔炉之怒",
+      "description": "攻击时对周围敌人造成范围伤害",
+      "gameEffectType": 0,
+      "effectParam1": 5.0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0
+    },
+    {
+      "buffId": 406,
+      "buffName": "绞肉机",
+      "description": "击杀回复5%最大生命",
+      "gameEffectType": 300,
+      "effectParam1": 0.05,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0
+    },
+    {
+      "buffId": 407,
+      "buffName": "专注",
+      "description": "攻击速度+30%",
+      "gameEffectType": 202,
+      "effectParam1": 0.3,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0
+    },
+    {
+      "buffId": 408,
+      "buffName": "法术光环",
+      "description": "每3秒对随机敌人造成5点伤害",
+      "gameEffectType": 303,
+      "effectParam1": 5.0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0
+    },
+    {
+      "buffId": 409,
+      "buffName": "灵能化身",
+      "description": "减伤20%",
+      "gameEffectType": 201,
+      "effectParam1": 0.2,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0
+    },
+    {
+      "buffId": 500,
+      "buffName": "力量强化",
+      "description": "攻击力+5",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 5
+        }
+      ]
+    },
+    {
+      "buffId": 501,
+      "buffName": "生命强化",
+      "description": "生命+10",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 10
+        }
+      ]
+    },
+    {
+      "buffId": 600,
+      "buffName": "生命涌流",
+      "description": "生命+25",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 25
+        }
+      ]
+    },
+    {
+      "buffId": 700,
+      "buffName": "战斗本能",
+      "description": "攻击力+3",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 3
+        }
+      ]
+    },
+    {
+      "buffId": 701,
+      "buffName": "生命之力",
+      "description": "生命+8",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 8
+        }
+      ]
+    },
+    {
+      "buffId": 502,
+      "buffName": "精准射击",
+      "description": "攻击力+6",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 6
+        }
+      ]
+    },
+    {
+      "buffId": 702,
+      "buffName": "狸花精准",
+      "description": "攻击力+4",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 4
+        }
+      ]
+    },
+    {
+      "buffId": 703,
+      "buffName": "顽强生命",
+      "description": "生命+12",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 12
+        }
+      ]
+    },
+    {
+      "buffId": 503,
+      "buffName": "穿甲箭",
+      "description": "攻击力+5",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 5
+        }
+      ]
+    },
+    {
+      "buffId": 504,
+      "buffName": "猎鹰之眼",
+      "description": "生命+8",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 8
+        }
+      ]
+    },
+    {
+      "buffId": 601,
+      "buffName": "猎鹰之心",
+      "description": "生命+18，攻击力+5",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 18
+        },
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 5
+        }
+      ]
+    },
+    {
+      "buffId": 704,
+      "buffName": "矛术精通",
+      "description": "攻击力+3",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 3
+        }
+      ]
+    },
+    {
+      "buffId": 705,
+      "buffName": "猫之韧性",
+      "description": "生命+6",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 6
+        }
+      ]
+    },
+    {
+      "buffId": 505,
+      "buffName": "暗影突袭",
+      "description": "攻击力+6",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 6
+        }
+      ]
+    },
+    {
+      "buffId": 706,
+      "buffName": "匕首精通",
+      "description": "攻击力+4",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 4
+        }
+      ]
+    },
+    {
+      "buffId": 506,
+      "buffName": "致命瞄准",
+      "description": "攻击力+4",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 4
+        }
+      ]
+    },
+    {
+      "buffId": 707,
+      "buffName": "精准射击",
+      "description": "攻击力+3",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 3
+        }
+      ]
+    },
+    {
+      "buffId": 507,
+      "buffName": "嗜血",
+      "description": "攻击力+8",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 8
+        }
+      ]
+    },
+    {
+      "buffId": 508,
+      "buffName": "厚甲",
+      "description": "生命+20",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 20
+        }
+      ]
+    },
+    {
+      "buffId": 602,
+      "buffName": "嗜血狂怒",
+      "description": "攻击力+15，攻击窃取5%生命",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 15
+        }
+      ]
+    },
+    {
+      "buffId": 708,
+      "buffName": "胃口大开",
+      "description": "攻击力+5",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 5
+        }
+      ]
+    },
+    {
+      "buffId": 709,
+      "buffName": "厚实皮毛",
+      "description": "生命+15",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 15
+        }
+      ]
+    },
+    {
+      "buffId": 509,
+      "buffName": "鸡腿猛击",
+      "description": "攻击力+7",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 7
+        }
+      ]
+    },
+    {
+      "buffId": 510,
+      "buffName": "厚皮",
+      "description": "生命+15",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 15
+        }
+      ]
+    },
+    {
+      "buffId": 710,
+      "buffName": "猛击",
+      "description": "攻击力+4",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 4
+        }
+      ]
+    },
+    {
+      "buffId": 711,
+      "buffName": "厚血",
+      "description": "生命+10",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 10
+        }
+      ]
+    },
+    {
+      "buffId": 511,
+      "buffName": "蝇群噬咬",
+      "description": "攻击力+4",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 4
+        }
+      ]
+    },
+    {
+      "buffId": 512,
+      "buffName": "虫壳",
+      "description": "生命+6",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 6
+        }
+      ]
+    },
+    {
+      "buffId": 712,
+      "buffName": "叮咬",
+      "description": "攻击力+3",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 3
+        }
+      ]
+    },
+    {
+      "buffId": 713,
+      "buffName": "虫甲",
+      "description": "生命+4",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 4
+        }
+      ]
+    },
+    {
+      "buffId": 513,
+      "buffName": "灼热之体",
+      "description": "生命+15",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 15
+        }
+      ]
+    },
+    {
+      "buffId": 514,
+      "buffName": "火焰吐息",
+      "description": "攻击力+5",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 5
+        }
+      ]
+    },
+    {
+      "buffId": 714,
+      "buffName": "熔岩体",
+      "description": "生命+8",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 8
+        }
+      ]
+    },
+    {
+      "buffId": 715,
+      "buffName": "火焰之力",
+      "description": "攻击力+3",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 3
+        }
+      ]
+    },
+    {
+      "buffId": 515,
+      "buffName": "骨刺强化",
+      "description": "攻击力+10",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 10
+        }
+      ]
+    },
+    {
+      "buffId": 516,
+      "buffName": "白骨之握",
+      "description": "生命+18",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 18
+        }
+      ]
+    },
+    {
+      "buffId": 716,
+      "buffName": "亡灵之力",
+      "description": "攻击力+6",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 6
+        }
+      ]
+    },
+    {
+      "buffId": 717,
+      "buffName": "亡者之路",
+      "description": "生命+15",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 15
+        }
+      ]
+    },
+    {
+      "buffId": 517,
+      "buffName": "侍僧之力",
+      "description": "攻击力+5",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 5
+        }
+      ]
+    },
+    {
+      "buffId": 518,
+      "buffName": "亡者之握",
+      "description": "生命+12",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 12
+        }
+      ]
+    },
+    {
+      "buffId": 718,
+      "buffName": "骸骨之刃",
+      "description": "攻击力+3",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 3
+        }
+      ]
+    },
+    {
+      "buffId": 719,
+      "buffName": "骸骨之体",
+      "description": "生命+8",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 8
+        }
+      ]
+    },
+    {
+      "buffId": 519,
+      "buffName": "绞杀",
+      "description": "攻击力+6",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 6
+        }
+      ]
+    },
+    {
+      "buffId": 520,
+      "buffName": "血肉护甲",
+      "description": "生命+20",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 20
+        }
+      ]
+    },
+    {
+      "buffId": 720,
+      "buffName": "绞杀之力",
+      "description": "攻击力+4",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 4
+        }
+      ]
+    },
+    {
+      "buffId": 721,
+      "buffName": "血肉之体",
+      "description": "生命+10",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 10
+        }
+      ]
+    },
+    {
+      "buffId": 521,
+      "buffName": "寒冰之触",
+      "description": "攻击力+7",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 7
+        }
+      ]
+    },
+    {
+      "buffId": 522,
+      "buffName": "冰霜之心",
+      "description": "生命+15",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 15
+        }
+      ]
+    },
+    {
+      "buffId": 722,
+      "buffName": "冰霜血脉",
+      "description": "攻击力+5",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 5
+        }
+      ]
+    },
+    {
+      "buffId": 723,
+      "buffName": "冰晶",
+      "description": "生命+12",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 12
+        }
+      ]
+    },
+    {
+      "buffId": 523,
+      "buffName": "灵能冲击",
+      "description": "攻击力+5",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 5
+        }
+      ]
+    },
+    {
+      "buffId": 524,
+      "buffName": "灵能之体",
+      "description": "生命+8",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 8
+        }
+      ]
+    },
+    {
+      "buffId": 724,
+      "buffName": "灵能之刃",
+      "description": "攻击力+3",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 3
+        }
+      ]
+    },
+    {
+      "buffId": 725,
+      "buffName": "灵能之体",
+      "description": "生命+6",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 6
+        }
+      ]
+    },
+    {
+      "buffId": 525,
+      "buffName": "龙息",
+      "description": "攻击力+4",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 4
+        }
+      ]
+    },
+    {
+      "buffId": 526,
+      "buffName": "龙之血脉",
+      "description": "生命+6",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 6
+        }
+      ]
+    },
+    {
+      "buffId": 726,
+      "buffName": "龙之吐息",
+      "description": "攻击力+3",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 3
+        }
+      ]
+    },
+    {
+      "buffId": 727,
+      "buffName": "龙之血脉",
+      "description": "生命+5",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 5
+        }
+      ]
+    },
+    {
+      "buffId": 527,
+      "buffName": "灵能化身",
+      "description": "攻击力+6",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 6
+        }
+      ]
+    },
+    {
+      "buffId": 528,
+      "buffName": "灵能之体",
+      "description": "生命+8",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 8
+        }
+      ]
+    },
+    {
+      "buffId": 728,
+      "buffName": "灵能之刃",
+      "description": "攻击力+4",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 4
+        }
+      ]
+    },
+    {
+      "buffId": 729,
+      "buffName": "灵能之体",
+      "description": "生命+6",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 6
+        }
+      ]
+    },
+    {
+      "buffId": 730,
+      "buffName": "精准猎手",
+      "description": "攻击力+12",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 12
+        }
+      ]
+    },
+    {
+      "buffId": 731,
+      "buffName": "暗影连击",
+      "description": "攻击力+12",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 12
+        }
+      ]
+    },
+    {
+      "buffId": 732,
+      "buffName": "致命猎杀",
+      "description": "攻击力+8",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 8
+        }
+      ]
+    },
+    {
+      "buffId": 733,
+      "buffName": "猛击风暴",
+      "description": "攻击力+14",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 14
+        }
+      ]
+    },
+    {
+      "buffId": 734,
+      "buffName": "铁皮",
+      "description": "生命+30",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 30
+        }
+      ]
+    },
+    {
+      "buffId": 735,
+      "buffName": "蝇群狂潮",
+      "description": "攻击力+8",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 8
+        }
+      ]
+    },
+    {
+      "buffId": 736,
+      "buffName": "虫壳硬化",
+      "description": "生命+12",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 12
+        }
+      ]
+    },
+    {
+      "buffId": 737,
+      "buffName": "烈焰之体",
+      "description": "生命+30",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 30
+        }
+      ]
+    },
+    {
+      "buffId": 738,
+      "buffName": "火焰风暴",
+      "description": "攻击力+10",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 10
+        }
+      ]
+    },
+    {
+      "buffId": 739,
+      "buffName": "骨刺风暴",
+      "description": "攻击力+20",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 20
+        }
+      ]
+    },
+    {
+      "buffId": 740,
+      "buffName": "白骨之墙",
+      "description": "生命+36",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 36
+        }
+      ]
+    },
+    {
+      "buffId": 741,
+      "buffName": "侍僧狂怒",
+      "description": "攻击力+10",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 10
+        }
+      ]
+    },
+    {
+      "buffId": 742,
+      "buffName": "亡者之墙",
+      "description": "生命+24",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 24
+        }
+      ]
+    },
+    {
+      "buffId": 743,
+      "buffName": "绞杀风暴",
+      "description": "攻击力+12",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 12
+        }
+      ]
+    },
+    {
+      "buffId": 744,
+      "buffName": "血肉之墙",
+      "description": "生命+40",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 40
+        }
+      ]
+    },
+    {
+      "buffId": 745,
+      "buffName": "冰霜风暴",
+      "description": "攻击力+14",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 14
+        }
+      ]
+    },
+    {
+      "buffId": 746,
+      "buffName": "冰封之心",
+      "description": "生命+30",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 30
+        }
+      ]
+    },
+    {
+      "buffId": 747,
+      "buffName": "灵能风暴",
+      "description": "攻击力+10",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 10
+        }
+      ]
+    },
+    {
+      "buffId": 748,
+      "buffName": "灵能护盾",
+      "description": "生命+16",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 16
+        }
+      ]
+    },
+    {
+      "buffId": 749,
+      "buffName": "龙息风暴",
+      "description": "攻击力+8",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 8
+        }
+      ]
+    },
+    {
+      "buffId": 750,
+      "buffName": "龙鳞护体",
+      "description": "生命+12",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 12
+        }
+      ]
+    },
+    {
+      "buffId": 751,
+      "buffName": "灵能爆发",
+      "description": "攻击力+12",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Attack",
+          "isPercent": false,
+          "value": 12
+        }
+      ]
+    },
+    {
+      "buffId": 752,
+      "buffName": "灵能壁垒",
+      "description": "生命+16",
+      "gameEffectType": 0,
+      "effectParam1": 0,
+      "effectParam2": 0,
+      "duration": -1,
+      "visible": true,
+      "iconColorIndex": 0,
+      "buffEffects": [
+        {
+          "statType": "Hp",
+          "isPercent": false,
+          "value": 16
+        }
+      ]
+    }
+  ]
+}

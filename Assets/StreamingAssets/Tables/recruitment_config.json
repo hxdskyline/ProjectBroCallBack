@@ -1,0 +1,22 @@
+{
+  "options": {
+    "newTribe": {
+      "cost": 0,
+      "description": "获得一个新的族群"
+    },
+    "addCats": {
+      "cost": 0,
+      "description": "为已有族群增加小猫"
+    },
+    "qualityEvolution": {
+      "cost": 0,
+      "description": "已有族群小猫品质进化",
+      "evolutionChance": 0.5
+    },
+    "leaderBoost": {
+      "cost": 0,
+      "description": "已有族群族长属性提升",
+      "boostPercent": 0.2
+    }
+  }
+}

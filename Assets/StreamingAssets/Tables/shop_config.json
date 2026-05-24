@@ -1,0 +1,53 @@
+{
+  "baseRefreshCost": 50,
+  "refreshIncrement": 50,
+  "slotCount": 4,
+  "shopInterval": 5,
+  "startRound": 5,
+  "items": {
+    "artifact": {
+      "basePrice": 500,
+      "icons": {
+        "LeaderHpFlat": "ui/sprite/itemicon/5",
+        "CatAttackFlat": "ui/sprite/itemicon/8"
+      }
+    },
+    "artifactEffects": {
+      "LeaderHpFlat": 500,
+      "CatAttackFlat": 20
+    },
+    "consumable": {
+      "basePriceMin": 50,
+      "basePriceMax": 100,
+      "icons": {
+        "Bomb": "ui/sprite/itemicon/2",
+        "FreezeTrap": "ui/sprite/itemicon/3",
+        "HealPotion": "ui/sprite/itemicon/10",
+        "AttackBuff": "ui/sprite/itemicon/8",
+        "DefenseBuff": "ui/sprite/itemicon/1"
+      }
+    },
+    "cat": {
+      "basePrices": {
+        "1": 100,
+        "2": 100,
+        "3": 100,
+        "4": 100
+      },
+      "qualityBonusMultipliers": {
+        "0": 1.0,
+        "1": 1.3,
+        "2": 1.6,
+        "3": 2.0
+      },
+      "priceVariation": 0.5,
+      "sellRatio": 0.5,
+      "tribeIcons": {
+        "1": ["ui/sprite/itemicon/lihua1", "ui/sprite/itemicon/lihua2"],
+        "2": ["ui/sprite/itemicon/daju1", "ui/sprite/itemicon/daju2"],
+        "3": ["ui/sprite/itemicon/nainiu1", "ui/sprite/itemicon/nainiu2"],
+        "4": ["ui/sprite/itemicon/xianluo1", "ui/sprite/itemicon/xianluo2"]
+      }
+    }
+  }
+}

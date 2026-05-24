@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ae7c7f810433614b86aebeaee55ec11, type: 3}
+  m_Name: Nainiuleader_AvatarAnimDef
+  m_EditorClassIdentifier:
+  _avatarId: nainiuleader
+  _actions:
+  - _actionType: 0
+    _frameAddresses:
+    - avatartemp/nainiuleader1
+    _fps: 10
+    _loop: 1
+  - _actionType: 1
+    _frameAddresses:
+    - avatartemp/nainiuleader1
+    _fps: 10
+    _loop: 1
+  - _actionType: 2
+    _frameAddresses:
+    - avatartemp/nainiuleader2
+    _fps: 10
+    _loop: 0
+  - _actionType: 5
+    _frameAddresses:
+    - 2deffect/xue
+    _fps: 10
+    _loop: 0

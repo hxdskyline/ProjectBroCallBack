@@ -1,0 +1,433 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: ui
+  m_EditorClassIdentifier: 
+  m_GroupName: ui
+  m_Data:
+    m_SerializedData: []
+  m_GUID: ccfa0a75f2134aa4b8fd880cb727e58a
+  m_SerializeEntries:
+  - m_GUID: 03a58a26e74953148bd90842c36c9583
+    m_Address: ui/sprite/common/common_btn_huanganniu2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 06801bf4404ef8f409850a5ac87114ed
+    m_Address: ui/sprite/buildcard/zhujiemian_img_xialaxuanzhong
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 08ffc96fadba41143a56c6171d95f06d
+    m_Address: ui/sprite/itemicon/7
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0bcb6fe55a987a64ba012b6b728a300b
+    m_Address: "ui/sprite/addcat/\u6807\u6CE8_z-\u62DB\u52DF2"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1320e894e2fc6604d8815e6b84f34a53
+    m_Address: ui/sprite/itemicon/1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1713609eff12b284083b2bdd81d5d674
+    m_Address: ui/sprite/shop/shangren_btn_shuaxin
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1d6a0f75a004f4540b36886c29ffd4cf
+    m_Address: ui/sprite/addcat/common_img_biaotouqipao
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2579777f33a00d144a303bf9faad4120
+    m_Address: ui/sprite/main/common_btn_guanbi
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3178ae8a0ae7c8440a00ed88df151a08
+    m_Address: ui/sprite/common/common_btn_honganniu2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 33891cc251876704d8502fcba308152e
+    m_Address: ui/sprite/addcat/zhaomu_img_biaotou
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 36489ba8c02422244adbf7df6a491ef9
+    m_Address: ui/sprite/buildcard/zhujiemian_icon_qiwutujian
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 380b41a702c49bd418edc9071d3b5554
+    m_Address: ui/sprite/common/greenbg
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 396ce67b8d5164a499e18bc13c5afc67
+    m_Address: ui/sprite/buildcard/zhujiemian_img_maoshen
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3f56e1df1edd24442a0fa575c52a2552
+    m_Address: ui/sprite/common/zhujiemian_icon_xue
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4036222cc40635d43b4f1ca72c16361c
+    m_Address: ui/sprite/common/common_btn_houtui
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 42f33049ab4487b4881924fd73857c90
+    m_Address: ui/sprite/itemicon/9
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 450173470ba00df478975b77c3306ee2
+    m_Address: ui/sprite/addcat/common_btn_huanganniu
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 46b11196299e5964cbe0a1195b52d25b
+    m_Address: ui/sprite/buildcard/zhujiemian_img_maoqipao
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 478c1172a06b368439f2442397f3451b
+    m_Address: "ui/sprite/shop/s-\u5546\u4EBA\u754C\u9762"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 48038e613d658c0489034b866e818fe5
+    m_Address: ui/sprite/shop/shangren_btn_tuichu
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4a11b8c1c53b7e049a0e057ce1e606d9
+    m_Address: ui/sprite/itemicon/10
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4c960d6b7af6c89418c6ec8451e6176a
+    m_Address: ui/sprite/shop/shangren_img_duihuakuang
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4e45fd38294b66443aef7a3dcafa5ea3
+    m_Address: ui/sprite/shop/shangren_img_diban
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4f29776b3de97a44798eafaa2e532882
+    m_Address: ui/sprite/buildcard/zhujiemian_img_xinxidizhankai
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 52ababaff98011c4a8f87e7441a77d8c
+    m_Address: "ui/sprite/addcat/z-\u62DB\u52DF1"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 531152540e073694597b96256554f0e8
+    m_Address: ui/sprite/itemicon/xianluo2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5326f61806536ab4da42e8de1ca125f9
+    m_Address: ui/sprite/itemicon/lihua2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 549039affd13c724f89b63d995081d47
+    m_Address: ui/sprite/addcat/common_img_ziyuanshudi
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 54b753f3028e21d40995005019929061
+    m_Address: ui/sprite/itemicon/5
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 57feff7e9f0039d4eba33a45954174d0
+    m_Address: ui/sprite/itemicon/xianluo1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5a270cb8eaa54334f83092d83fb8de81
+    m_Address: "ui/sprite/shop/\u6807\u6CE8_s-\u5546\u4EBA\u754C\u9762"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5c4f459823707ec4a8a93f06bf764712
+    m_Address: "ui/sprite/buildcard/\u6807\u6CE8_z-\u4E3B\u754C\u9762"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5f3e75dad500ffe48ae4d276df48a414
+    m_Address: ui/sprite/itemicon/nainiu2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6b704c702c3d0ff478a22a8d79f88685
+    m_Address: ui/sprite/shop/shangren_img_zhuangshimao
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7082194e3c393eb4a8c278a6dc26ec1b
+    m_Address: ui/sprite/addcat/zhaomu_img_zhuangshimao2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 712597a8a53285346858a84dfba13c4c
+    m_Address: ui/sprite/itemicon/laoshu2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 712b90f94d2199b40b65ed9bcf6aedc6
+    m_Address: ui/sprite/shop/shangren_img_daojvdi1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 74175b2fce6f7c54598bed14d1f4f2a6
+    m_Address: ui/sprite/common/zhujiemian_icon_ming
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 78e06bd67e04ef84d8154ad15954a17b
+    m_Address: ui/sprite/shop/shangren_img_daojvxiangqing
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7a1be8c063bc91d4a9871bc350621fba
+    m_Address: ui/sprite/addcat/common_img_erjicaidan
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7f3c279e50f78ce42883d1eafa3c48af
+    m_Address: ui/sprite/common/zhujiemian_icon_tong
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 87d2a905a090f9f4c82447e692677624
+    m_Address: ui/sprite/itemicon/3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 894e17ce4800edf478ac045e99ec1ed8
+    m_Address: ui/sprite/addcat/zhaomu_img_zhuangshixing1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8b5c94bbc1ac58a4ea1c78e5e0f20368
+    m_Address: ui/sprite/common/zhujiemian_icon_fei
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8c1bae85a121aa6458dfc25b6dbad825
+    m_Address: "ui/sprite/main/\u6807\u6CE8_z-\u4E3B\u754C\u9762"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8e305737b25310f4185885a3b2973d40
+    m_Address: ui/sprite/common/zhujiemian_icon_su
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 94c77bfa09839ca43a50553fb1294783
+    m_Address: ui/sprite/buildcard/zhujiemian_img_shangdianzidi
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 961070c7678767b4d934f4d0c0aad974
+    m_Address: ui/sprite/common/common_btn_yiwang
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 97dd0414261a6aa4a8cb44c1f1580ee2
+    m_Address: ui/sprite/addcat/common_img_jiantou
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a255356c3b8ba89409fca0178eebfd82
+    m_Address: ui/sprite/common/common_img_jindutiaodi3g
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a30b09d2425c28242985c819c04df324
+    m_Address: ui/sprite/common/zhujiemian_icon_gong
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a35fb454192d95f459b752765d7b84f1
+    m_Address: ui/sprite/buildcard/zhujiemian_img_xialacaidan3g
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a41f905d39f19ce449fd2388ea709d0d
+    m_Address: ui/sprite/common/common_btn_honganniu
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a572997d13ca48e4dbef5ce24b92360d
+    m_Address: ui/sprite/itemicon/6
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a72b2f3c9ad76a94a8f9ef90bac6e758
+    m_Address: ui/sprite/addcat/zhaomu_img_sanxuanyikapai1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b2520d94bd1675a4b8e194e73556062f
+    m_Address: ui/sprite/shop/shangren_img_daojvdi2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b8922860b01405d43979f29151e3a300
+    m_Address: ui/sprite/common/zhujiemian_icon_fang
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b95e1c7b43f2d5147b09f56d55cca990
+    m_Address: "ui/sprite/addcat/\u6807\u6CE8_z-\u62DB\u52DF4"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ba910438bd120ad49969856e6d3f4944
+    m_Address: ui/sprite/main/kaishijiemian_bg_beijing
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bb3d63eb3002ff94d9e8b672e0707b60
+    m_Address: ui/sprite/itemicon/2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bb4d5dce7a8590f4abeb6281e19b67a3
+    m_Address: ui/sprite/itemicon/daju2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c39d1030f9386fb4f8097f6caad0143f
+    m_Address: ui/sprite/itemicon/laoshu1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c621841f0eb3acb4e8d0f462ab028928
+    m_Address: ui/sprite/itemicon/nainiu1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c971d35dae9bf5d47b947ecc1068e0d8
+    m_Address: ui/sprite/buildcard/zhujiemian_img_shangdian
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c9ae4ee05daf3b543bf304794b6a01e4
+    m_Address: ui/texture/mainmenubg
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ca6d269c149c84c4baa27f63b37720e0
+    m_Address: ui/sprite/buildcard/zhujiemian_bg_beijing
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d4497b98d7110db489c27e190e8ca35f
+    m_Address: ui/sprite/itemicon/daju1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d5c80fe271c476043a6bedbfecedcfc9
+    m_Address: ui/sprite/addcat/zhaomu_img_zhuangshimao3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d75b47fc523142e4bb11b844d846dff7
+    m_Address: "ui/sprite/addcat/\u6807\u6CE8_z-\u62DB\u52DF1"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d848b6952e600d54791c84ef441ab25c
+    m_Address: "ui/sprite/buildcard/z-\u4E3B\u754C\u9762"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: db9270c2e3fb90e488023d18c5aa0b80
+    m_Address: "ui/sprite/addcat/\u6807\u6CE8_z-\u62DB\u52DF3"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dd405f662b2c9a74db76ed242e87fa73
+    m_Address: ui/sprite/common/common_img_jindutiao
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: de71c652eef3ed64caceaba5d1e35128
+    m_Address: ui/sprite/addcat/common_icon_xiaoyuganhuobi
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e1c441c1caed920449c1bc56dd80cfac
+    m_Address: ui/sprite/itemicon/4
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e31533d010764d6488d1d33b638bfd18
+    m_Address: ui/sprite/buildcard/zhujiemian_img_xinxidishouqi
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e544842433dc19f44bb4dcc3761ff9f9
+    m_Address: ui/sprite/addcat/zhaomu_img_zhuangshixing2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e5885e829077424478b8dc5c363c6f88
+    m_Address: ui/sprite/main/kaishijiemian_bg_logo
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e800269ee798b164895818d9d00ea771
+    m_Address: ui/texture/buildbg
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e87b13021f74d1f43b64d152d23f8c4a
+    m_Address: ui/sprite/itemicon/8
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: efe68baf7675b194b8d60b772f7cdbef
+    m_Address: ui/sprite/itemicon/lihua1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f1561408d179ead49a2eef863535c1a1
+    m_Address: ui/sprite/main/kaishijiemian_btn_xuanzhong
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fa54d21ab1dcc0c4993598ce763ba711
+    m_Address: ui/sprite/addcat/zhaomu_img_zhuangshimao1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: b0cb04daf1b1e23438d53f0230c0832a, type: 2}
+  m_SchemaSet:
+    m_Schemas: []

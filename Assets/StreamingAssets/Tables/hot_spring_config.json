@@ -1,0 +1,6 @@
+{
+  "healPercent": 0.5,
+  "statBoostPercent": 0.5,
+  "healDescription": "回复所有我方单位50%生命值",
+  "boostDescription": "永久提升指定单位全属性50%"
+}

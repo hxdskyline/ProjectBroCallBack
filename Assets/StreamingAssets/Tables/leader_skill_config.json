@@ -1,0 +1,292 @@
+{
+  "skills": [
+    {
+      "skillId": 1001,
+      "skillName": "牧群领袖",
+      "description": "场上每有一个友方单位（含尸体、白骨小猫），族长攻击力 +1",
+      "tribeType": "Cow",
+      "skillType": "Passive",
+      "cooldown": 0,
+      "passiveCheckInterval": 2,
+      "effects": [
+        { "effectType": "AttackBuff", "value": 1, "duration": -1, "target": "Self", "areaRadius": 0 }
+      ]
+    },
+    {
+      "skillId": 1002,
+      "skillName": "白骨复生",
+      "description": "消耗一具尸体，召唤 2 只白骨小猫（2攻/1血，持续 15 秒）",
+      "tribeType": "Cow",
+      "skillType": "Active",
+      "cooldown": 6,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "ConsumeCorpse", "value": 1, "duration": 0, "target": "Self", "areaRadius": 0 },
+        { "effectType": "SummonUnit", "value": 10001, "duration": 15, "target": "Self", "areaRadius": 0 }
+      ]
+    },
+    {
+      "skillId": 1003,
+      "skillName": "毒爆",
+      "description": "消耗一具尸体，召唤一片毒云（算作陷阱）",
+      "tribeType": "Cow",
+      "skillType": "Active",
+      "cooldown": 6,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "ConsumeCorpse", "value": 1, "duration": 0, "target": "Self", "areaRadius": 0 },
+        { "effectType": "ApplyPoison", "value": 5, "duration": 6, "target": "Area", "areaRadius": 3 }
+      ]
+    },
+    {
+      "skillId": 1004,
+      "skillName": "骨牢",
+      "description": "用骨牢困住一个满血的敌人。自身hp降低至30%时，用骨牢困住自己",
+      "tribeType": "Cow",
+      "skillType": "Active",
+      "cooldown": 10,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "ApplyFreeze", "value": 3, "duration": 3, "target": "Enemy", "areaRadius": 0 }
+      ]
+    },
+    {
+      "skillId": 1005,
+      "skillName": "骨刺",
+      "description": "从地面刺出骨刺，对直线敌人造成 20 物理伤害并附加 1 层流血（每秒 5 点，持续 4 秒）",
+      "tribeType": "Cow",
+      "skillType": "Active",
+      "cooldown": 8,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "Damage", "value": 20, "duration": 0, "target": "AllEnemies", "areaRadius": 0 },
+        { "effectType": "ApplyBleed", "value": 5, "duration": 4, "target": "AllEnemies", "areaRadius": 0 }
+      ]
+    },
+    {
+      "skillId": 1006,
+      "skillName": "转生仪式",
+      "description": "复活一具尸体，使其以 50% 生命值重生（保留原攻击力和技能）",
+      "tribeType": "Cow",
+      "skillType": "Active",
+      "cooldown": 20,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "ConsumeCorpse", "value": 1, "duration": 0, "target": "Self", "areaRadius": 0 },
+        { "effectType": "ResurrectCorpse", "value": 0.5, "duration": 0, "target": "Self", "areaRadius": 0 }
+      ]
+    },
+
+    {
+      "skillId": 2001,
+      "skillName": "饕餮",
+      "description": "击杀单位恢复 10% 最大生命，并获得 1 层饱食",
+      "tribeType": "Orange",
+      "skillType": "Passive",
+      "cooldown": 0,
+      "passiveCheckInterval": 0.5,
+      "effects": [
+        { "effectType": "Heal", "value": 0.1, "duration": 0, "target": "Self", "areaRadius": 0 }
+      ]
+    },
+    {
+      "skillId": 2002,
+      "skillName": "第二顿早餐",
+      "description": "空投食物，周围最多 3 只橘猫恢复 50% 生命，并获得 2 层饱食",
+      "tribeType": "Orange",
+      "skillType": "Active",
+      "cooldown": 8,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "Heal", "value": 0.5, "duration": 0, "target": "AllAllies", "areaRadius": 5 },
+        {
+          "effectType": "ApplyBuff", "value": 1, "duration": 0, "target": "AllAllies", "areaRadius": 5, "buffId": "fullness_stack",
+          "conditionBuffId": "aura_orange_gen_big_appetite_Hp",
+          "conditionEffects": [
+            { "effectType": "ApplyBuff", "value": 2, "duration": 0, "target": "AllAllies", "areaRadius": 5, "buffId": "fullness_stack" }
+          ],
+          "conditionFallbackEffects": [
+            { "effectType": "ApplyBuff", "value": 1, "duration": 0, "target": "AllAllies", "areaRadius": 5, "buffId": "fullness_stack" }
+          ]
+        }
+      ]
+    },
+    {
+      "skillId": 2003,
+      "skillName": "酒雾",
+      "description": "对区域喷酒，使附近敌人减速，并有一定概率攻击出现miss，持续 6 秒",
+      "tribeType": "Orange",
+      "skillType": "Active",
+      "cooldown": 10,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "ApplySlow", "value": 0.3, "duration": 6, "target": "AllEnemies", "areaRadius": 4 }
+      ]
+    },
+    {
+      "skillId": 2004,
+      "skillName": "熔炉锻造",
+      "description": "放置铁砧，附近橘猫每 5 秒获得 1 层精钢（+2 护甲，可叠 5 层）",
+      "tribeType": "Orange",
+      "skillType": "Active",
+      "cooldown": 15,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "DefenseBuff", "value": 2, "duration": -1, "target": "AllAllies", "areaRadius": 5 }
+      ]
+    },
+    {
+      "skillId": 2005,
+      "skillName": "致命投掷",
+      "description": "把离你最近的东西（非boss）扔到敌人最密集的地方。对这只猫，以及落点的敌人造成大量伤害",
+      "tribeType": "Orange",
+      "skillType": "Active",
+      "cooldown": 15,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "ThrowUnit", "value": 50, "duration": 0, "target": "Area", "areaRadius": 3 }
+      ]
+    },
+    {
+      "skillId": 2006,
+      "skillName": "天神下凡",
+      "description": "变身为战神，20 秒内攻击力翻倍，获得 50% 减伤，魔免",
+      "tribeType": "Orange",
+      "skillType": "Active",
+      "cooldown": 60,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "AttackBuff", "value": 1.0, "duration": 20, "target": "Self", "areaRadius": 0 },
+        { "effectType": "DefenseBuff", "value": 0.5, "duration": 20, "target": "Self", "areaRadius": 0 }
+      ]
+    },
+
+    {
+      "skillId": 3001,
+      "skillName": "龙语回响",
+      "description": "每次施法，对随机敌人喷射小型龙息（10 火伤，内置冷却 1 秒）",
+      "tribeType": "Siamese",
+      "skillType": "Passive",
+      "cooldown": 0,
+      "passiveCheckInterval": 1,
+      "effects": [
+        { "effectType": "Damage", "value": 10, "duration": 0, "target": "Enemy", "areaRadius": 0 }
+      ]
+    },
+    {
+      "skillId": 3002,
+      "skillName": "龙息术",
+      "description": "锥形火焰，25 火伤，留下燃烧地面 4 秒（每秒 5 火伤）",
+      "tribeType": "Siamese",
+      "skillType": "Active",
+      "cooldown": 6,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "Damage", "value": 25, "duration": 0, "target": "Area", "areaRadius": 3 },
+        { "effectType": "ApplyBurn", "value": 5, "duration": 4, "target": "Area", "areaRadius": 3 }
+      ]
+    },
+    {
+      "skillId": 3003,
+      "skillName": "相位转移",
+      "description": "将自身或友方转入相位 2 秒（无敌）。对敌人使用则放逐 4 秒",
+      "tribeType": "Siamese",
+      "skillType": "Active",
+      "cooldown": 15,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "PhaseShift", "value": 2, "duration": 2, "target": "Ally", "areaRadius": 0 }
+      ]
+    },
+    {
+      "skillId": 3004,
+      "skillName": "能量护盾",
+      "description": "制造护盾持续 6 秒，将受到的 50% 伤害转化为额外法术伤害（持续 10 秒）",
+      "tribeType": "Siamese",
+      "skillType": "Active",
+      "cooldown": 12,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "Shield", "value": 0.5, "duration": 6, "target": "Self", "areaRadius": 0 }
+      ]
+    },
+    {
+      "skillId": 3005,
+      "skillName": "烈焰风暴",
+      "description": "吟唱 2 秒，对大范围造成 60 火伤，留下燃烧地面 8 秒（每秒 8 火伤）",
+      "tribeType": "Siamese",
+      "skillType": "Active",
+      "cooldown": 25,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "Damage", "value": 60, "duration": 0, "target": "AllEnemies", "areaRadius": 6 },
+        { "effectType": "ApplyBurn", "value": 8, "duration": 8, "target": "AllEnemies", "areaRadius": 6 }
+      ]
+    },
+
+    {
+      "skillId": 4001,
+      "skillName": "狩猎印记",
+      "description": "攻击或技能标记目标 5 秒，被标记目标受到的伤害 +30%",
+      "tribeType": "Tabby",
+      "skillType": "Passive",
+      "cooldown": 0,
+      "passiveCheckInterval": 0.5,
+      "effects": [
+        { "effectType": "ApplyHuntMark", "value": 0.3, "duration": 5, "target": "Enemy", "areaRadius": 0 }
+      ]
+    },
+    {
+      "skillId": 4002,
+      "skillName": "穿云箭",
+      "description": "对标记目标造成 50 物理伤害；无标记则 25",
+      "tribeType": "Tabby",
+      "skillType": "Active",
+      "cooldown": 5,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "Damage", "value": 50, "duration": 0, "target": "Enemy", "areaRadius": 0 }
+      ]
+    },
+    {
+      "skillId": 4003,
+      "skillName": "淬毒利刃",
+      "description": "投掷匕首，造成 10 物理伤害 + 3 层毒（每层每秒 3 点，6 秒）",
+      "tribeType": "Tabby",
+      "skillType": "Active",
+      "cooldown": 7,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "Damage", "value": 10, "duration": 0, "target": "Enemy", "areaRadius": 0 },
+        { "effectType": "ApplyPoison", "value": 3, "duration": 6, "target": "Enemy", "areaRadius": 0 }
+      ]
+    },
+    {
+      "skillId": 4004,
+      "skillName": "捕兽夹",
+      "description": "放置隐形陷阱，踩中者定身 3 秒，受到 15 物理伤害，附加 2 层毒",
+      "tribeType": "Tabby",
+      "skillType": "Active",
+      "cooldown": 10,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "ApplyFreeze", "value": 3, "duration": 3, "target": "Enemy", "areaRadius": 0 },
+        { "effectType": "Damage", "value": 15, "duration": 0, "target": "Enemy", "areaRadius": 0 },
+        { "effectType": "ApplyPoison", "value": 3, "duration": 6, "target": "Enemy", "areaRadius": 0 }
+      ]
+    },
+    {
+      "skillId": 4005,
+      "skillName": "隐匿",
+      "description": "进入隐匿 3 秒（无法被单体选中），期间下次攻击伤害 +50%",
+      "tribeType": "Tabby",
+      "skillType": "Active",
+      "cooldown": 12,
+      "passiveCheckInterval": 0,
+      "effects": [
+        { "effectType": "Stealth", "value": 3, "duration": 3, "target": "Self", "areaRadius": 0 },
+        { "effectType": "AttackBuff", "value": 0.5, "duration": 3, "target": "Self", "areaRadius": 0 }
+      ]
+    }
+  ]
+}

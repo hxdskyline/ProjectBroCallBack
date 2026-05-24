@@ -1,0 +1,111 @@
+{
+  "drawTable": [
+    {
+      "levelRange": [1, 1],
+      "difficulty": "normal",
+      "low": 90,
+      "high": 0,
+      "fixedTier": 10
+    },
+    {
+      "levelRange": [1, 1],
+      "difficulty": "hard",
+      "low": 80,
+      "high": 0,
+      "fixedTier": 20
+    },
+    {
+      "levelRange": [1, 1],
+      "difficulty": "elite",
+      "low": 70,
+      "high": 0,
+      "fixedTier": 30
+    },
+    {
+      "levelRange": [2, 5],
+      "difficulty": "normal",
+      "low": 80,
+      "high": 0,
+      "fixedTier": 20
+    },
+    {
+      "levelRange": [2, 5],
+      "difficulty": "hard",
+      "low": 60,
+      "high": 0,
+      "fixedTier": 40
+    },
+    {
+      "levelRange": [2, 5],
+      "difficulty": "elite",
+      "low": 50,
+      "high": 0,
+      "fixedTier": 50
+    },
+    {
+      "levelRange": [6, 10],
+      "difficulty": "normal",
+      "low": 50,
+      "high": 10,
+      "fixedTier": 40
+    },
+    {
+      "levelRange": [6, 10],
+      "difficulty": "hard",
+      "low": 40,
+      "high": 15,
+      "fixedTier": 45
+    },
+    {
+      "levelRange": [6, 10],
+      "difficulty": "elite",
+      "low": 30,
+      "high": 20,
+      "fixedTier": 50
+    },
+    {
+      "levelRange": [11, 15],
+      "difficulty": "normal",
+      "low": 20,
+      "high": 30,
+      "fixedTier": 50
+    },
+    {
+      "levelRange": [11, 15],
+      "difficulty": "hard",
+      "low": 10,
+      "high": 40,
+      "fixedTier": 50
+    },
+    {
+      "levelRange": [11, 15],
+      "difficulty": "elite",
+      "low": 0,
+      "high": 50,
+      "fixedTier": 50
+    },
+    {
+      "levelRange": [16, 20],
+      "difficulty": "normal",
+      "low": 0,
+      "high": 50,
+      "fixedTier": 50
+    },
+    {
+      "levelRange": [16, 20],
+      "difficulty": "hard",
+      "low": 0,
+      "high": 30,
+      "fixedTier": 70
+    },
+    {
+      "levelRange": [16, 20],
+      "difficulty": "elite",
+      "low": 0,
+      "high": 0,
+      "fixedTier": 100
+    }
+  ],
+  "drawCount": 3,
+  "description": "词缀抽取概率表：根据关卡范围和难度决定低级/高级/固定词缀的出现概率。难度对应：normal=普通, hard=困难, elite=极难(Bloodbath)"
+}

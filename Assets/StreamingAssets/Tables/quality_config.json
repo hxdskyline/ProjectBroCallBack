@@ -1,0 +1,32 @@
+{
+  "qualities": [
+    {
+      "quality": 0,
+      "qualityName": "菜鸟",
+      "minRatio": 1.0,
+      "maxRatio": 1.0,
+      "baseProbability": 0.4
+    },
+    {
+      "quality": 1,
+      "qualityName": "老手",
+      "minRatio": 1.0,
+      "maxRatio": 1.0,
+      "baseProbability": 0.3
+    },
+    {
+      "quality": 2,
+      "qualityName": "精英",
+      "minRatio": 1.0,
+      "maxRatio": 1.0,
+      "baseProbability": 0.2
+    },
+    {
+      "quality": 3,
+      "qualityName": "大师",
+      "minRatio": 1.0,
+      "maxRatio": 1.0,
+      "baseProbability": 0.1
+    }
+  ]
+}
