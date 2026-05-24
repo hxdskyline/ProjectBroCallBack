@@ -54,6 +54,33 @@ public class TribeBuildPanel : UIPanel
 
             var infoText = CreateText("Info", $"第 {round} 关 | 猫粮: {catFood} | 领导力: {leadership}", 20, Color.yellow);
             infoText.rectTransform.anchoredPosition = new Vector2(0, 320);
+
+            // 显示敌人信息
+            var campaign = GameManager.Instance?.BattleCampaignRuntime;
+            if (campaign != null)
+            {
+                int[] enemyIds = campaign.GetEnemyUnitIdsForBattle(round);
+                if (enemyIds != null && enemyIds.Length > 0)
+                {
+                    var enemyCounts = new System.Collections.Generic.Dictionary<int, int>();
+                    foreach (int id in enemyIds)
+                    {
+                        if (enemyCounts.ContainsKey(id)) enemyCounts[id]++;
+                        else enemyCounts[id] = 1;
+                    }
+
+                    var parts = new System.Collections.Generic.List<string>();
+                    foreach (var kv in enemyCounts)
+                    {
+                        var cfg = TribeConfigLoader.Instance?.GetFighterConfig(kv.Key);
+                        string name = cfg?.fighterName ?? $"#{kv.Key}";
+                        parts.Add(kv.Value > 1 ? $"{name}x{kv.Value}" : name);
+                    }
+
+                    var enemyText = CreateText("EnemyInfo", $"敌人: {string.Join("、", parts)}", 32, Color.white);
+                    enemyText.rectTransform.anchoredPosition = new Vector2(0, 280);
+                }
+            }
         }
     }
 
@@ -62,7 +89,17 @@ public class TribeBuildPanel : UIPanel
         GameLogger.Log("TribeBuild", "StartBattle → BattlePreparePanel");
         Hide();
         UIManager uiManager = GameManager.Instance?.UIManager;
-        uiManager?.ShowPanel<BattlePreparePanel>(UIManager.UILayer.Normal);
+        var panel = uiManager?.ShowPanel<BattlePreparePanel>(UIManager.UILayer.Normal);
+
+        // 传入当前关卡和节点类型
+        var gfc = GameFlowController.Instance;
+        MapNodeType nodeType = MapNodeType.Battle;
+        if (gfc.CurrentRegionMap != null && gfc.CurrentNodeId >= 0)
+        {
+            var node = gfc.CurrentRegionMap.GetNode(gfc.CurrentNodeId);
+            if (node != null) nodeType = node.nodeType;
+        }
+        panel?.Setup(gfc.CurrentRound, nodeType);
     }
 
     private void OnClose()

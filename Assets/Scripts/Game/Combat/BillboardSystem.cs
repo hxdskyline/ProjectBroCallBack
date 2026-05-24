@@ -42,8 +42,8 @@ namespace Combat
         {
             camp = BillboardCamp.Player;
             state = BillboardState.Dormant;
-            maxHp = 10000f;
-            currentHp = 10000f;
+            maxHp = 1000f;
+            currentHp = 1000f;
             attack = 50f;
             attackRange = 10f;
             attackSpeed = 1f;
@@ -73,8 +73,29 @@ namespace Combat
 
         public BillboardSystem()
         {
-            _playerBillboard = new BillboardData { camp = BillboardCamp.Player };
-            _enemyBillboard = new BillboardData { camp = BillboardCamp.Enemy };
+            var loader = Camp.TribeConfigLoader.Instance;
+
+            var playerCfg = loader.GetFighterConfig(9001);
+            _playerBillboard = new BillboardData
+            {
+                camp = BillboardCamp.Player,
+                maxHp = playerCfg?.hp ?? 1000f,
+                currentHp = playerCfg?.hp ?? 1000f,
+                attack = playerCfg?.attack ?? 50f,
+                attackRange = playerCfg?.attackRange ?? 10f,
+                attackSpeed = playerCfg?.attackSpeed ?? 1f
+            };
+
+            var enemyCfg = loader.GetFighterConfig(9002);
+            _enemyBillboard = new BillboardData
+            {
+                camp = BillboardCamp.Enemy,
+                maxHp = enemyCfg?.hp ?? 200f,
+                currentHp = enemyCfg?.hp ?? 200f,
+                attack = enemyCfg?.attack ?? 0f,
+                attackRange = enemyCfg?.attackRange ?? 10f,
+                attackSpeed = enemyCfg?.attackSpeed ?? 1f
+            };
         }
 
         /// <summary>

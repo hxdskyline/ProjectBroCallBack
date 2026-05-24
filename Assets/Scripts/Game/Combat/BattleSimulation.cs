@@ -788,6 +788,19 @@ namespace Combat
         }
 
         /// <summary>
+        /// 清理所有受击火花效果（战斗结束时调用）
+        /// </summary>
+        public static void ClearAllHitEffects()
+        {
+            foreach (var kv in _hitEffectTimers)
+            {
+                if (kv.Key.HitEffect != null)
+                    kv.Key.HitEffect.SetActive(false);
+            }
+            _hitEffectTimers.Clear();
+        }
+
+        /// <summary>
         /// 在目标位置显示受击火花效果
         /// </summary>
         public static void ShowHitEffect(BattleFighter target)

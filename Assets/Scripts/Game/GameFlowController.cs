@@ -2,6 +2,9 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using Camp;
+using Combat;
+using Combat.Avatar;
+using Combat.Fighter;
 
 /// <summary>
 /// 游戏流程控制器 - 管理整个游戏的流程和状态转换
@@ -49,6 +52,7 @@ public class GameFlowController : MonoBehaviour
 
     private int _currentRound = 1;
     private bool _isGameStarted = false;
+    private BattleFlowController _battleFlowController;
 
     public GameState CurrentState => _currentState;
     public int CurrentRound => _currentRound;
@@ -346,13 +350,7 @@ public class GameFlowController : MonoBehaviour
     /// </summary>
     public void EnterGameRound()
     {
-        // 确保从DataManager加载最新的回合数
-        if (_dataManager != null)
-        {
-            int savedRound = _dataManager.GetCurrentRound();
-            _roundManager.SetRound(savedRound);
-            _currentRound = savedRound;
-        }
+        GameLogger.Log("GFC", $"EnterGameRound round={_currentRound}");
 
         GameLogger.Log("GFC", $"EnterGameRound round={_currentRound}");
 
@@ -425,8 +423,7 @@ public class GameFlowController : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[GameFlowController] HotSpringPanel not found, using fallback");
-            AutoHealAllUnits();
+            Debug.LogWarning("[GameFlowController] HotSpringPanel not found, skip healing");
             _tribeBuildPanel = _uiManager.ShowPanel<TribeBuildPanel>(UIManager.UILayer.Normal);
         }
     }
@@ -447,16 +444,168 @@ public class GameFlowController : MonoBehaviour
     /// </summary>
     public void EnterBattlePhase()
     {
-        GameLogger.Log("GFC", "EnterBattlePhase");
+        GameLogger.Log("GFC", $"EnterBattlePhase round={_currentRound}");
         ChangeGameState(GameState.BattlePhase);
 
         // 关闭战斗准备面板
         if (_uiManager != null)
             _uiManager.ClosePanel("BattlePreparePanel");
 
-        // TODO: 启动战斗系统，战斗结束后调用 OnBattleEnded(true/false)
-        // 当前战斗系统未实现，临时：模拟战斗胜利后回到构筑
-        GameLogger.Log("GFC", "BattlePhase entered (no battle system yet)");
+        // 获取战斗数据
+        var campaign = GameManager.Instance.BattleCampaignRuntime;
+        int battleNumber = _currentRound;
+
+        // 敌方数据
+        int[] enemyIds = campaign.GetEnemyUnitIdsForBattle(battleNumber);
+        var enemyStats = campaign.GetEnemyStats(battleNumber, DifficultyLevel.Normal);
+        var scenarios = campaign.GetScenarioOptions(battleNumber);
+        var scenario = scenarios.Count > 0 ? scenarios[0] : default;
+        int enemyCount = enemyIds != null && enemyIds.Length > 0 ? enemyIds.Length : 3;
+
+        // Avatar 定义
+        var enemyAvatar = LoadAvatarDefinition("enemy");
+        var playerDefs = BuildPlayerFighterDefinitions(enemyAvatar);
+
+        // 如果没有玩家单位，用默认 avatar 生成
+        if (playerDefs == null || playerDefs.Length == 0)
+        {
+            GameLogger.LogWarning("GFC", "No player fighters, using default");
+            var defaultAvatar = AvatarAnimationDefinition.CreateRuntime(
+                "hero", "avatartemp/hero/idle/idle_01", "avatartemp/hero/attack/attack_01");
+            playerDefs = new BattleFighterSpawnDefinition[]
+            {
+                new BattleFighterSpawnDefinition("默认战士", UnitStaticAttributes.Default, defaultAvatar)
+            };
+        }
+
+        GameLogger.Log("GFC", $"BattleStart enemies={enemyCount} scenario={scenario.terrain}/{scenario.weather}");
+
+        // 启动战斗
+        _battleFlowController = new BattleFlowController();
+        _battleFlowController.StartBattle(
+            levelId: battleNumber,
+            fighterPrefab: null,
+            playerDefinition: playerDefs[0].AvatarDefinition ?? enemyAvatar,
+            enemyDefinition: enemyAvatar,
+            enemyFighterCount: enemyCount,
+            playerFighterDefinitions: playerDefs,
+            onBattleEnded: OnBattleEndedFromScene,
+            enemyStats: enemyStats,
+            terrain: scenario.terrain,
+            weather: scenario.weather);
+    }
+
+    private BattleFighterSpawnDefinition[] BuildPlayerFighterDefinitions(AvatarAnimationDefinition fallbackAvatar)
+    {
+        var tribes = _dataManager.GetTribes();
+        var playerDefs = new List<BattleFighterSpawnDefinition>();
+
+        foreach (var tribe in tribes)
+        {
+            foreach (var unit in tribe.units)
+            {
+                if ((UnitZone)unit.zone != UnitZone.Deployed) continue;
+
+                var cfg = TribeConfigLoader.Instance.GetFighterConfig(unit.fighterId);
+                if (cfg == null) continue;
+
+                var avatar = LoadAvatarDefinition(cfg.avatarId);
+                var attrs = cfg.ToStaticAttributes();
+                // 使用当前 HP（战后可能不满血）
+                attrs.MaxHp = unit.currentHp > 0 ? (int)Mathf.Max(unit.currentHp, cfg.hp) : cfg.hp;
+
+                playerDefs.Add(new BattleFighterSpawnDefinition(
+                    cfg.fighterName,
+                    attrs,
+                    avatar,
+                    scaleMultiplier: 1.0f,
+                    tribeType: (TribeType)cfg.tribeType,
+                    fighterId: cfg.fighterId));
+            }
+        }
+
+        return playerDefs.ToArray();
+    }
+
+    public AvatarAnimationDefinition LoadAvatarDefinition(string avatarId)
+    {
+        string address = $"data/avatar/definitions/{avatarId.ToLower()}_avataranimdef";
+        var def = GameManager.Instance.ResourceManager.LoadResource<AvatarAnimationDefinition>(address);
+        if (def != null)
+            return def;
+
+        // 加载失败，用 CreateRuntime 兜底
+        GameLogger.LogWarning("GFC", $"Avatar not found: {address}, using CreateRuntime");
+        return AvatarAnimationDefinition.CreateRuntime(
+            avatarId,
+            $"avatartemp/{avatarId}1",
+            $"avatartemp/{avatarId}2");
+    }
+
+    /// <summary>
+    /// 从战斗准备阶段进入战斗（复用已有的 BattleManager，在玩家指定位置生成单位）
+    /// </summary>
+    public void EnterBattlePhaseFromPreparation(
+        Combat.BattleFlowController existingFlowController,
+        Combat.BattleManager existingManager,
+        List<(FighterData unit, Vector3 worldPos)> deployedPositions,
+        int battleNumber)
+    {
+        GameLogger.Log("GFC", "EnterBattlePhaseFromPreparation");
+        ChangeGameState(GameState.BattlePhase);
+
+        if (_uiManager != null)
+            _uiManager.ClosePanel("BattlePreparePanel");
+
+        // 构建玩家单位定义
+        var playerDefs = new List<Combat.Fighter.BattleFighterSpawnDefinition>();
+        var playerPositions = new List<Vector3>();
+
+        foreach (var (unit, worldPos) in deployedPositions)
+        {
+            var cfg = Camp.TribeConfigLoader.Instance.GetFighterConfig(unit.fighterId);
+            if (cfg == null) continue;
+
+            var avatar = LoadAvatarDefinition(cfg.avatarId);
+            var attrs = cfg.ToStaticAttributes();
+            attrs.MaxHp = unit.currentHp > 0 ? (int)Mathf.Max(unit.currentHp, cfg.hp) : cfg.hp;
+
+            playerDefs.Add(new Combat.Fighter.BattleFighterSpawnDefinition(
+                cfg.fighterName, attrs, avatar,
+                1.0f, (Camp.TribeType)cfg.tribeType, cfg.fighterId));
+            playerPositions.Add(worldPos);
+        }
+
+        // 加载默认玩家 avatar（用于 ConfigureDemoAvatars）
+        var defaultPlayerAvatar = LoadAvatarDefinition(
+            Camp.TribeConfigLoader.Instance.GetFighterConfig(1000)?.avatarId ?? "youxia");
+        existingManager.ConfigureDemoAvatars(defaultPlayerAvatar, null);
+
+        // 在指定位置添加玩家单位
+        existingManager.AddPlayerFighters(
+            playerDefs.ToArray(),
+            playerPositions.ToArray());
+
+        // 开始战斗模拟
+        existingManager.StartBattleFromPrepare();
+
+        _battleFlowController = existingFlowController;
+        existingFlowController.BattleManager.BattleEnded += OnBattleEndedFromScene;
+    }
+
+    private void OnBattleEndedFromScene(bool victory)
+    {
+        GameLogger.Log("GFC", $"BattleEndedFromScene victory={victory}");
+
+        // 销毁战斗场景
+        if (_battleFlowController != null)
+        {
+            _battleFlowController.StopAndDispose(OnBattleEndedFromScene);
+            _battleFlowController = null;
+        }
+
+        // 调用原有的战斗结束逻辑
+        OnBattleEnded(victory);
     }
 
     /// <summary>
@@ -465,14 +614,53 @@ public class GameFlowController : MonoBehaviour
     public void OnBattleEnded(bool victory)
     {
         GameLogger.Log("GFC", $"OnBattleEnded victory={victory}");
+
+        // 计算奖励数据
+        int expReward = 0;
+        int catFoodReward = 0;
         if (victory)
         {
-            // 战斗胜利后才标记节点为 Visited，解锁下一批 Available 节点
+            expReward = 50 + _currentRound * 10;
+            bool isBossBattle = _currentRegionMap != null &&
+                               _currentNodeId >= 0 &&
+                               _currentRegionMap.GetNode(_currentNodeId)?.nodeType == MapNodeType.Boss;
+            if (isBossBattle) expReward *= 3;
+
+            var campaign = GameManager.Instance?.BattleCampaignRuntime;
+            if (campaign != null)
+                catFoodReward = campaign.GetCatFoodRewardForBattle(_currentRound);
+        }
+
+        // 显示结算面板，等待玩家确认后继续
+        ShowBattleResultPanel(victory, _currentRound, expReward, catFoodReward);
+    }
+
+    /// <summary>
+    /// 显示战斗结算面板
+    /// </summary>
+    private void ShowBattleResultPanel(bool victory, int battleNumber, int expReward, int catFoodReward)
+    {
+        if (_uiManager == null)
+            _uiManager = GameManager.Instance?.UIManager;
+
+        var panel = _uiManager.ShowPanel<BattleResultPanel>(UIManager.UILayer.Top);
+        panel.Setup(victory, battleNumber, expReward, catFoodReward, () => ContinueAfterResult(victory));
+    }
+
+    /// <summary>
+    /// 结算面板关闭后继续流程
+    /// </summary>
+    private void ContinueAfterResult(bool victory)
+    {
+        if (victory)
+        {
+            // 标记节点已访问，解锁后续节点
             if (_currentRegionMap != null && _currentNodeId >= 0)
             {
                 _currentRegionMap.MarkNodeVisited(_currentNodeId);
                 _currentRegionMap.UpdateAvailableNodes(_currentNodeId);
             }
+
             // 结算生产区产出
             if (_zoneService != null)
             {
@@ -480,17 +668,15 @@ public class GameFlowController : MonoBehaviour
                 Debug.Log($"[GameFlowController] 生产区产出: {productionOutput} 木天蓼叶");
             }
 
-            // 战斗胜利经验奖励
+            // 经验奖励
             GrantBattleExpReward();
 
-            // 检查是否是Boss战
+            // Boss关：切换到下一地区
             bool isBossBattle = _currentRegionMap != null &&
                                _currentNodeId >= 0 &&
                                _currentRegionMap.GetNode(_currentNodeId)?.nodeType == MapNodeType.Boss;
-
             if (isBossBattle)
             {
-                // 切换到下一地区
                 _currentRegion++;
                 if (_currentRegion <= _mapDataList.Count)
                 {
@@ -503,19 +689,15 @@ public class GameFlowController : MonoBehaviour
                 }
             }
 
-            // 进入战斗后招募流程
             ShowBattleResultRecruitment();
         }
         else
         {
-            // 检查是否是Boss关失败
             bool isBossBattle = _currentRegionMap != null &&
                                _currentNodeId >= 0 &&
                                _currentRegionMap.GetNode(_currentNodeId)?.nodeType == MapNodeType.Boss;
-
             if (isBossBattle)
             {
-                // Boss关失败 → 本局结束
                 EndGame();
             }
             else

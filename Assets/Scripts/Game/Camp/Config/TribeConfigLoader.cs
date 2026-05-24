@@ -122,6 +122,8 @@ namespace Camp
                     attackSpeed = ReadFloat(item, "attackSpeed"),
                     attackRange = ReadFloat(item, "attackRange"),
                     avatarId = ReadString(item, "avatarId"),
+                    populationCost = item.ContainsKey("populationCost") ? (int)item["populationCost"] : 1,
+                    deployZones = item.ContainsKey("deployZones") ? (int)item["deployZones"] : 1,
                 };
 
                 // innateBuffIds

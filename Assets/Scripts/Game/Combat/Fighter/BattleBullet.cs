@@ -23,14 +23,18 @@ namespace Combat.Fighter
             _isCritical = isCritical;
             _hasHit = false;
 
-            // 白色方形
             var sr = gameObject.GetComponent<SpriteRenderer>();
             if (sr == null) sr = gameObject.AddComponent<SpriteRenderer>();
             sr.color = Color.white;
-            sr.sprite = CreateSquareSprite();
             sr.sortingOrder = 100;
 
-            transform.localScale = new Vector3(5f, 5f, 5f);
+            var sprite = GameManager.Instance.ResourceManager.LoadResource<Sprite>("2deffect/changmao");
+            if (sprite != null)
+                sr.sprite = sprite;
+            else
+                sr.sprite = CreateSquareSprite();
+
+            transform.localScale = new Vector3(0.5f, 0.5f, 1f);
         }
 
         private void Update()

@@ -15,7 +15,7 @@ MonoBehaviour:
   m_GroupName: font
   m_Data:
     m_SerializedData: []
-  m_GUID: 1d30dba5519169d4c93c0089a3318d05
+  m_GUID: 161327e1502b327499c1f85541b1392b
   m_SerializeEntries:
   - m_GUID: de28e9f914f89b140831ad075f481826
     m_Address: font/fzy3k_gbk

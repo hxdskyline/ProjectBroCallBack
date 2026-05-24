@@ -654,6 +654,10 @@ namespace Combat
             stats.AttackSpeed = ReadInt(json, "attackSpeed", (int)defaults.AttackSpeed);
             stats.AttackRange = ReadFloat(json, "attackRange", defaults.AttackRange);
 
+            // moveSpeed/attackSpeed 在配置中是放大1000倍的整数，需要还原
+            stats.MoveSpeed = stats.MoveSpeed / 1000f;
+            stats.AttackSpeed = stats.AttackSpeed / 1000f;
+
             return stats;
         }
 

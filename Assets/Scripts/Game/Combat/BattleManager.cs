@@ -23,7 +23,7 @@ namespace Combat
         [SerializeField] private Vector2 _spawnAreaMax = new Vector2(6.5f, 3.5f);
         [SerializeField] private float _spawnMinDistance = 1.5f;
         [SerializeField] private int _spawnTryCount = 24;
-        [SerializeField] private float _fighterScale = 0.6f;
+        [SerializeField] private float _fighterScale = 0.45f;
         [SerializeField] private Color _playerTint = new Color(0.6f, 0.9f, 1f, 1f);
         [SerializeField] private Color _enemyTint = new Color(1f, 0.7f, 0.7f, 1f);
         [SerializeField] private BattleUnitTypeConfig _playerUnitType;
@@ -58,6 +58,16 @@ namespace Combat
         private bool _soldiersPhaseEnded;
         private bool _enemyBillboardDestroyed;
         private bool _playerBillboardDestroyed;
+
+        // 区域遮罩系统
+        private GameObject _overlay1Neutral, _overlay1Green, _overlay1Red;   // Layer 1, sortingOrder -999, 外圈
+        private GameObject _overlay2Neutral, _overlay2Green, _overlay2Red;   // Layer 2, sortingOrder -998, 中圈
+        private GameObject _overlay3Neutral, _overlay3Green, _overlay3Red;   // Layer 3, sortingOrder -997, 内圈
+
+        // 椭圆区域边界（中心均为 0,0）
+        private const float OUTER_A = 10.047f, OUTER_B = 4.629f;
+        private const float MIDDLE_A = 6.175f,  MIDDLE_B = 3.21f;
+        private const float INNER_A = 3.29f,    INNER_B = 1.905f;
 
         public System.Action<bool> BattleEnded;
 
@@ -151,6 +161,125 @@ namespace Combat
             _battleCoroutine = StartCoroutine(DemoBattleLoop());
         }
 
+        /// <summary>
+        /// 准备阶段：只生成背景 + 敌方单位（不开始模拟）
+        /// </summary>
+        public void BuildPrepareScene()
+        {
+            ClearOldAvatars();
+            SpawnBattleBackground();
+
+            BattleSpawnResult result = BattleSpawner.SpawnEnemiesOnly(
+                transform,
+                new BattleSpawnConfig
+                {
+                    FighterPrefab = _fighterPrefab,
+                    EnemyAvatarDefinition = _enemyAvatarDefinition,
+                    EnemyFighterCount = _enemyFighterCount > 0 ? _enemyFighterCount : _fightersPerCamp,
+                    SpawnAreaMin = _spawnAreaMin,
+                    SpawnAreaMax = _spawnAreaMax,
+                    SpawnMinDistance = _spawnMinDistance,
+                    SpawnTryCount = _spawnTryCount,
+                    FighterScale = _fighterScale,
+                    EnemyTint = _enemyTint,
+                    EnemyUnitType = _enemyUnitType,
+                    EnemyStaticAttributes = _enemyStaticAttributes
+                });
+
+            _enemyFighters = result.EnemyFighters;
+            _playerFighters = new BattleFighter[0];
+
+            // 初始化看板视觉（仅视觉，不激活攻击）
+            InitializeBillboardVisuals();
+
+            Debug.Log($"[BattleManager] Prepare scene: {_enemyFighters.Length} enemies placed");
+        }
+
+        /// <summary>
+        /// 准备阶段后：在指定位置添加玩家单位
+        /// </summary>
+        public void AddPlayerFighters(BattleFighterSpawnDefinition[] playerDefs, Vector3[] positions)
+        {
+            _playerFighters = new BattleFighter[playerDefs.Length];
+            for (int i = 0; i < playerDefs.Length; i++)
+            {
+                Vector3 pos = i < positions.Length ? positions[i] : new Vector3(0f, 0f, 0f);
+                _playerFighters[i] = BattleSpawner.CreateSingleFighter(
+                    transform,
+                    string.IsNullOrEmpty(playerDefs[i].Name) ? $"PlayerAvatar_{i + 1}" : playerDefs[i].Name,
+                    BattleCamp.Player,
+                    playerDefs[i],
+                    pos,
+                    _fighterScale,
+                    _playerTint,
+                    _playerUnitType);
+
+                _playerFighters[i].Avatar?.LoadAndPlayIdle();
+            }
+
+            // 设置 Allies/Enemies 交叉引用
+            for (int i = 0; i < _playerFighters.Length; i++)
+            {
+                if (_playerFighters[i]?.RuntimeAttributes != null)
+                {
+                    _playerFighters[i].RuntimeAttributes.OwnerFighter = _playerFighters[i];
+                    _playerFighters[i].RuntimeAttributes.Allies = _playerFighters;
+                    _playerFighters[i].RuntimeAttributes.Enemies = _enemyFighters;
+                }
+            }
+            for (int i = 0; i < _enemyFighters.Length; i++)
+            {
+                if (_enemyFighters[i]?.RuntimeAttributes != null)
+                {
+                    _enemyFighters[i].RuntimeAttributes.OwnerFighter = _enemyFighters[i];
+                    _enemyFighters[i].RuntimeAttributes.Allies = _enemyFighters;
+                    _enemyFighters[i].RuntimeAttributes.Enemies = _playerFighters;
+                }
+            }
+
+            Debug.Log($"[BattleManager] Added {_playerFighters.Length} player fighters");
+        }
+
+        /// <summary>
+        /// 从准备阶段开始战斗（玩家已摆放完毕）
+        /// </summary>
+        public void StartBattleFromPrepare()
+        {
+            _isInBattle = true;
+
+            // 初始化看板系统
+            InitializeBillboardSystem();
+
+            // 初始化奇物动态效果
+            InitArtifactEffects();
+
+            // 应用地形/天气 BUFF
+            ApplyTerrainWeatherBuffs();
+
+            // 应用词缀 buff
+            ApplyAffixBuffs();
+
+            // 同步 HUD
+            SyncFighterHudMaxHp(_playerFighters);
+
+            // 初始化战斗模拟
+            _simulation = new BattleSimulation(
+                _playerFighters,
+                _enemyFighters,
+                new BattleSimulationConfig
+                {
+                    AttackResolveDelay = _attackResolveDelay,
+                    AttackCooldown = _attackCooldown,
+                    SeekDelay = _seekDelay,
+                    DeathDuration = _deathDuration
+                });
+
+            BattleSimulation.OnBulletFired += SpawnBullet;
+            _battleCoroutine = StartCoroutine(DemoBattleLoop());
+
+            Debug.Log("[BattleManager] Battle started from prepare");
+        }
+
         public void EndBattle(bool victory)
         {
             if (!_isInBattle)
@@ -160,6 +289,7 @@ namespace Combat
 
             _isInBattle = false;
             BattleSimulation.OnBulletFired -= SpawnBullet;
+            BattleSimulation.ClearAllHitEffects();
 
             // 清理看板系统
             CleanupBillboardSystem();
@@ -362,9 +492,15 @@ namespace Combat
             _billboardSystem = new BillboardSystem();
 
             // 设置看板位置（我方在左侧，敌方在右侧）
-            Vector3 playerBillboardPos = new Vector3(-7f, 0f, 0f);
-            Vector3 enemyBillboardPos = new Vector3(7f, 0f, 0f);
+            Vector3 playerBillboardPos = new Vector3(-8.4f, 2.66f, 0f);
+            Vector3 enemyBillboardPos = new Vector3(8.4f, 2.66f, 0f);
             _billboardSystem.Initialize(playerBillboardPos, enemyBillboardPos);
+
+            // 创建看板视觉
+            var playerCfg = Camp.TribeConfigLoader.Instance.GetFighterConfig(9001);
+            var enemyCfg = Camp.TribeConfigLoader.Instance.GetFighterConfig(9002);
+            SpawnBillboardVisual("PlayerBillboard", playerBillboardPos, playerCfg?.avatarId ?? "jiaorouche", new Color(0.6f, 0.9f, 1f, 0.8f), flipX: true);
+            SpawnBillboardVisual("EnemyBillboard", enemyBillboardPos, enemyCfg?.avatarId ?? "jiaorouche", new Color(1f, 0.7f, 0.7f, 0.8f));
 
             // 订阅看板事件
             _billboardSystem.OnBillboardStateChanged += OnBillboardStateChanged;
@@ -373,6 +509,47 @@ namespace Combat
             _billboardSystem.OnBillboardDestroyed += OnBillboardDestroyed;
 
             Debug.Log("[BattleManager] BillboardSystem initialized");
+        }
+
+        /// <summary>
+        /// 仅创建看板视觉（准备阶段用，不创建 BillboardSystem）
+        /// </summary>
+        private void InitializeBillboardVisuals()
+        {
+            Vector3 playerBillboardPos = new Vector3(-8.4f, 2.66f, 0f);
+            Vector3 enemyBillboardPos = new Vector3(8.4f, 2.66f, 0f);
+
+            var playerCfg = Camp.TribeConfigLoader.Instance.GetFighterConfig(9001);
+            var enemyCfg = Camp.TribeConfigLoader.Instance.GetFighterConfig(9002);
+            SpawnBillboardVisual("PlayerBillboard", playerBillboardPos, playerCfg?.avatarId ?? "jiaorouche", new Color(0.6f, 0.9f, 1f, 0.8f), flipX: true);
+            SpawnBillboardVisual("EnemyBillboard", enemyBillboardPos, enemyCfg?.avatarId ?? "jiaorouche", new Color(1f, 0.7f, 0.7f, 0.8f));
+        }
+
+        private void SpawnBillboardVisual(string name, Vector3 position, string avatarId, Color tint, bool flipX = false)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(transform, false);
+            go.transform.position = position;
+
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.color = tint;
+            sr.flipX = flipX;
+
+            // 加载 avatar 精灵
+            string spriteAddress = $"avatartemp/{avatarId}1";
+            var sprite = GameManager.Instance.ResourceManager.LoadResource<Sprite>(spriteAddress);
+            if (sprite != null)
+            {
+                sr.sprite = sprite;
+            }
+
+            // 与 fighter 相同的缩放（0.6）和近大远小逻辑
+            go.transform.localScale = new Vector3(_fighterScale, _fighterScale, 1f);
+
+            var sortByY = go.AddComponent<Combat.Avatar.SortByY>();
+            sortByY.BaseOrder = 10;
+            sortByY.Multiplier = 100;
+            sortByY.EnableScaleEffect = true;
         }
 
         private IEnumerator DemoBattleLoop()
@@ -419,8 +596,10 @@ namespace Combat
                 }
                 else
                 {
-                    // 看板阶段：存活小兵自动攻击看板，看板攻击小兵
+                    // 看板阶段：存活小兵走向并攻击敌方看板，看板攻击小兵
                     HandleBillboardCombat(dt, playerSoldiersAlive, enemySoldiersAlive);
+                    // 更新看板阶段的死亡状态（小兵被看板击杀后的清理）
+                    UpdateBillboardPhaseDeathStates(dt);
                 }
 
                 yield return null;
@@ -428,7 +607,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 看板阶段：存活小兵自动攻击敌方看板，看板攻击小兵
+        /// 看板阶段：存活小兵走向并攻击敌方看板，看板攻击小兵
         /// 文档要求：胜利条件=敌方小兵全灭+敌方看板被摧毁
         /// </summary>
         private void HandleBillboardCombat(float deltaTime, bool playerSoldiersAlive, bool enemySoldiersAlive)
@@ -438,23 +617,18 @@ namespace Combat
             bool enemySoldiersAllDead = !enemySoldiersAlive;
             bool playerSoldiersAllDead = !playerSoldiersAlive;
 
-            // 存活小兵自动攻击敌方看板（简化DPS模型）
+            // 我方存活小兵走向并攻击敌方看板
             if (enemySoldiersAllDead && !_enemyBillboardDestroyed && playerSoldiersAlive)
             {
-                float dps = CalculateSurvivingSoldierDps(_playerFighters);
-                if (dps > 0)
-                {
-                    _billboardSystem.DamageBillboard(BillboardCamp.Enemy, dps * deltaTime);
-                }
+                Vector3 targetPos = _billboardSystem.GetBillboard(BillboardCamp.Enemy).position;
+                CommandFightersToAttackBillboard(_playerFighters, targetPos, BillboardCamp.Enemy, deltaTime);
             }
 
+            // 敌方存活小兵走向并攻击我方看板
             if (playerSoldiersAllDead && !_playerBillboardDestroyed && enemySoldiersAlive)
             {
-                float dps = CalculateSurvivingSoldierDps(_enemyFighters);
-                if (dps > 0)
-                {
-                    _billboardSystem.DamageBillboard(BillboardCamp.Player, dps * deltaTime);
-                }
+                Vector3 targetPos = _billboardSystem.GetBillboard(BillboardCamp.Player).position;
+                CommandFightersToAttackBillboard(_enemyFighters, targetPos, BillboardCamp.Player, deltaTime);
             }
 
             // 看板攻击小兵
@@ -484,20 +658,114 @@ namespace Combat
         }
 
         /// <summary>
-        /// 计算存活小兵的总DPS（用于自动攻击看板）
+        /// 指挥小兵走向并攻击看板（近战走过去砍，远程发射子弹）
         /// </summary>
-        private float CalculateSurvivingSoldierDps(BattleFighter[] fighters)
+        private void CommandFightersToAttackBillboard(BattleFighter[] fighters, Vector3 billboardPos, BillboardCamp camp, float deltaTime)
         {
-            if (fighters == null) return 0f;
-            float totalDps = 0f;
             for (int i = 0; i < fighters.Length; i++)
             {
                 var f = fighters[i];
-                if (f == null || !f.IsAlive || f.RuntimeAttributes == null) continue;
-                float attackSpeed = Mathf.Max(0.1f, f.RuntimeAttributes.CorrectedAttackSpeed);
-                totalDps += f.RuntimeAttributes.Attack / attackSpeed;
+                if (f == null || !f.IsAlive || f.Transform == null || f.RuntimeAttributes == null) continue;
+
+                Vector3 toTarget = billboardPos - f.Transform.position;
+                float distance = toTarget.magnitude;
+                float attackRange = Mathf.Max(0.1f, f.RuntimeAttributes.AttackRange);
+
+                if (distance > attackRange)
+                {
+                    // 走向看板
+                    Vector3 direction = toTarget.normalized;
+                    float speed = Mathf.Max(0.001f, f.RuntimeAttributes.CorrectedMoveSpeed);
+                    f.Transform.position += direction * (speed * deltaTime);
+                    UpdateFighterFacing(f, direction.x);
+                    f.Avatar?.PlayRun();
+                }
+                else
+                {
+                    // 在攻击范围内
+                    UpdateFighterFacing(f, toTarget.x);
+
+                    if (f.AttackCooldownTimer > 0f)
+                    {
+                        f.AttackCooldownTimer -= deltaTime;
+                        continue;
+                    }
+
+                    // 攻击冷却
+                    float attackSpeed = Mathf.Max(0.1f, f.RuntimeAttributes.CorrectedAttackSpeed);
+                    f.AttackCooldownTimer = attackSpeed;
+                    f.Avatar?.PlayAttackAndReturnIdle();
+
+                    float damage = f.RuntimeAttributes.Attack;
+                    bool isRanged = attackRange > 2f;
+
+                    if (isRanged)
+                    {
+                        // 远程：发射子弹飞向看板
+                        SpawnBillboardBullet(f.Transform.position, billboardPos, camp, damage);
+                    }
+                    else
+                    {
+                        // 近战：直接造成伤害
+                        _billboardSystem.DamageBillboard(camp, damage);
+                    }
+                }
             }
-            return totalDps;
+        }
+
+        /// <summary>
+        /// 朝向更新（看向目标方向）
+        /// </summary>
+        private void UpdateFighterFacing(BattleFighter fighter, float xDirection)
+        {
+            if (fighter == null || fighter.Transform == null) return;
+            if (Mathf.Abs(xDirection) < 0.001f) return;
+
+            float scale = Mathf.Max(0.1f, fighter.BaseScale);
+            float signedX = xDirection >= 0f ? -scale : scale;
+            Vector3 localScale = fighter.Transform.localScale;
+            fighter.Transform.localScale = new Vector3(signedX, Mathf.Abs(localScale.y), 1f);
+        }
+
+        /// <summary>
+        /// 生成飞向看板的子弹
+        /// </summary>
+        private void SpawnBillboardBullet(Vector3 startPos, Vector3 targetPos, BillboardCamp camp, float damage)
+        {
+            GameObject bulletGo = new GameObject("BillboardBullet");
+            bulletGo.transform.SetParent(transform);
+
+            var bullet = bulletGo.AddComponent<BillboardBullet>();
+            bullet.Setup(startPos, targetPos, _billboardSystem, camp, damage);
+        }
+
+        /// <summary>
+        /// 看板阶段更新死亡状态（小兵被看板击杀后的清理）
+        /// </summary>
+        private void UpdateBillboardPhaseDeathStates(float deltaTime)
+        {
+            UpdateFighterDeathStates(_playerFighters, deltaTime);
+            UpdateFighterDeathStates(_enemyFighters, deltaTime);
+        }
+
+        private void UpdateFighterDeathStates(BattleFighter[] fighters, float deltaTime)
+        {
+            if (fighters == null) return;
+            for (int i = 0; i < fighters.Length; i++)
+            {
+                var fighter = fighters[i];
+                if (fighter == null || !fighter.IsDying || fighter.IsRemoved) continue;
+
+                fighter.DeathTimer -= deltaTime;
+                if (fighter.DeathTimer > 0f) continue;
+
+                if (fighter.Transform != null)
+                    Destroy(fighter.Transform.gameObject);
+
+                fighter.Transform = null;
+                fighter.Avatar = null;
+                fighter.IsRemoved = true;
+            }
         }
 
         /// <summary>
@@ -545,6 +813,22 @@ namespace Combat
         private void OnBillboardStateChanged(BillboardCamp camp, BillboardState state)
         {
             Debug.Log($"[BattleManager] 看板状态改变: {camp} -> {state}");
+
+            // 激活时去掉透明度
+            if (state == BillboardState.Active)
+            {
+                string goName = camp == BillboardCamp.Player ? "PlayerBillboard" : "EnemyBillboard";
+                var billboardGo = transform.Find(goName);
+                if (billboardGo != null)
+                {
+                    var sr = billboardGo.GetComponent<SpriteRenderer>();
+                    if (sr != null)
+                    {
+                        var c = sr.color;
+                        sr.color = new Color(c.r, c.g, c.b, 1f);
+                    }
+                }
+            }
 
             // 更新环形战场UI中的看板状态
             if (_battlefieldRing != null)
@@ -618,7 +902,7 @@ namespace Combat
             var sr = go.AddComponent<SpriteRenderer>();
             sr.sortingOrder = -1000;
 
-            var handle = Addressables.LoadAssetAsync<Sprite>("ui/sprite/common/greenbg");
+            var handle = Addressables.LoadAssetAsync<Sprite>("map/bg");
             handle.Completed += op =>
             {
                 if (op.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
@@ -626,6 +910,106 @@ namespace Combat
                 else
                     Debug.LogWarning("[BattleManager] Failed to load battle background sprite");
             };
+
+            // 区域遮罩覆盖层：Layer1(-999) 外圈, Layer2(-998) 中圈, Layer3(-997) 内圈
+            _overlay1Neutral = CreateOverlay("ZoneOverlay_L1_Neutral", "map/1-1", -999, new Vector3(-0.05f, 0.18f, 0));
+            _overlay1Green   = CreateOverlay("ZoneOverlay_L1_Green",   "map/1-2", -999, new Vector3(-0.05f, 0.18f, 0));
+            _overlay1Red     = CreateOverlay("ZoneOverlay_L1_Red",     "map/1-3", -999, new Vector3(-0.05f, 0.18f, 0));
+            _overlay2Neutral = CreateOverlay("ZoneOverlay_L2_Neutral", "map/2-1", -998, new Vector3(-0.03f, -0.34f, 0));
+            _overlay2Green   = CreateOverlay("ZoneOverlay_L2_Green",   "map/2-2", -998, new Vector3(-0.03f, -0.34f, 0));
+            _overlay2Red     = CreateOverlay("ZoneOverlay_L2_Red",     "map/2-3", -998, new Vector3(-0.03f, -0.34f, 0));
+            _overlay3Neutral = CreateOverlay("ZoneOverlay_L3_Neutral", "map/3-1", -997, new Vector3(0f, -0.24f, 0));
+            _overlay3Green   = CreateOverlay("ZoneOverlay_L3_Green",   "map/3-2", -997, new Vector3(0f, -0.24f, 0));
+            _overlay3Red     = CreateOverlay("ZoneOverlay_L3_Red",     "map/3-3", -997, new Vector3(0f, -0.24f, 0));
+
+            // 默认全部隐藏
+            HideAllOverlays();
+        }
+
+        private GameObject CreateOverlay(string name, string spriteAddress, int sortingOrder, Vector3 offset)
+        {
+            var overlay = new GameObject(name);
+            overlay.transform.SetParent(transform, false);
+            overlay.transform.localPosition = offset;
+            overlay.transform.localScale = new Vector3(1.3f, 1.3f, 1f);
+
+            var sr = overlay.AddComponent<SpriteRenderer>();
+            sr.sortingOrder = sortingOrder;
+
+            var handle = Addressables.LoadAssetAsync<Sprite>(spriteAddress);
+            handle.Completed += op =>
+            {
+                if (op.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+                    sr.sprite = op.Result;
+                else
+                    Debug.LogWarning($"[BattleManager] Failed to load overlay sprite: {spriteAddress}");
+            };
+
+            return overlay;
+        }
+
+        /// <summary>
+        /// 判定世界坐标所在的部署区域（位标志：inner=1, middle=2, outer=4）
+        /// </summary>
+        public static int GetDeployZone(Vector3 pos)
+        {
+            float innerVal = (pos.x * pos.x) / (INNER_A * INNER_A) + (pos.y * pos.y) / (INNER_B * INNER_B);
+            if (innerVal <= 1f) return 1;
+
+            float middleVal = (pos.x * pos.x) / (MIDDLE_A * MIDDLE_A) + (pos.y * pos.y) / (MIDDLE_B * MIDDLE_B);
+            if (middleVal <= 1f) return 2;
+
+            float outerVal = (pos.x * pos.x) / (OUTER_A * OUTER_A) + (pos.y * pos.y) / (OUTER_B * OUTER_B);
+            if (outerVal <= 1f) return 4;
+
+            return 0;
+        }
+
+        /// <summary>
+        /// 拖拽时实时高亮：hoveredRing 所在层显示绿/红，其余层显示原色
+        /// hoveredRing: 1=内, 2=中, 4=外, 0=隐藏全部
+        /// </summary>
+        public void SetDragZoneHighlight(int hoveredZone, bool canDeploy)
+        {
+            if (hoveredZone == 0)
+            {
+                // 不在战场内：全部原色
+                SetLayerState(1, "neutral");
+                SetLayerState(2, "neutral");
+                SetLayerState(3, "neutral");
+                return;
+            }
+
+            string color = canDeploy ? "green" : "red";
+
+            // Layer 1 (外圈): 只在 hoveredZone==4 时变色，否则原色
+            SetLayerState(1, hoveredZone == 4 ? color : "neutral");
+            // Layer 2 (中圈): 只在 hoveredZone==2 时变色，否则原色
+            SetLayerState(2, hoveredZone == 2 ? color : "neutral");
+            // Layer 3 (内圈): 只在 hoveredZone==1 时变色，否则原色
+            SetLayerState(3, hoveredZone == 1 ? color : "neutral");
+        }
+
+        /// <summary>
+        /// 隐藏所有遮罩层
+        /// </summary>
+        public void HideAllOverlays()
+        {
+            _overlay1Neutral.SetActive(false); _overlay1Green.SetActive(false); _overlay1Red.SetActive(false);
+            _overlay2Neutral.SetActive(false); _overlay2Green.SetActive(false); _overlay2Red.SetActive(false);
+            _overlay3Neutral.SetActive(false); _overlay3Green.SetActive(false); _overlay3Red.SetActive(false);
+        }
+
+        private void SetLayerState(int layer, string state)
+        {
+            GameObject neutral, green, red;
+            if (layer == 1)      { neutral = _overlay1Neutral; green = _overlay1Green; red = _overlay1Red; }
+            else if (layer == 2) { neutral = _overlay2Neutral; green = _overlay2Green; red = _overlay2Red; }
+            else                 { neutral = _overlay3Neutral; green = _overlay3Green; red = _overlay3Red; }
+
+            neutral.SetActive(state == "neutral");
+            green.SetActive(state == "green");
+            red.SetActive(state == "red");
         }
 
         private void ClearBattlefield()

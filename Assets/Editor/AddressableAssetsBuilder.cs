@@ -36,6 +36,7 @@ public class AddressableAssetsBuilder
         { "Prefabs", "prefabs" },
         { "2DEffect", "2deffect" },
         { "Font", "font" },
+        { "Map", "map" },
     };
 
     // ============= 主菜单项 =============

@@ -48,6 +48,30 @@ namespace Combat
             _isPaused = false;
         }
 
+        /// <summary>
+        /// 准备阶段：创建战场背景 + 敌方单位（不开始模拟）
+        /// </summary>
+        public void StartBattlePrepare(
+            int levelId,
+            AvatarAnimationDefinition enemyDefinition,
+            int enemyFighterCount,
+            UnitStaticAttributes? enemyStats = null,
+            TerrainType terrain = TerrainType.Plain,
+            WeatherType weather = WeatherType.Sunny)
+        {
+            EnsureBattleManager();
+
+            _battleManager.ConfigureDemoAvatars(null, enemyDefinition);
+            _battleManager.ConfigureEnemyFighterCount(enemyFighterCount);
+            _battleManager.ConfigureTerrainWeather(terrain, weather);
+            if (enemyStats.HasValue)
+            {
+                _battleManager.ConfigureEnemyStats(enemyStats.Value);
+            }
+            _battleManager.Initialize(levelId);
+            _battleManager.BuildPrepareScene();
+        }
+
         public bool TogglePause()
         {
             if (_battleManager == null)

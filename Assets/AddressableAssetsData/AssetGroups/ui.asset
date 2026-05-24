@@ -15,7 +15,7 @@ MonoBehaviour:
   m_GroupName: ui
   m_Data:
     m_SerializedData: []
-  m_GUID: ccfa0a75f2134aa4b8fd880cb727e58a
+  m_GUID: eded1326cc7fcab4684431a7e9cff1f1
   m_SerializeEntries:
   - m_GUID: 03a58a26e74953148bd90842c36c9583
     m_Address: ui/sprite/common/common_btn_huanganniu2

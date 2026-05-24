@@ -22,6 +22,12 @@ namespace Camp
         public List<int> innateBuffIds;
         public string avatarId;
         public List<string> tags;
+        public int populationCost;
+        public int deployZones; // 位标志: inner=1, middle=2, outer=4
+
+        public bool CanDeployInner => (deployZones & 1) != 0;
+        public bool CanDeployMiddle => (deployZones & 2) != 0;
+        public bool CanDeployOuter => (deployZones & 4) != 0;
 
         /// <summary>
         /// 转换为 UnitStaticAttributes

@@ -203,6 +203,143 @@ namespace Combat.Fighter
                 0f);
         }
 
+        /// <summary>
+        /// 仅生成敌方单位（准备阶段用）
+        /// </summary>
+        public static BattleSpawnResult SpawnEnemiesOnly(Transform parent, BattleSpawnConfig config)
+        {
+            int enemyFighterCount = Mathf.Max(1, config.EnemyFighterCount > 0 ? config.EnemyFighterCount : config.FightersPerCamp);
+            List<Vector3> occupiedPositions = new List<Vector3>(enemyFighterCount);
+
+            BattleFighter[] enemyFighters = CreateFighterGroup(
+                parent,
+                "EnemyAvatar",
+                BattleCamp.Enemy,
+                config.EnemyUnitType,
+                config.EnemyAvatarDefinition,
+                enemyFighterCount,
+                occupiedPositions,
+                false,
+                config.EnemyTint,
+                config,
+                config.EnemyStaticAttributes);
+
+            LoadGroupIdle(enemyFighters);
+
+            return new BattleSpawnResult
+            {
+                PlayerFighters = new BattleFighter[0],
+                EnemyFighters = enemyFighters
+            };
+        }
+
+        /// <summary>
+        /// 在指定位置创建单个战斗单位（准备阶段部署玩家单位用）
+        /// </summary>
+        public static BattleFighter CreateSingleFighter(
+            Transform parent,
+            string objectName,
+            BattleCamp camp,
+            BattleFighterSpawnDefinition definition,
+            Vector3 position,
+            float fighterScale,
+            Color tint,
+            BattleUnitTypeConfig unitType)
+        {
+            UnitStaticAttributes attrs = definition.StaticAttributes;
+            AvatarAnimationDefinition avatarDef = definition.AvatarDefinition;
+
+            GameObject go = new GameObject(objectName);
+            go.transform.SetParent(parent);
+            go.transform.position = position;
+
+            float scale = Mathf.Max(0.1f, fighterScale * (definition.ScaleMultiplier > 0f ? definition.ScaleMultiplier : 1.0f));
+            Vector3 baseScale = new Vector3(scale, scale, 1f);
+            bool faceRight = position.x >= 0f;
+            go.transform.localScale = faceRight ? baseScale : new Vector3(-baseScale.x, baseScale.y, baseScale.z);
+
+            SpriteRenderer renderer = go.AddComponent<SpriteRenderer>();
+            renderer.color = Color.white;
+
+            SortByY sortBy = go.AddComponent<SortByY>();
+            sortBy.BaseOrder = 10;
+            sortBy.Multiplier = 100;
+
+            AvatarSequencePlayer sequencePlayer = go.AddComponent<AvatarSequencePlayer>();
+            BattleAvatar battleAvatar = go.AddComponent<BattleAvatar>();
+            battleAvatar.SetAnimationDefinition(avatarDef);
+
+            FighterHUD hud = go.AddComponent<FighterHUD>();
+            int maxHp = Mathf.Max(1, attrs.MaxHp);
+            hud.Initialize(maxHp, camp == BattleCamp.Enemy);
+
+            UnitRuntimeAttributes runtimeAttributes = new UnitRuntimeAttributes(attrs);
+
+            // 天生 buff
+            List<int> innateBuffIds = new List<int>();
+            if (definition.FighterId > 0)
+            {
+                var fighterConfig = Camp.TribeConfigLoader.Instance?.GetFighterConfig(definition.FighterId);
+                if (fighterConfig?.innateBuffIds != null)
+                    innateBuffIds.AddRange(fighterConfig.innateBuffIds);
+            }
+
+            foreach (int buffId in innateBuffIds)
+            {
+                var buffConfig = Camp.TribeConfigLoader.Instance?.GetBuffConfig(buffId);
+                if (buffConfig == null) continue;
+                var unifiedBuff = new Camp.UnifiedBuff
+                {
+                    buffId = buffConfig.buffId.ToString(),
+                    displayName = buffConfig.buffName,
+                    source = Camp.BuffSource.Innate,
+                    sourceId = buffConfig.buffId.ToString(),
+                    stackRule = Camp.BuffStackRule.None,
+                    currentStacks = 1,
+                    gameEffectType = buffConfig.gameEffectType,
+                    effectParam1 = buffConfig.effectParam1,
+                    remainingDuration = -1f,
+                };
+                runtimeAttributes.ApplyBuff(unifiedBuff);
+            }
+
+            // 光环 buff
+            if (definition.AuraBuffs != null)
+            {
+                foreach (var buff in definition.AuraBuffs)
+                {
+                    runtimeAttributes.ApplyBuff(buff.Clone());
+                }
+            }
+
+            runtimeAttributes.Recalculate();
+
+            // 受击火花
+            GameObject hitEffect = new GameObject("HitEffect");
+            hitEffect.transform.SetParent(go.transform, false);
+            hitEffect.transform.localPosition = Vector3.zero;
+            hitEffect.transform.localScale = Vector3.one;
+            SpriteRenderer hitSr = hitEffect.AddComponent<SpriteRenderer>();
+            hitSr.sortingOrder = 200;
+            hitEffect.SetActive(false);
+
+            return new BattleFighter
+            {
+                Name = objectName,
+                Camp = camp,
+                UnitType = unitType,
+                StaticAttributes = attrs,
+                RuntimeAttributes = runtimeAttributes,
+                Avatar = battleAvatar,
+                Transform = go.transform,
+                BaseScale = scale,
+                TribeType = definition.TribeType,
+                FighterId = definition.FighterId,
+                InnateBuffIds = innateBuffIds,
+                HitEffect = hitEffect
+            };
+        }
+
         private static BattleFighter CreateFighter(
             Transform parent,
             string objectName,
