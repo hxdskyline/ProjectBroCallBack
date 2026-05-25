@@ -28,8 +28,6 @@ namespace Camp
                 foreach (var unit in tribe.units)
                 {
                     if (unit == null) continue;
-                    // 满目疮痍的单位不能上阵
-                    if (unit.hasWoundsDebuff) continue;
                     unit.SetZone(UnitZone.Deployed);
                 }
             }

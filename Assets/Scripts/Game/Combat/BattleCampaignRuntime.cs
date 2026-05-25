@@ -20,6 +20,12 @@ namespace Combat
 
         private readonly int[][] _enemyUnitIdsByBattle;
 
+        // 随机变体：每关多组敌人配置，战斗时随机抽取一组
+        private readonly Dictionary<int, List<int[]>> _enemyUnitVariantsMap
+            = new Dictionary<int, List<int[]>>();
+
+        private static readonly System.Random _rng = new System.Random();
+
         // Backward-compatible single-value enemy stats (fallback)
         private readonly UnitStaticAttributes[] _enemyStatsByBattle;
 
@@ -100,7 +106,14 @@ namespace Combat
 
         public int[] GetEnemyUnitIdsForBattle(int battleNumber)
         {
-            // Try single first, then swarm
+            // 优先从随机变体中抽取
+            if (_enemyUnitVariantsMap.TryGetValue(battleNumber, out var variants) && variants.Count > 0)
+            {
+                int index = _rng.Next(variants.Count);
+                return variants[index];
+            }
+
+            // 回退到原有 formation 逻辑
             var ids = GetEnemyUnitIds(battleNumber, EnemyFormationType.Single);
             if (ids != null && ids.Length > 0)
                 return ids;
@@ -418,18 +431,41 @@ namespace Combat
                     JsonData levelJson = levelsJson[i];
                     int battleNumber = ReadInt(levelJson, "battleNumber", i + 1);
 
-                    // Parse legacy enemyUnitIds (int array) or new format (object with formation keys)
+                    // Parse enemyUnitIds: 支持三种格式
+                    // 1. Legacy: flat int array [5000, 5000, 5000]
+                    // 2. Formation: { "single": [...], "swarm": [...] }
+                    // 3. Variants: [[5000,5000], [5010,5010], ...] — 每关多组配置，战斗时随机抽取
                     if (levelJson.Keys.Contains("enemyUnitIds"))
                     {
                         JsonData idsData = levelJson["enemyUnitIds"];
-                        if (idsData.IsArray)
+                        if (idsData.IsArray && idsData.Count > 0 && idsData[0].IsArray)
+                        {
+                            // Variants format: array of arrays
+                            var variants = new List<int[]>();
+                            for (int v = 0; v < idsData.Count; v++)
+                            {
+                                int[] ids = ReadIntArrayFromJsonData(idsData[v]);
+                                if (ids != null && ids.Length > 0)
+                                    variants.Add(ids);
+                            }
+                            if (variants.Count > 0)
+                            {
+                                _enemyUnitVariantsMap[battleNumber] = variants;
+                                enemyUnitIdsByBattle[i] = variants[0]; // fallback: first variant
+                            }
+                            else
+                            {
+                                enemyUnitIdsByBattle[i] = new[] { 1 };
+                            }
+                        }
+                        else if (idsData.IsArray)
                         {
                             // Legacy format: flat int array
                             enemyUnitIdsByBattle[i] = ReadIntArray(levelJson, "enemyUnitIds");
                         }
                         else if (idsData.IsObject)
                         {
-                            // New format: { "single": [...], "swarm": [...] }
+                            // Formation format: { "single": [...], "swarm": [...] }
                             var formationMap = new Dictionary<EnemyFormationType, int[]>();
                             int[] fallbackIds = null;
 

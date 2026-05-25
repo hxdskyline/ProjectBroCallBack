@@ -47,13 +47,28 @@
         "hard"
       ],
       "freeDeployQuota": 50,
-      "enemyUnitIds": {
-        "single": [
+      "enemyUnitIds": [
+        [
           5000,
           5000,
           5000
+        ],
+        [
+          5000,
+          5000,
+          5010
+        ],
+        [
+          5000,
+          5000,
+          5000
+        ],
+        [
+          5000,
+          5000,
+          5020
         ]
-      },
+      ],
       "catFoodReward": {
         "normal": 120,
         "hard": 180
@@ -85,15 +100,36 @@
         "bloodbath"
       ],
       "freeDeployQuota": 60,
-      "enemyUnitIds": {
-        "single": [
+      "enemyUnitIds": [
+        [
           5010,
           5010,
           5010,
           5010,
           5020
+        ],
+        [
+          5010,
+          5010,
+          5010,
+          5020,
+          5020
+        ],
+        [
+          5010,
+          5010,
+          5000,
+          5000,
+          5020
+        ],
+        [
+          5010,
+          5010,
+          5010,
+          5010,
+          5000
         ]
-      },
+      ],
       "catFoodReward": {
         "normal": 140,
         "hard": 210,
@@ -126,18 +162,36 @@
         "hard"
       ],
       "freeDeployQuota": 80,
-      "enemyUnitIds": {
-        "single": [
+      "enemyUnitIds": [
+        [
           5000,
           5000,
           5000,
           5010,
+          5010
+        ],
+        [
+          5000,
+          5000,
           5010,
           5010,
+          5010
+        ],
+        [
+          5000,
+          5000,
+          5000,
           5010,
           5020
+        ],
+        [
+          5000,
+          5000,
+          5000,
+          5000,
+          5010
         ]
-      },
+      ],
       "catFoodReward": {
         "normal": 160,
         "hard": 240
@@ -164,11 +218,24 @@
         "bloodbath"
       ],
       "freeDeployQuota": 100,
-      "enemyUnitIds": {
-        "single": [
+      "enemyUnitIds": [
+        [
           5030
+        ],
+        [
+          5030,
+          5000
+        ],
+        [
+          5030,
+          5010
+        ],
+        [
+          5030,
+          5000,
+          5000
         ]
-      },
+      ],
       "catFoodReward": {
         "normal": 180,
         "hard": 270,
@@ -201,16 +268,37 @@
         "hard"
       ],
       "freeDeployQuota": 120,
-      "enemyUnitIds": {
-        "single": [
+      "enemyUnitIds": [
+        [
           5020,
+          5020,
+          5010,
+          5010,
+          5010
+        ],
+        [
           5020,
           5010,
           5010,
           5010,
           5010
+        ],
+        [
+          5020,
+          5020,
+          5010,
+          5010,
+          5000
+        ],
+        [
+          5020,
+          5020,
+          5010,
+          5010,
+          5010,
+          5000
         ]
-      },
+      ],
       "catFoodReward": {
         "normal": 200,
         "hard": 300
@@ -246,15 +334,36 @@
         "hard"
       ],
       "freeDeployQuota": 140,
-      "enemyUnitIds": {
-        "single": [
+      "enemyUnitIds": [
+        [
           5020,
           5020,
           5020,
           5020,
           5040
+        ],
+        [
+          5020,
+          5020,
+          5020,
+          5040,
+          5000
+        ],
+        [
+          5020,
+          5020,
+          5020,
+          5020,
+          5010
+        ],
+        [
+          5020,
+          5020,
+          5020,
+          5040,
+          5010
         ]
-      },
+      ],
       "catFoodReward": {
         "normal": 220,
         "hard": 330
@@ -291,71 +400,40 @@
         "bloodbath"
       ],
       "freeDeployQuota": 160,
-      "enemyUnitIds": {
-        "single": [
-          1,
-          1,
-          1,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          5010,
+          5010,
+          5020,
+          1001,
+          1002,
+          2001
         ],
-        "swarm": [
-          1,
-          1,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3
+        [
+          5000,
+          5000,
+          5010,
+          5020,
+          2001,
+          2001
+        ],
+        [
+          5010,
+          5010,
+          5010,
+          1002,
+          2001,
+          5020
+        ],
+        [
+          5000,
+          5020,
+          5020,
+          1002,
+          2001,
+          5010
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 29,
-          "defense": 0,
-          "hp": 317,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 33,
-          "defense": 0,
-          "hp": 430,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "bloodbath": {
-          "attack": 36,
-          "defense": 0,
-          "hp": 480,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 240,
         "hard": 360,
@@ -392,63 +470,37 @@
         "hard"
       ],
       "freeDeployQuota": 180,
-      "enemyUnitIds": {
-        "single": [
-          1,
-          1,
-          1,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          1001,
+          5000,
+          5010,
+          5010,
+          5010
         ],
-        "swarm": [
-          1,
-          1,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3
+        [
+          5000,
+          5000,
+          5000,
+          5010,
+          5020
+        ],
+        [
+          5010,
+          5010,
+          5010,
+          5010,
+          5000
+        ],
+        [
+          5000,
+          5000,
+          5020,
+          5010,
+          5000,
+          5010
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 31,
-          "defense": 0,
-          "hp": 340,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 35,
-          "defense": 0,
-          "hp": 463,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 260,
         "hard": 390
@@ -485,71 +537,37 @@
         "bloodbath"
       ],
       "freeDeployQuota": 200,
-      "enemyUnitIds": {
-        "single": [
-          1,
-          1,
-          1,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          1000,
+          1001,
+          5010,
+          5020,
+          5020
         ],
-        "swarm": [
-          1,
-          1,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3
+        [
+          2000,
+          5000,
+          5000,
+          5020,
+          5020
+        ],
+        [
+          1000,
+          5010,
+          5010,
+          5020,
+          5020,
+          5000
+        ],
+        [
+          2000,
+          1002,
+          5010,
+          5010,
+          5020
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 33,
-          "defense": 0,
-          "hp": 363,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 37,
-          "defense": 0,
-          "hp": 495,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "bloodbath": {
-          "attack": 41,
-          "defense": 0,
-          "hp": 550,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 280,
         "hard": 420,
@@ -582,61 +600,37 @@
         "hard"
       ],
       "freeDeployQuota": 220,
-      "enemyUnitIds": {
-        "single": [
-          1,
-          1,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          2002,
+          5000,
+          5010,
+          5010,
+          5020
         ],
-        "swarm": [
-          1,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5010,
+          5010,
+          5010,
+          5000,
+          5000
+        ],
+        [
+          5000,
+          5020,
+          5010,
+          5010,
+          5000
+        ],
+        [
+          5010,
+          5010,
+          5000,
+          5000,
+          5010,
+          5000
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 35,
-          "defense": 0,
-          "hp": 386,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 39,
-          "defense": 0,
-          "hp": 528,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 300,
         "hard": 450
@@ -673,69 +667,41 @@
         "bloodbath"
       ],
       "freeDeployQuota": 240,
-      "enemyUnitIds": {
-        "single": [
-          1,
-          1,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          2002,
+          5010,
+          5020,
+          5020,
+          1002,
+          1002
         ],
-        "swarm": [
-          1,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5000,
+          5010,
+          5010,
+          5020,
+          2001,
+          2001
+        ],
+        [
+          5020,
+          5020,
+          5010,
+          5010,
+          5010,
+          1002,
+          1002
+        ],
+        [
+          5000,
+          5000,
+          5020,
+          5020,
+          5010,
+          2001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 37,
-          "defense": 0,
-          "hp": 409,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 41,
-          "defense": 0,
-          "hp": 561,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "bloodbath": {
-          "attack": 45,
-          "defense": 0,
-          "hp": 620,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 320,
         "hard": 480,
@@ -767,61 +733,39 @@
         "hard"
       ],
       "freeDeployQuota": 260,
-      "enemyUnitIds": {
-        "single": [
-          1,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          5000,
+          5000,
+          5000,
+          5010,
+          5010,
+          5010
         ],
-        "swarm": [
-          1,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5010,
+          5010,
+          5010,
+          5010,
+          5000,
+          5000
+        ],
+        [
+          5000,
+          5000,
+          5020,
+          5010,
+          5010
+        ],
+        [
+          5000,
+          5010,
+          5010,
+          5000,
+          5000,
+          5020
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 39,
-          "defense": 0,
-          "hp": 432,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 43,
-          "defense": 0,
-          "hp": 594,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 340,
         "hard": 510
@@ -852,61 +796,40 @@
         "hard"
       ],
       "freeDeployQuota": 280,
-      "enemyUnitIds": {
-        "single": [
-          1,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          2003,
+          5000,
+          5010,
+          5010,
+          5020,
+          5010
         ],
-        "swarm": [
-          1,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5010,
+          5010,
+          5000,
+          5000,
+          5000,
+          5010
+        ],
+        [
+          5000,
+          5020,
+          5010,
+          5010,
+          5000,
+          5010
+        ],
+        [
+          5010,
+          5000,
+          5000,
+          5020,
+          5010,
+          5000
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 41,
-          "defense": 0,
-          "hp": 455,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 45,
-          "defense": 0,
-          "hp": 627,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 360,
         "hard": 540
@@ -943,69 +866,38 @@
         "bloodbath"
       ],
       "freeDeployQuota": 300,
-      "enemyUnitIds": {
-        "single": [
-          1,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          1000,
+          5010,
+          5010,
+          5020,
+          5020
         ],
-        "swarm": [
-          1,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          2000,
+          5010,
+          5020,
+          5020,
+          5000,
+          5000
+        ],
+        [
+          1000,
+          5010,
+          5010,
+          5020,
+          5020,
+          5000
+        ],
+        [
+          2000,
+          5010,
+          5010,
+          5020,
+          2001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 43,
-          "defense": 0,
-          "hp": 478,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 47,
-          "defense": 0,
-          "hp": 660,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "bloodbath": {
-          "attack": 51,
-          "defense": 0,
-          "hp": 720,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 380,
         "hard": 570,
@@ -1038,59 +930,36 @@
         "hard"
       ],
       "freeDeployQuota": 320,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          5010,
+          5010,
+          5020,
+          3001,
+          3001
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          1001,
+          5010,
+          5020,
+          3001,
+          3002
+        ],
+        [
+          5020,
+          3001,
+          3001,
+          3001,
+          5010
+        ],
+        [
+          5010,
+          5010,
+          3001,
+          3002,
+          5020
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 45,
-          "defense": 0,
-          "hp": 501,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 49,
-          "defense": 0,
-          "hp": 693,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 400,
         "hard": 600
@@ -1127,67 +996,42 @@
         "bloodbath"
       ],
       "freeDeployQuota": 340,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          5010,
+          5020,
+          5020,
+          3001,
+          3001,
+          3001
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5000,
+          5010,
+          5010,
+          5020,
+          3001,
+          3002
+        ],
+        [
+          5020,
+          5020,
+          3001,
+          3001,
+          3001,
+          5010,
+          1002
+        ],
+        [
+          5010,
+          5010,
+          5020,
+          3001,
+          3001,
+          3002,
+          5000
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 47,
-          "defense": 0,
-          "hp": 524,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 51,
-          "defense": 0,
-          "hp": 726,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "bloodbath": {
-          "attack": 55,
-          "defense": 0,
-          "hp": 790,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 420,
         "hard": 630,
@@ -1219,59 +1063,37 @@
         "hard"
       ],
       "freeDeployQuota": 360,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          5010,
+          5010,
+          3001,
+          3001,
+          5020
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5000,
+          5010,
+          3001,
+          3002,
+          5010
+        ],
+        [
+          5020,
+          3001,
+          3001,
+          5010,
+          5010,
+          3001
+        ],
+        [
+          5010,
+          3001,
+          3001,
+          3001,
+          5020
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 49,
-          "defense": 0,
-          "hp": 547,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 53,
-          "defense": 0,
-          "hp": 759,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 440,
         "hard": 660
@@ -1308,67 +1130,42 @@
         "bloodbath"
       ],
       "freeDeployQuota": 380,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          5010,
+          5020,
+          3001,
+          3001,
+          3001,
+          3002
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5000,
+          5010,
+          5020,
+          3001,
+          3001,
+          3001
+        ],
+        [
+          5020,
+          5020,
+          3001,
+          3001,
+          3001,
+          3001,
+          5010
+        ],
+        [
+          5010,
+          5010,
+          5020,
+          3001,
+          3001,
+          3002,
+          3001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 51,
-          "defense": 0,
-          "hp": 570,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 55,
-          "defense": 0,
-          "hp": 792,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "bloodbath": {
-          "attack": 59,
-          "defense": 0,
-          "hp": 860,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 460,
         "hard": 690,
@@ -1406,67 +1203,36 @@
         "bloodbath"
       ],
       "freeDeployQuota": 400,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          3000,
+          5010,
+          5020,
+          3001,
+          3001
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          1000,
+          5020,
+          5020,
+          3001,
+          3001
+        ],
+        [
+          3000,
+          5010,
+          5010,
+          5020,
+          3001
+        ],
+        [
+          2000,
+          5010,
+          3001,
+          3001,
+          5020
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 53,
-          "defense": 0,
-          "hp": 593,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 57,
-          "defense": 0,
-          "hp": 825,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "bloodbath": {
-          "attack": 61,
-          "defense": 0,
-          "hp": 900,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 480,
         "hard": 720,
@@ -1498,55 +1264,38 @@
         "hard"
       ],
       "freeDeployQuota": 420,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          2002,
+          5020,
+          3001,
+          3001,
+          3001
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5000,
+          5010,
+          5020,
+          3001,
+          3002
+        ],
+        [
+          5020,
+          3001,
+          3001,
+          5010,
+          5010,
+          3001
+        ],
+        [
+          5010,
+          5010,
+          3001,
+          3001,
+          5020,
+          3001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 55,
-          "defense": 0,
-          "hp": 616,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 59,
-          "defense": 0,
-          "hp": 844,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 500,
         "hard": 750
@@ -1577,57 +1326,39 @@
         "hard"
       ],
       "freeDeployQuota": 440,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          5010,
+          5010,
+          5020,
+          3001,
+          3001,
+          3001
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5000,
+          5010,
+          3001,
+          3001,
+          3002
+        ],
+        [
+          5020,
+          5020,
+          3001,
+          3001,
+          5010,
+          3001
+        ],
+        [
+          5010,
+          5010,
+          3001,
+          3001,
+          3001,
+          5020
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 57,
-          "defense": 0,
-          "hp": 639,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 61,
-          "defense": 0,
-          "hp": 875,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 520,
         "hard": 780
@@ -1664,67 +1395,42 @@
         "bloodbath"
       ],
       "freeDeployQuota": 460,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          5020,
+          5020,
+          3001,
+          3001,
+          3001,
+          3001
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5010,
+          5010,
+          5020,
+          3001,
+          3001,
+          3002,
+          3001
+        ],
+        [
+          5020,
+          5020,
+          5020,
+          3001,
+          3001,
+          3001
+        ],
+        [
+          5010,
+          5020,
+          5020,
+          3001,
+          3001,
+          3001,
+          3001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 60,
-          "defense": 0,
-          "hp": 662,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 64,
-          "defense": 0,
-          "hp": 907,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "bloodbath": {
-          "attack": 68,
-          "defense": 0,
-          "hp": 993,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 540,
         "hard": 810,
@@ -1756,59 +1462,38 @@
         "hard"
       ],
       "freeDeployQuota": 480,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          5010,
+          5020,
+          3001,
+          3001,
+          3001,
+          3001
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5000,
+          5010,
+          5020,
+          3001,
+          3001
+        ],
+        [
+          5020,
+          3001,
+          3001,
+          3001,
+          5010
+        ],
+        [
+          5010,
+          5010,
+          3001,
+          3001,
+          3002,
+          3001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 62,
-          "defense": 0,
-          "hp": 685,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 66,
-          "defense": 0,
-          "hp": 938,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 560,
         "hard": 840
@@ -1845,69 +1530,37 @@
         "bloodbath"
       ],
       "freeDeployQuota": 500,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          3000,
+          5020,
+          3001,
+          3001,
+          3001
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          2000,
+          5020,
+          5020,
+          3001,
+          3001
+        ],
+        [
+          3000,
+          5010,
+          5020,
+          3001,
+          3001,
+          3001
+        ],
+        [
+          1000,
+          5020,
+          3001,
+          3001,
+          3001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 65,
-          "defense": 0,
-          "hp": 708,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 69,
-          "defense": 0,
-          "hp": 970,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "bloodbath": {
-          "attack": 73,
-          "defense": 0,
-          "hp": 1062,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 580,
         "hard": 870,
@@ -1940,55 +1593,38 @@
         "hard"
       ],
       "freeDeployQuota": 520,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          5020,
+          3001,
+          3001,
+          3001,
+          3001
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          1001,
+          5020,
+          3001,
+          3001,
+          3002
+        ],
+        [
+          5020,
+          5020,
+          3001,
+          3001,
+          3001,
+          3001
+        ],
+        [
+          5010,
+          3001,
+          3001,
+          3001,
+          5020,
+          3001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 67,
-          "defense": 0,
-          "hp": 731,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 71,
-          "defense": 0,
-          "hp": 1001,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 600,
         "hard": 900
@@ -2024,57 +1660,39 @@
         "hard"
       ],
       "freeDeployQuota": 540,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          5010,
+          5020,
+          3001,
+          3001,
+          3001,
+          3001
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5020,
+          3001,
+          3001,
+          3001,
+          3001
+        ],
+        [
+          5010,
+          5010,
+          5020,
+          3001,
+          3001,
+          3001
+        ],
+        [
+          5020,
+          3001,
+          3001,
+          3002,
+          3001,
+          5010
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 69,
-          "defense": 0,
-          "hp": 754,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 73,
-          "defense": 0,
-          "hp": 1033,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 620,
         "hard": 930
@@ -2111,67 +1729,45 @@
         "bloodbath"
       ],
       "freeDeployQuota": 560,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          5020,
+          5020,
+          3001,
+          3001,
+          3001,
+          3001,
+          3001
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5010,
+          5020,
+          5020,
+          3001,
+          3001,
+          3001,
+          3002
+        ],
+        [
+          5020,
+          5020,
+          5020,
+          3001,
+          3001,
+          3001,
+          3001
+        ],
+        [
+          5010,
+          5010,
+          5020,
+          5020,
+          3001,
+          3001,
+          3001,
+          3001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 72,
-          "defense": 0,
-          "hp": 777,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 76,
-          "defense": 0,
-          "hp": 1065,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "bloodbath": {
-          "attack": 80,
-          "defense": 0,
-          "hp": 1166,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 640,
         "hard": 960,
@@ -2203,57 +1799,38 @@
         "hard"
       ],
       "freeDeployQuota": 580,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          5020,
+          3001,
+          3001,
+          3001,
+          3001,
+          3001
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5010,
+          5020,
+          3001,
+          3001,
+          3001,
+          3001
+        ],
+        [
+          5020,
+          5020,
+          3001,
+          3001,
+          3001
+        ],
+        [
+          5010,
+          3001,
+          3001,
+          3002,
+          3001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 74,
-          "defense": 0,
-          "hp": 800,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 78,
-          "defense": 0,
-          "hp": 1096,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 660,
         "hard": 990
@@ -2290,69 +1867,37 @@
         "bloodbath"
       ],
       "freeDeployQuota": 600,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          3000,
+          5020,
+          5020,
+          3001,
+          3001
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          3000,
+          3001,
+          3001,
+          3001,
+          3001
+        ],
+        [
+          1000,
+          5020,
+          5020,
+          3001,
+          3001,
+          3001
+        ],
+        [
+          2000,
+          5020,
+          3001,
+          3001,
+          3001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 77,
-          "defense": 0,
-          "hp": 823,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 81,
-          "defense": 0,
-          "hp": 1128,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "bloodbath": {
-          "attack": 85,
-          "defense": 0,
-          "hp": 1235,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 680,
         "hard": 1020,
@@ -2385,55 +1930,37 @@
         "hard"
       ],
       "freeDeployQuota": 620,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          3001,
+          3001,
+          3001,
+          4001,
+          4001
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5020,
+          3001,
+          3001,
+          4001,
+          4001
+        ],
+        [
+          3001,
+          3001,
+          4001,
+          4001,
+          3002
+        ],
+        [
+          5010,
+          3001,
+          3001,
+          3001,
+          4001,
+          4001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 79,
-          "defense": 0,
-          "hp": 846,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 83,
-          "defense": 0,
-          "hp": 1159,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 700,
         "hard": 1050
@@ -2464,57 +1991,37 @@
         "hard"
       ],
       "freeDeployQuota": 640,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          3001,
+          3001,
+          4001,
+          4001,
+          3001
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5020,
+          3001,
+          4001,
+          4001,
+          3002
+        ],
+        [
+          3001,
+          3001,
+          3001,
+          4001,
+          4001
+        ],
+        [
+          4003,
+          3001,
+          3001,
+          4001,
+          4001,
+          3001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 81,
-          "defense": 0,
-          "hp": 869,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 85,
-          "defense": 0,
-          "hp": 1191,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 720,
         "hard": 1080
@@ -2551,67 +2058,41 @@
         "bloodbath"
       ],
       "freeDeployQuota": 660,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          3001,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001
         ],
-        "swarm": [
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          4002,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001
+        ],
+        [
+          3001,
+          3001,
+          3001,
+          3001,
+          4001,
+          4001
+        ],
+        [
+          5020,
+          3001,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 84,
-          "defense": 0,
-          "hp": 892,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 88,
-          "defense": 0,
-          "hp": 1222,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "bloodbath": {
-          "attack": 92,
-          "defense": 0,
-          "hp": 1338,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 740,
         "hard": 1110,
@@ -2643,57 +2124,37 @@
         "hard"
       ],
       "freeDeployQuota": 680,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          3001,
+          3001,
+          4001,
+          4001,
+          4001
         ],
-        "swarm": [
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5020,
+          3001,
+          3001,
+          4001,
+          4001
+        ],
+        [
+          3001,
+          3001,
+          3001,
+          4001,
+          4001,
+          3002
+        ],
+        [
+          5010,
+          3001,
+          4001,
+          4001,
+          4001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 86,
-          "defense": 0,
-          "hp": 915,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 90,
-          "defense": 0,
-          "hp": 1254,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 760,
         "hard": 1140
@@ -2730,69 +2191,37 @@
         "bloodbath"
       ],
       "freeDeployQuota": 700,
-      "enemyUnitIds": {
-        "single": [
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          4000,
+          3001,
+          3001,
+          4001,
+          4001
         ],
-        "swarm": [
-          2,
-          2,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          3000,
+          3001,
+          4001,
+          4001,
+          4001
+        ],
+        [
+          4000,
+          3001,
+          3001,
+          4001,
+          4001,
+          3002
+        ],
+        [
+          1000,
+          3001,
+          4001,
+          4001,
+          4001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 89,
-          "defense": 0,
-          "hp": 938,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 93,
-          "defense": 0,
-          "hp": 1285,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "bloodbath": {
-          "attack": 97,
-          "defense": 0,
-          "hp": 1407,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 780,
         "hard": 1170,
@@ -2825,55 +2254,38 @@
         "hard"
       ],
       "freeDeployQuota": 720,
-      "enemyUnitIds": {
-        "single": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          3001,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001
         ],
-        "swarm": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          1003,
+          3001,
+          4001,
+          4001,
+          4001
+        ],
+        [
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          3002
+        ],
+        [
+          5010,
+          3001,
+          3001,
+          4001,
+          4001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 91,
-          "defense": 0,
-          "hp": 961,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 95,
-          "defense": 0,
-          "hp": 1317,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 800,
         "hard": 1200
@@ -2909,57 +2321,39 @@
         "hard"
       ],
       "freeDeployQuota": 740,
-      "enemyUnitIds": {
-        "single": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001
         ],
-        "swarm": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5020,
+          3001,
+          3001,
+          4001,
+          4001
+        ],
+        [
+          3001,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001
+        ],
+        [
+          3001,
+          3001,
+          4001,
+          4001,
+          3002,
+          4001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 93,
-          "defense": 0,
-          "hp": 984,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 97,
-          "defense": 0,
-          "hp": 1348,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 820,
         "hard": 1230
@@ -2996,67 +2390,45 @@
         "bloodbath"
       ],
       "freeDeployQuota": 760,
-      "enemyUnitIds": {
-        "single": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          3001,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001
         ],
-        "swarm": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5020,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001
+        ],
+        [
+          3001,
+          3001,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001
+        ],
+        [
+          5020,
+          3001,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 96,
-          "defense": 0,
-          "hp": 1007,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 100,
-          "defense": 0,
-          "hp": 1380,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "bloodbath": {
-          "attack": 104,
-          "defense": 0,
-          "hp": 1511,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 840,
         "hard": 1260,
@@ -3088,57 +2460,41 @@
         "hard"
       ],
       "freeDeployQuota": 780,
-      "enemyUnitIds": {
-        "single": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001
         ],
-        "swarm": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          2003,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001
+        ],
+        [
+          3001,
+          3001,
+          3001,
+          4001,
+          4001,
+          3002
+        ],
+        [
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001,
+          3001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 98,
-          "defense": 0,
-          "hp": 1030,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 102,
-          "defense": 0,
-          "hp": 1411,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 860,
         "hard": 1290
@@ -3175,69 +2531,37 @@
         "bloodbath"
       ],
       "freeDeployQuota": 800,
-      "enemyUnitIds": {
-        "single": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          4000,
+          3001,
+          4001,
+          4001,
+          4001
         ],
-        "swarm": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          3000,
+          3001,
+          3001,
+          4001,
+          4001
+        ],
+        [
+          4000,
+          3001,
+          4001,
+          4001,
+          4001,
+          3002
+        ],
+        [
+          2000,
+          3001,
+          4001,
+          4001,
+          4001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 101,
-          "defense": 0,
-          "hp": 1053,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 105,
-          "defense": 0,
-          "hp": 1443,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "bloodbath": {
-          "attack": 109,
-          "defense": 0,
-          "hp": 1580,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 880,
         "hard": 1320,
@@ -3270,59 +2594,40 @@
         "hard"
       ],
       "freeDeployQuota": 820,
-      "enemyUnitIds": {
-        "single": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001
         ],
-        "swarm": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          1003,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001
+        ],
+        [
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          3002
+        ],
+        [
+          3001,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 103,
-          "defense": 0,
-          "hp": 1076,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 107,
-          "defense": 0,
-          "hp": 1474,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 900,
         "hard": 1350
@@ -3353,59 +2658,41 @@
         "hard"
       ],
       "freeDeployQuota": 840,
-      "enemyUnitIds": {
-        "single": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001
         ],
-        "swarm": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          3001,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001
+        ],
+        [
+          5020,
+          3001,
+          4001,
+          4001,
+          4001,
+          3002
+        ],
+        [
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001,
+          3001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 105,
-          "defense": 0,
-          "hp": 1099,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 109,
-          "defense": 0,
-          "hp": 1506,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 920,
         "hard": 1380
@@ -3442,69 +2729,49 @@
         "bloodbath"
       ],
       "freeDeployQuota": 860,
-      "enemyUnitIds": {
-        "single": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          3001,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001,
+          4001
         ],
-        "swarm": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          5020,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001,
+          4001
+        ],
+        [
+          3001,
+          3001,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001
+        ],
+        [
+          5020,
+          3001,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001,
+          4001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 108,
-          "defense": 0,
-          "hp": 1122,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 112,
-          "defense": 0,
-          "hp": 1537,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "bloodbath": {
-          "attack": 116,
-          "defense": 0,
-          "hp": 1683,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 940,
         "hard": 1410,
@@ -3536,59 +2803,43 @@
         "hard"
       ],
       "freeDeployQuota": 880,
-      "enemyUnitIds": {
-        "single": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001,
+          4001
         ],
-        "swarm": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          3001,
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001
+        ],
+        [
+          4003,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001
+        ],
+        [
+          3001,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001,
+          3002
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 110,
-          "defense": 0,
-          "hp": 1145,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 114,
-          "defense": 0,
-          "hp": 1569,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 960,
         "hard": 1440
@@ -3625,71 +2876,38 @@
         "bloodbath"
       ],
       "freeDeployQuota": 900,
-      "enemyUnitIds": {
-        "single": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+      "enemyUnitIds": [
+        [
+          4000,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001
         ],
-        "swarm": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
+        [
+          4000,
+          3001,
+          3001,
+          4001,
+          4001
+        ],
+        [
+          3000,
+          3001,
+          4001,
+          4001,
+          4001,
+          4001
+        ],
+        [
+          4000,
+          5020,
+          4001,
+          4001,
+          4001
         ]
-      },
-      "enemyStats": {
-        "normal": {
-          "attack": 113,
-          "defense": 0,
-          "hp": 1168,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "hard": {
-          "attack": 117,
-          "defense": 0,
-          "hp": 1600,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        },
-        "bloodbath": {
-          "attack": 121,
-          "defense": 0,
-          "hp": 1752,
-          "moveSpeed": 1800,
-          "attackRange": 1.0,
-          "attackSpeed": 1250
-        }
-      },
+      ],
       "catFoodReward": {
         "normal": 980,
         "hard": 1470,

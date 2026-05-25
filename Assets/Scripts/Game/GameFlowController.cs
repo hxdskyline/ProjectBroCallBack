@@ -56,6 +56,7 @@ public class GameFlowController : MonoBehaviour
 
     public GameState CurrentState => _currentState;
     public int CurrentRound => _currentRound;
+    public int CurrentRegion => _currentRegion;
     public bool IsGameStarted => _isGameStarted;
     public MapData CurrentRegionMap => _currentRegionMap;
     public int CurrentNodeId => _currentNodeId;
@@ -225,7 +226,8 @@ public class GameFlowController : MonoBehaviour
                 name = cfg.fighterName,
                 currentHp = cfg.hp,
                 zone = (int)UnitZone.Deployed,
-                hasWoundsDebuff = false
+                rarity = cfg.rarity,
+                enhanceLevel = cfg.enhanceLevel
             });
 
             GameLogger.Log("GFC", $"Added fighter={cfg.fighterName}({fid}) tribe={cfg.tribeType}");
@@ -554,8 +556,9 @@ public class GameFlowController : MonoBehaviour
 
                 var avatar = LoadAvatarDefinition(cfg.avatarId);
                 var attrs = cfg.ToStaticAttributes();
-                // 使用当前 HP（战后可能不满血），不超过配置最大值
-                attrs.MaxHp = unit.currentHp > 0 ? (int)Mathf.Min(unit.currentHp, cfg.hp) : cfg.hp;
+                // 使用当前 HP（战后可能不满血），不超过配置最大值（强化单位允许超过基础值）
+                int hpCap = unit.IsEnhanced() ? Mathf.RoundToInt(cfg.hp * 1.5f) : cfg.hp;
+                attrs.MaxHp = unit.currentHp > 0 ? (int)Mathf.Min(unit.currentHp, hpCap) : cfg.hp;
 
                 playerDefs.Add(new BattleFighterSpawnDefinition(
                     cfg.fighterName,
@@ -563,7 +566,11 @@ public class GameFlowController : MonoBehaviour
                     avatar,
                     scaleMultiplier: 1.0f,
                     tribeType: (TribeType)cfg.tribeType,
-                    fighterId: cfg.fighterId));
+                    fighterId: cfg.fighterId)
+                {
+                    AuraBuffs = unit.ActiveBuffs,
+                    EnhanceLevel = unit.enhanceLevel
+                });
             }
         }
 
@@ -611,11 +618,14 @@ public class GameFlowController : MonoBehaviour
 
             var avatar = LoadAvatarDefinition(cfg.avatarId);
             var attrs = cfg.ToStaticAttributes();
-            attrs.MaxHp = unit.currentHp > 0 ? (int)Mathf.Max(unit.currentHp, cfg.hp) : cfg.hp;
+            int hpCap = unit.IsEnhanced() ? Mathf.RoundToInt(cfg.hp * 1.5f) : cfg.hp;
+            attrs.MaxHp = unit.currentHp > 0 ? (int)Mathf.Max(unit.currentHp, hpCap) : cfg.hp;
 
-            playerDefs.Add(new Combat.Fighter.BattleFighterSpawnDefinition(
+            var def = new Combat.Fighter.BattleFighterSpawnDefinition(
                 cfg.fighterName, attrs, avatar,
-                1.0f, (Camp.TribeType)cfg.tribeType, cfg.fighterId));
+                1.0f, (Camp.TribeType)cfg.tribeType, cfg.fighterId);
+            def.CurrentHp = (int)unit.currentHp;
+            playerDefs.Add(def);
             playerPositions.Add(worldPos);
         }
 
@@ -636,9 +646,56 @@ public class GameFlowController : MonoBehaviour
         existingFlowController.BattleManager.BattleEnded += OnBattleEndedFromScene;
     }
 
+    /// <summary>
+    /// 取消战斗，返回布阵界面重新部署
+    /// </summary>
+    public void ReturnToPreparation()
+    {
+        GameLogger.Log("GFC", "ReturnToPreparation");
+
+        // 取消当前战斗（不同步 HP、不触发 BattleEnded）
+        if (_battleFlowController != null)
+        {
+            var bm = _battleFlowController.BattleManager;
+            if (bm != null)
+            {
+                bm.BattleEnded -= OnBattleEndedFromScene;
+                bm.CancelBattle();
+            }
+            _battleFlowController.StopAndDispose(null);
+            _battleFlowController = null;
+        }
+
+        ChangeGameState(GameState.RoundPreparation);
+
+        // 重新显示战斗准备面板
+        ShowBattlePreparePanel(_currentRound);
+    }
+
+    /// <summary>
+    /// 显示战斗准备面板
+    /// </summary>
+    private void ShowBattlePreparePanel(int battleNumber)
+    {
+        if (_uiManager == null)
+            _uiManager = GameManager.Instance?.UIManager;
+
+        var campaign = GameManager.Instance?.BattleCampaignRuntime;
+        var nodeType = _currentRegionMap?.GetNode(_currentNodeId)?.nodeType ?? MapNodeType.Battle;
+
+        var panel = _uiManager?.ShowPanel<BattlePreparePanel>(UIManager.UILayer.Normal);
+        if (panel != null)
+        {
+            panel.Setup(battleNumber, nodeType);
+        }
+    }
+
     private void OnBattleEndedFromScene(bool victory)
     {
         GameLogger.Log("GFC", $"BattleEndedFromScene victory={victory}");
+
+        // 在销毁前收集战斗统计
+        var battleStats = CollectBattleStats();
 
         // 销毁战斗场景
         if (_battleFlowController != null)
@@ -648,15 +705,18 @@ public class GameFlowController : MonoBehaviour
         }
 
         // 调用原有的战斗结束逻辑
-        OnBattleEnded(victory);
+        OnBattleEnded(victory, battleStats);
     }
 
     /// <summary>
     /// 战斗结束回调（由TribeBuildPanel调用）
     /// </summary>
-    public void OnBattleEnded(bool victory)
+    public void OnBattleEnded(bool victory, List<FighterBattleStats> battleStats = null)
     {
         GameLogger.Log("GFC", $"OnBattleEnded victory={victory}");
+
+        if (battleStats == null)
+            battleStats = CollectBattleStats();
 
         // 计算奖励数据
         int expReward = 0;
@@ -675,19 +735,48 @@ public class GameFlowController : MonoBehaviour
         }
 
         // 显示结算面板，等待玩家确认后继续
-        ShowBattleResultPanel(victory, _currentRound, expReward, catFoodReward);
+        ShowBattleResultPanel(victory, _currentRound, expReward, catFoodReward, battleStats);
+    }
+
+    /// <summary>
+    /// 收集我方战斗统计数据
+    /// </summary>
+    private System.Collections.Generic.List<FighterBattleStats> CollectBattleStats()
+    {
+        var stats = new System.Collections.Generic.List<FighterBattleStats>();
+        var bm = _battleFlowController?.BattleManager;
+        if (bm == null) return stats;
+
+        var fighters = bm.PlayerFighters;
+        if (fighters == null) return stats;
+
+        foreach (var f in fighters)
+        {
+            if (f == null) continue;
+            var cfg = Camp.TribeConfigLoader.Instance?.GetFighterConfig(f.FighterId);
+            stats.Add(new FighterBattleStats
+            {
+                fighterId = f.FighterId,
+                name = f.Name ?? (cfg?.fighterName ?? "???"),
+                avatarId = cfg?.avatarId ?? "",
+                totalDamageDealt = f.TotalDamageDealt,
+                totalDamageTaken = f.TotalDamageTaken,
+                totalHealingDone = f.TotalHealingDone
+            });
+        }
+        return stats;
     }
 
     /// <summary>
     /// 显示战斗结算面板
     /// </summary>
-    private void ShowBattleResultPanel(bool victory, int battleNumber, int expReward, int catFoodReward)
+    private void ShowBattleResultPanel(bool victory, int battleNumber, int expReward, int catFoodReward, List<FighterBattleStats> battleStats)
     {
         if (_uiManager == null)
             _uiManager = GameManager.Instance?.UIManager;
 
         var panel = _uiManager.ShowPanel<BattleResultPanel>(UIManager.UILayer.Top);
-        panel.Setup(victory, battleNumber, expReward, catFoodReward, () => ContinueAfterResult(victory));
+        panel.Setup(victory, battleNumber, expReward, catFoodReward, battleStats, () => ContinueAfterResult(victory));
     }
 
     /// <summary>
@@ -697,6 +786,9 @@ public class GameFlowController : MonoBehaviour
     {
         if (victory)
         {
+            // 战后将所有已部署单位移回待上阵区，下轮重新部署
+            ResetDeployedUnitsToStandby();
+
             // 标记节点已访问，解锁后续节点
             if (_currentRegionMap != null && _currentNodeId >= 0)
             {
@@ -714,25 +806,37 @@ public class GameFlowController : MonoBehaviour
             // 经验奖励
             GrantBattleExpReward();
 
-            // Boss关：切换到下一地区
             bool isBossBattle = _currentRegionMap != null &&
                                _currentNodeId >= 0 &&
                                _currentRegionMap.GetNode(_currentNodeId)?.nodeType == MapNodeType.Boss;
+
             if (isBossBattle)
             {
-                _currentRegion++;
-                if (_currentRegion <= _mapDataList.Count)
+                // Boss关：先展示Boss奖励（稀有兵种三选一 + Boss圣物），再普通招募，最后切地区
+                ShowBossRareFighterReward(() =>
                 {
-                    _currentRegionMap = _mapDataList[_currentRegion - 1];
-                    if (_currentRegionMap.nodes.Count > 0)
+                    ShowBossRelicReward(() =>
                     {
-                        _currentRegionMap.nodes[0].state = MapNodeState.Available;
-                    }
-                    _currentNodeId = -1;
-                }
-            }
+                        ShowBattleResultRecruitment();
 
-            ShowBattleResultRecruitment();
+                        // 切换到下一地区
+                        _currentRegion++;
+                        if (_currentRegion <= _mapDataList.Count)
+                        {
+                            _currentRegionMap = _mapDataList[_currentRegion - 1];
+                            if (_currentRegionMap.nodes.Count > 0)
+                            {
+                                _currentRegionMap.nodes[0].state = MapNodeState.Available;
+                            }
+                            _currentNodeId = -1;
+                        }
+                    });
+                });
+            }
+            else
+            {
+                ShowBattleResultRecruitment();
+            }
         }
         else
         {
@@ -745,7 +849,28 @@ public class GameFlowController : MonoBehaviour
             }
             else
             {
-                ChangeGameState(GameState.RoundPreparation);
+                // 普通关失败：回到地图选关（可重新选择关卡）
+                EnterMapSelection();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 战后将所有已部署单位移回待上阵区
+    /// </summary>
+    private void ResetDeployedUnitsToStandby()
+    {
+        if (_dataManager == null) return;
+        var tribes = _dataManager.GetTribes();
+        if (tribes == null) return;
+
+        foreach (var tribe in tribes)
+        {
+            if (tribe?.units == null) continue;
+            foreach (var unit in tribe.units)
+            {
+                if (unit.GetZone() == UnitZone.Deployed)
+                    unit.SetZone(UnitZone.Standby);
             }
         }
     }
@@ -774,42 +899,67 @@ public class GameFlowController : MonoBehaviour
     }
 
     /// <summary>
-    /// 显示战斗后招募界面
+    /// 显示战斗后招募界面（使用 RecruitmentSelectPanel）
     /// </summary>
     private void ShowBattleResultRecruitment()
     {
-        // 获取敌方兵种ID列表
         List<int> enemyFighterIds = GetEnemyFighterIdsForCurrentLevel();
 
         if (enemyFighterIds == null || enemyFighterIds.Count == 0)
         {
-            // 没有可招募的敌方兵种，直接进入选关
             Debug.Log("[GameFlowController] 没有可招募的敌方兵种，直接进入选关");
             EnterMapSelection();
             return;
         }
 
-        // 显示战斗结果招募界面
-        // 这里需要创建一个UI面板来显示招募卡片和掷骰子动画
-        // 暂时简化处理：直接调用招募系统
         var recruitmentSystem = new RecruitmentDiceSystem();
         var cards = recruitmentSystem.GenerateRecruitmentCards(enemyFighterIds);
 
-        Debug.Log($"[GameFlowController] 生成 {cards.Count} 张招募卡片");
+        if (cards == null || cards.Count == 0)
+        {
+            Debug.Log("[GameFlowController] 没有生成招募卡片，直接进入选关");
+            EnterMapSelection();
+            return;
+        }
 
-        // TODO: 显示招募UI，让玩家选择是否招募
-        // 暂时自动处理：尝试招募所有卡片
+        // 先为所有卡片掷骰子
         foreach (var card in cards)
         {
             recruitmentSystem.RollDice(card);
-            if (card.diceResult == DiceResult.Success)
-            {
-                recruitmentSystem.RecruitUnit(card);
-            }
         }
 
-        // 招募完成后进入选关
-        EnterMapSelection();
+        // 过滤出成功的卡片
+        var successCards = cards.FindAll(c => c.diceResult == DiceResult.Success);
+        if (successCards.Count == 0)
+        {
+            Debug.Log("[GameFlowController] 招募全部失败，直接进入选关");
+            EnterMapSelection();
+            return;
+        }
+
+        // 用 RecruitmentSelectPanel 展示
+        var panel = _uiManager?.ShowPanel<RecruitmentSelectPanel>(UIManager.UILayer.PopUp);
+        if (panel == null)
+        {
+            // 面板创建失败，自动招募第一个成功的
+            recruitmentSystem.RecruitUnit(successCards[0]);
+            EnterMapSelection();
+            return;
+        }
+
+        panel.ShowRecruitment(
+            successCards,
+            onSelected: card =>
+            {
+                recruitmentSystem.RecruitUnit(card);
+                EnterMapSelection();
+            },
+            onSkipped: () =>
+            {
+                EnterMapSelection();
+            },
+            title: "招募",
+            skipText: "跳过招募");
     }
 
     /// <summary>
@@ -848,6 +998,97 @@ public class GameFlowController : MonoBehaviour
         if (enemyUnitIds == null) return new List<int>();
 
         return new List<int>(enemyUnitIds);
+    }
+
+    // ── Boss 奖励流程 ──
+
+    /// <summary>
+    /// Boss关稀有兵种三选一
+    /// </summary>
+    private void ShowBossRareFighterReward(Action onComplete)
+    {
+        var recruitmentSystem = new RecruitmentDiceSystem();
+        var cards = recruitmentSystem.GenerateBossRareCards(3);
+
+        if (cards == null || cards.Count == 0)
+        {
+            Debug.Log("[GameFlowController] 没有稀有兵种可展示，跳过Boss稀有兵种奖励");
+            onComplete?.Invoke();
+            return;
+        }
+
+        var panel = _uiManager?.ShowPanel<RecruitmentSelectPanel>(UIManager.UILayer.PopUp);
+        if (panel == null)
+        {
+            // 面板创建失败，自动招募第一个
+            recruitmentSystem.RecruitUnit(cards[0]);
+            onComplete?.Invoke();
+            return;
+        }
+
+        panel.ShowRecruitment(
+            cards,
+            onSelected: card =>
+            {
+                recruitmentSystem.RecruitUnit(card);
+                onComplete?.Invoke();
+            },
+            onSkipped: () =>
+            {
+                onComplete?.Invoke();
+            },
+            title: "Boss奖励 — 选择一名稀有兵种",
+            skipText: "放弃");
+    }
+
+    /// <summary>
+    /// Boss关圣物奖励
+    /// </summary>
+    private void ShowBossRelicReward(Action onComplete)
+    {
+        var relic = SelectBossRelicForRegion(_currentRegion);
+        if (relic == null)
+        {
+            Debug.Log("[GameFlowController] 没有Boss圣物可展示，跳过");
+            onComplete?.Invoke();
+            return;
+        }
+
+        // 存储圣物
+        var record = new RelicRecord
+        {
+            relicId = relic.relicId,
+            name = relic.name,
+            description = relic.description,
+            mechanismTag = relic.mechanismTag,
+            rarity = relic.rarity,
+            isBossRelic = relic.isBossRelic,
+            effects = relic.effects
+        };
+        _dataManager?.AddRelic(record);
+
+        var panel = _uiManager?.ShowPanel<BossRelicRewardPanel>(UIManager.UILayer.PopUp);
+        if (panel == null)
+        {
+            onComplete?.Invoke();
+            return;
+        }
+
+        panel.ShowBossRelicReward(relic, onComplete);
+    }
+
+    /// <summary>
+    /// 根据大关选择Boss圣物
+    /// </summary>
+    private RelicConfig SelectBossRelicForRegion(int regionId)
+    {
+        var bossRelics = TribeConfigLoader.Instance?.GetBossRelics();
+        if (bossRelics == null || bossRelics.Count == 0) return null;
+
+        // 简单策略：随机选一个Boss圣物
+        // 后续可根据 regionId 过滤特定圣物
+        int idx = UnityEngine.Random.Range(0, bossRelics.Count);
+        return bossRelics[idx];
     }
 
     /// <summary>

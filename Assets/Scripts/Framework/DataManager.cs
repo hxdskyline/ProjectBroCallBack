@@ -395,7 +395,30 @@ public class DataManager : MonoBehaviour
         EnsurePlayerDataDefaults();
         _playerData.runChoices?.Clear();
         _playerData.runEquipments?.Clear();
+        _playerData.ownedRelics?.Clear();
         SavePlayerData();
+    }
+
+    // --- 圣物方法 ---
+
+    /// <summary>
+    /// 添加圣物
+    /// </summary>
+    public void AddRelic(Camp.RelicRecord relic, bool saveImmediately = true)
+    {
+        EnsurePlayerDataDefaults();
+        _playerData.ownedRelics.Add(relic);
+        if (saveImmediately) SavePlayerData();
+        Debug.Log($"[DataManager] 添加圣物: {relic.name}");
+    }
+
+    /// <summary>
+    /// 获取已拥有的圣物列表
+    /// </summary>
+    public System.Collections.Generic.List<Camp.RelicRecord> GetOwnedRelics()
+    {
+        EnsurePlayerDataDefaults();
+        return _playerData.ownedRelics;
     }
 
     // --- 主角属性方法 ---
@@ -834,6 +857,19 @@ public class DataManager : MonoBehaviour
         {
             _playerData.shopSession = new ShopSessionRecord();
         }
+
+        if (_playerData.ownedRelics == null)
+        {
+            _playerData.ownedRelics = new System.Collections.Generic.List<Camp.RelicRecord>();
+        }
+    }
+
+    /// <summary>
+    /// 公开接口：重建所有单位的 ActiveBuffs（强化、圣物、装备等）
+    /// </summary>
+    public void RebuildAllBuffs()
+    {
+        RebuildAuraBuffs();
     }
 
     /// <summary>
@@ -843,6 +879,14 @@ public class DataManager : MonoBehaviour
     private void RebuildAuraBuffs()
     {
         if (_playerData.tribes == null) return;
+
+        // 先清空所有单位的 ActiveBuffs，防止重复叠加
+        foreach (var tribe in _playerData.tribes)
+        {
+            if (tribe?.units == null) continue;
+            foreach (var unit in tribe.units)
+                unit.ActiveBuffs.Clear();
+        }
 
         Debug.Log($"[RebuildAuraBuffs] runChoices={_playerData.runChoices?.Count ?? 0}, runEquipments={_playerData.runEquipments?.Count ?? 0}, tribes={_playerData.tribes.Count}");
 
@@ -898,7 +942,7 @@ public class DataManager : MonoBehaviour
                 {
                     foreach (var unit in tribe.units)
                     {
-                        if (filter.Matches(false, (TribeType)tribe.tribeType, unit.tier))
+                        if (filter.Matches(false, (TribeType)tribe.tribeType, unit.tier, unit.rarity))
                         {
                             ApplyAuraEffectsGeneric(unit, entry.buffEffects, entry.displayName, entry.choiceId, entry.description);
                         }
@@ -909,6 +953,57 @@ public class DataManager : MonoBehaviour
             int buffCountAfter = 0;
             if (tribe.units != null) foreach (var u in tribe.units) buffCountAfter += u.ActiveBuffs?.Count ?? 0;
             Debug.Log($"[RebuildAuraBuffs] Tribe {tribe.tribeType}: unit buffs {buffCountBefore}->{buffCountAfter}");
+        }
+
+        // ── 强化 buff：enhanceLevel == 1 时，全属性 +50% ──
+        foreach (var tribe in _playerData.tribes)
+        {
+            if (tribe == null || !tribe.isActive || tribe.units == null) continue;
+            foreach (var unit in tribe.units)
+            {
+                if (unit.enhanceLevel >= 1)
+                {
+                    ApplyEnhancementBuffs(unit);
+                }
+            }
+        }
+
+        // ── 圣物 buff：遍历已拥有的圣物，为匹配 mechanismTag 的兵种添加效果 ──
+        if (_playerData.ownedRelics != null)
+        {
+            foreach (var relic in _playerData.ownedRelics)
+            {
+                if (relic.effects == null || string.IsNullOrEmpty(relic.mechanismTag)) continue;
+                foreach (var tribe in _playerData.tribes)
+                {
+                    if (tribe == null || !tribe.isActive || tribe.units == null) continue;
+                    foreach (var unit in tribe.units)
+                    {
+                        var config = Camp.TribeConfigLoader.Instance?.GetFighterConfig(unit.fighterId);
+                        if (config == null) continue;
+                        if (config.mechanismTag == relic.mechanismTag)
+                        {
+                            ApplyAuraEffectsGeneric(unit, relic.effects, relic.name, relic.relicId, relic.description);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 为强化兵种应用全属性+50% buff
+    /// </summary>
+    private static void ApplyEnhancementBuffs(Camp.IHasBuffs unit)
+    {
+        var statTypes = new[] { Camp.StatType.Attack, Camp.StatType.Defense, Camp.StatType.Hp, Camp.StatType.MoveSpeed, Camp.StatType.AttackSpeed };
+        foreach (var stat in statTypes)
+        {
+            var buff = Camp.UnifiedBuff.CreateStatBuff(
+                $"enhance_{stat}", "强化",
+                Camp.BuffSource.Enhancement, "enhance",
+                stat, true, 0.5f);
+            unit.AddUnifiedBuff(buff);
         }
     }
 
@@ -961,6 +1056,9 @@ public class PlayerData
     // 统一 Choice / Equipment 系统（本局记录）
     public System.Collections.Generic.List<GameChoice> runChoices;
     public System.Collections.Generic.List<EquipmentRecord> runEquipments;
+
+    // 圣物系统（本局记录）
+    public System.Collections.Generic.List<Camp.RelicRecord> ownedRelics;
 
     // 本回合事件完成标记（存回合号；与currentRound相同则表示本回合已完成）
     public int recruitmentCompletedRound;

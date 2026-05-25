@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.AddressableAssets;
 using Camp;
 using Combat.Fighter;
@@ -60,6 +61,16 @@ namespace Combat
         private bool _enemyBillboardDestroyed;
         private bool _playerBillboardDestroyed;
         private bool _hasEnemyBillboard = true;
+
+        // 胜利延迟
+        private bool _victoryPending;
+        private float _victoryTimer;
+        private bool _victoryHealApplied;
+        private const float VICTORY_DELAY = 1.5f;
+        private const float VICTORY_HEAL_PERCENT = 0.2f;
+
+        // 重新布阵按钮
+        private GameObject _retryButtonGo;
 
         // 区域遮罩系统
         private GameObject _overlay1Neutral, _overlay1Green, _overlay1Red;   // Layer 1, sortingOrder -999, 外圈
@@ -314,6 +325,9 @@ namespace Combat
             BattleSimulation.OnBulletFired += SpawnBullet;
             _battleCoroutine = StartCoroutine(DemoBattleLoop());
 
+            // 显示重新布阵按钮
+            CreateRetryButton();
+
             Debug.Log("[BattleManager] Battle started from prepare");
         }
 
@@ -362,16 +376,46 @@ namespace Combat
             _simulation?.CorpseManager?.Clear();
             _simulation?.SummonManager?.Clear();
 
-            // 处理HP持久化（满目疮痍debuff等）
+            // 处理HP持久化（战后回血等）
             var campaign = GameManager.Instance?.BattleCampaignRuntime;
             bool isBossBattle = campaign != null && _levelId >= campaign.MaxBattleCount;
             var healthPersistence = new HealthPersistenceSystem();
             healthPersistence.OnBattleEnd(victory, isBossBattle);
 
             // Ensure settlement UI appears over a clean battlefield.
-            ClearBattlefield();
-
+            // 注意：ClearBattlefield 会将 _playerFighters 置 null，
+            // 必须在 BattleEnded 事件触发之后才能清理，否则外部无法收集战斗统计。
             BattleEnded?.Invoke(victory);
+            ClearBattlefield();
+        }
+
+        /// <summary>
+        /// 取消战斗（重新布阵用）— 不同步 HP、不触发 BattleEnded、不应用战后效果
+        /// </summary>
+        public void CancelBattle()
+        {
+            if (!_isInBattle)
+            {
+                return;
+            }
+
+            _isInBattle = false;
+            BattleSimulation.OnBulletFired -= SpawnBullet;
+            BattleSimulation.ClearAllHitEffects();
+
+            CleanupBillboardSystem();
+
+            if (_battleCoroutine != null)
+            {
+                StopCoroutine(_battleCoroutine);
+                _battleCoroutine = null;
+            }
+
+            _simulation?.CorpseManager?.Clear();
+            _simulation?.SummonManager?.Clear();
+
+            ClearBattlefield();
+            Debug.Log("[BattleManager] Battle cancelled (retry)");
         }
 
         /// <summary>
@@ -687,19 +731,40 @@ namespace Combat
                     _billboardSystem.Update(dt, playerSoldiersAlive, enemySoldiersAlive);
                 }
 
+                // 胜利延迟阶段：存活单位回血，等待 1.5s
+                if (_victoryPending)
+                {
+                    if (!_victoryHealApplied)
+                    {
+                        ApplyVictoryHeal();
+                        _victoryHealApplied = true;
+                    }
+                    _victoryTimer -= dt;
+                    if (_victoryTimer <= 0f)
+                    {
+                        Debug.Log("[BattleManager] 胜利延迟结束，战斗结束");
+                        EndBattle(true);
+                        yield break;
+                    }
+                    yield return null;
+                    continue;
+                }
+
                 if (!_soldiersPhaseEnded)
                 {
                     // 正常战斗阶段：双方小兵互殴
                     if (_simulation.Tick(dt, out bool playerVictory))
                     {
-                        if (!_hasEnemyBillboard)
+                        if (playerVictory && !_hasEnemyBillboard)
                         {
-                            // 无敌方看板：敌人小兵死光即胜利
-                            Debug.Log("[BattleManager] 小兵阶段结束，无敌方看板，直接结算");
-                            EndBattle(playerVictory);
-                            yield break;
+                            // 玩家小兵获胜且无敌方看板：进入胜利延迟
+                            Debug.Log("[BattleManager] 小兵阶段结束，无敌方看板，进入胜利延迟");
+                            _victoryPending = true;
+                            _victoryTimer = VICTORY_DELAY;
+                            _victoryHealApplied = false;
+                            continue;
                         }
-                        // 有敌方看板 → 进入看板阶段
+                        // 进入看板阶段（有敌方看板需摧毁，或我方看板需防守）
                         _soldiersPhaseEnded = true;
                         Debug.Log("[BattleManager] 小兵阶段结束，进入看板阶段");
                     }
@@ -715,6 +780,15 @@ namespace Combat
                     HandleBillboardCombat(dt, playerSoldiersAlive, enemySoldiersAlive);
                     // 更新看板阶段的死亡状态（小兵被看板击杀后的清理）
                     UpdateBillboardPhaseDeathStates(dt);
+
+                    // 双方小兵全灭但看板仍在：敌方小兵已全灭 + 我方看板存活 = 玩家胜利
+                    if (!enemySoldiersAlive && !playerSoldiersAlive && !_enemyBillboardDestroyed && !_victoryPending)
+                    {
+                        Debug.Log("[BattleManager] 双方小兵全灭，我方看板存活，玩家胜利");
+                        _victoryPending = true;
+                        _victoryTimer = VICTORY_DELAY;
+                        _victoryHealApplied = false;
+                    }
                 }
 
                 yield return null;
@@ -751,7 +825,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 看板攻击小兵
+        /// 看板攻击小兵 — 发射子弹（与矛猫相同的弹道）
         /// </summary>
         private void BillboardAttackOnSoldiers()
         {
@@ -761,15 +835,39 @@ namespace Combat
                 _enemyFighters != null ? new System.Collections.Generic.List<BattleFighter>(_enemyFighters) : new System.Collections.Generic.List<BattleFighter>());
             if (playerAttack != null && playerAttack.target != null)
             {
-                ApplyBillboardDamage(playerAttack.target, playerAttack.damage);
+                SpawnBillboardToFighterBullet(
+                    _billboardSystem.GetBillboard(BillboardCamp.Player).position,
+                    playerAttack.target, Mathf.RoundToInt(playerAttack.damage), BillboardCamp.Player);
             }
 
             BillboardAttackResult enemyAttack = _billboardSystem.Attack(BillboardCamp.Enemy,
                 _playerFighters != null ? new System.Collections.Generic.List<BattleFighter>(_playerFighters) : new System.Collections.Generic.List<BattleFighter>());
             if (enemyAttack != null && enemyAttack.target != null)
             {
-                ApplyBillboardDamage(enemyAttack.target, enemyAttack.damage);
+                SpawnBillboardToFighterBullet(
+                    _billboardSystem.GetBillboard(BillboardCamp.Enemy).position,
+                    enemyAttack.target, Mathf.RoundToInt(enemyAttack.damage), BillboardCamp.Enemy);
             }
+        }
+
+        /// <summary>
+        /// 生成看板→小兵的子弹，到达目标时造成伤害
+        /// </summary>
+        private void SpawnBillboardToFighterBullet(Vector3 startPos, BattleFighter target, int damage, BillboardCamp camp)
+        {
+            GameObject bulletGo = new GameObject("BillboardToFighterBullet");
+            bulletGo.transform.SetParent(transform);
+            bulletGo.transform.position = startPos;
+
+            var sr = bulletGo.AddComponent<SpriteRenderer>();
+            sr.color = Color.white;
+            sr.sortingOrder = 100;
+            var sprite = GameManager.Instance.ResourceManager.LoadResource<Sprite>("2deffect/changmao");
+            if (sprite != null)
+                sr.sprite = sprite;
+            bulletGo.transform.localScale = new Vector3(0.5f, 0.5f, 1f);
+
+            bulletGo.AddComponent<BillboardToFighterBullet>().Setup(target, camp, damage, _simulation);
         }
 
         /// <summary>
@@ -975,7 +1073,10 @@ namespace Combat
             if (camp == BillboardCamp.Enemy)
             {
                 _enemyBillboardDestroyed = true;
-                EndBattle(true);
+                Debug.Log("[BattleManager] 敌方看板被摧毁，进入胜利延迟");
+                _victoryPending = true;
+                _victoryTimer = VICTORY_DELAY;
+                _victoryHealApplied = false;
             }
             else if (camp == BillboardCamp.Player)
             {
@@ -1127,6 +1228,33 @@ namespace Combat
             red.SetActive(state == "red");
         }
 
+        /// <summary>
+        /// 胜利延迟时：存活玩家单位回血 +20% MaxHp（战斗内视觉表现）
+        /// </summary>
+        private void ApplyVictoryHeal()
+        {
+            if (_playerFighters == null) return;
+
+            for (int i = 0; i < _playerFighters.Length; i++)
+            {
+                BattleFighter fighter = _playerFighters[i];
+                if (fighter == null || !fighter.IsAlive || fighter.RuntimeAttributes == null)
+                    continue;
+
+                int healAmount = Mathf.RoundToInt(fighter.RuntimeAttributes.MaxHp * VICTORY_HEAL_PERCENT);
+                fighter.RuntimeAttributes.CurrentHp = Mathf.Min(fighter.RuntimeAttributes.CurrentHp + healAmount, fighter.RuntimeAttributes.MaxHp);
+
+                // 更新 HUD 血条
+                var hud = fighter.Transform?.GetComponent<FighterHUD>();
+                if (hud != null)
+                {
+                    hud.UpdateHp(fighter.RuntimeAttributes.CurrentHp);
+                }
+
+                Debug.Log($"[BattleManager] {fighter.Name} 胜利回血 +{healAmount}，当前 HP={fighter.RuntimeAttributes.CurrentHp}/{fighter.RuntimeAttributes.MaxHp}");
+            }
+        }
+
         private void ClearBattlefield()
         {
             _simulation = null;
@@ -1138,7 +1266,81 @@ namespace Combat
             _soldiersPhaseEnded = false;
             _enemyBillboardDestroyed = false;
             _playerBillboardDestroyed = false;
+            _victoryPending = false;
+            _victoryTimer = 0f;
+            _victoryHealApplied = false;
+            DestroyRetryButton();
             ClearOldAvatars();
+        }
+
+        /// <summary>
+        /// 创建重新布阵按钮（战斗中显示，点击后返回布阵界面）
+        /// </summary>
+        private void CreateRetryButton()
+        {
+            DestroyRetryButton();
+
+            // 找到主 Canvas
+            var canvas = FindObjectOfType<Canvas>();
+            if (canvas == null) return;
+
+            // 找到或创建 Top 层
+            var topLayer = canvas.transform.Find("Top");
+            if (topLayer == null)
+            {
+                var topGo = new GameObject("Top", typeof(RectTransform));
+                topGo.transform.SetParent(canvas.transform, false);
+                var rectT = topGo.GetComponent<RectTransform>();
+                rectT.anchorMin = Vector2.zero;
+                rectT.anchorMax = Vector2.one;
+                rectT.offsetMin = Vector2.zero;
+                rectT.offsetMax = Vector2.zero;
+                topLayer = topGo.transform;
+            }
+
+            _retryButtonGo = new GameObject("RetryButton", typeof(RectTransform), typeof(Image), typeof(Button));
+            _retryButtonGo.transform.SetParent(topLayer, false);
+
+            var rect = _retryButtonGo.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0, 1);
+            rect.anchorMax = new Vector2(0, 1);
+            rect.pivot = new Vector2(0, 1);
+            rect.anchoredPosition = new Vector2(10, -10);
+            rect.sizeDelta = new Vector2(120, 40);
+
+            var img = _retryButtonGo.GetComponent<Image>();
+            img.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
+
+            var btn = _retryButtonGo.GetComponent<Button>();
+            btn.targetGraphic = img;
+            btn.onClick.AddListener(() =>
+            {
+                GameFlowController.Instance?.ReturnToPreparation();
+            });
+
+            // 按钮文字
+            var textGo = new GameObject("Text", typeof(RectTransform), typeof(TMPro.TextMeshProUGUI));
+            textGo.transform.SetParent(_retryButtonGo.transform, false);
+            var textRect = textGo.GetComponent<RectTransform>();
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.sizeDelta = Vector2.zero;
+
+            var tmp = textGo.GetComponent<TMPro.TextMeshProUGUI>();
+            tmp.text = "重新布阵";
+            tmp.fontSize = 16;
+            tmp.color = Color.white;
+            tmp.alignment = TMPro.TextAlignmentOptions.Center;
+            tmp.raycastTarget = false;
+        }
+
+        private void DestroyRetryButton()
+        {
+            if (_retryButtonGo != null)
+            {
+                Destroy(_retryButtonGo);
+                _retryButtonGo = null;
+            }
         }
 
         /// <summary>

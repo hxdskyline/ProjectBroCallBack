@@ -34,6 +34,8 @@ namespace Camp
                 var trimmed = part.Trim();
                 if (trimmed.StartsWith("T") && int.TryParse(trimmed.Substring(1), out int t))
                     filter.tier = t;
+                else if (trimmed.StartsWith("R") && int.TryParse(trimmed.Substring(1), out int r))
+                    filter.rarity = r;
                 else if (trimmed == "Tabby") filter.tribeType = (int)TribeType.Tabby;
                 else if (trimmed == "Orange") filter.tribeType = (int)TribeType.Orange;
                 else if (trimmed == "Cow") filter.tribeType = (int)TribeType.Cow;

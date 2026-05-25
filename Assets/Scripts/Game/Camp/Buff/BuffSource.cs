@@ -11,6 +11,8 @@ namespace Camp
         Fate = 3,         // 命运/祈福
         Choice = 4,       // 抉择事件
         Shop = 5,         // 商店
-        Leader = 6        // 领袖技能
+        Leader = 6,       // 领袖技能
+        Enhancement = 7,  // 强化（温泉/天生强化）
+        Relic = 8         // 圣物
     }
 }

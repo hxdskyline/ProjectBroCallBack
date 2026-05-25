@@ -1,0 +1,31 @@
+{
+  "relics": [
+    {
+      "relicId": "Relic_Boss_Region1",
+      "name": "Boss圣物·第一关",
+      "description": "Boss专属圣物，增强特定机制",
+      "rarity": 3,
+      "mechanismTag": "",
+      "effects": [],
+      "isBossRelic": true
+    },
+    {
+      "relicId": "Relic_Boss_Region2",
+      "name": "Boss圣物·第二关",
+      "description": "Boss专属圣物，增强特定机制",
+      "rarity": 3,
+      "mechanismTag": "",
+      "effects": [],
+      "isBossRelic": true
+    },
+    {
+      "relicId": "Relic_Boss_Region3",
+      "name": "Boss圣物·第三关",
+      "description": "Boss专属圣物，增强特定机制",
+      "rarity": 3,
+      "mechanismTag": "",
+      "effects": [],
+      "isBossRelic": true
+    }
+  ]
+}

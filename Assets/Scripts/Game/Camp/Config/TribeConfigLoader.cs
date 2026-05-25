@@ -26,6 +26,8 @@ namespace Camp
         private Dictionary<int, BuffConfig> _buffs = new Dictionary<int, BuffConfig>();
         private Dictionary<int, TribeConfig> _tribes = new Dictionary<int, TribeConfig>();
         private List<AffixData> _affixes = new List<AffixData>();
+        private Dictionary<string, RelicConfig> _relics = new Dictionary<string, RelicConfig>();
+        private RaritySpawnConfig _raritySpawnConfig;
 
         public bool IsLoaded { get; private set; }
 
@@ -38,6 +40,8 @@ namespace Camp
             LoadBuffConfig();
             LoadTribeConfig();
             LoadAffixConfig();
+            LoadRaritySpawnConfig();
+            LoadRelicConfig();
             IsLoaded = true;
             Debug.Log("[TribeConfigLoader] 所有配置加载完成");
         }
@@ -95,6 +99,50 @@ namespace Camp
             return new List<TribeConfig>(_tribes.Values);
         }
 
+        public List<FighterConfig> GetFightersByRarity(Rarity rarity)
+        {
+            var results = new List<FighterConfig>();
+            foreach (var cfg in _fighters.Values)
+            {
+                if ((Rarity)cfg.rarity == rarity)
+                    results.Add(cfg);
+            }
+            return results;
+        }
+
+        public RegionRarityConfig GetRegionRarityConfig(int regionId)
+        {
+            if (_raritySpawnConfig == null || _raritySpawnConfig.regions == null) return null;
+            foreach (var region in _raritySpawnConfig.regions)
+            {
+                if (region.regionId == regionId)
+                    return region;
+            }
+            return null;
+        }
+
+        public RelicConfig GetRelicConfig(string relicId)
+        {
+            _relics.TryGetValue(relicId, out var config);
+            return config;
+        }
+
+        public List<RelicConfig> GetRelicsByRarity(int rarity)
+        {
+            var results = new List<RelicConfig>();
+            foreach (var cfg in _relics.Values)
+            {
+                if (cfg.rarity == rarity)
+                    results.Add(cfg);
+            }
+            return results;
+        }
+
+        public List<RelicConfig> GetBossRelics()
+        {
+            return GetRelicsByRarity(3);
+        }
+
         // ── 加载方法 ──
 
         private void LoadFighterConfig()
@@ -124,6 +172,10 @@ namespace Camp
                     avatarId = ReadString(item, "avatarId"),
                     populationCost = item.ContainsKey("populationCost") ? (int)item["populationCost"] : 1,
                     deployZones = item.ContainsKey("deployZones") ? (int)item["deployZones"] : 1,
+                    rarity = item.ContainsKey("rarity") ? ReadInt(item, "rarity") : 0,
+                    enhanceLevel = item.ContainsKey("enhanceLevel") ? ReadInt(item, "enhanceLevel") : 0,
+                    mechanismTag = item.ContainsKey("mechanismTag") ? ReadString(item, "mechanismTag") : "",
+                    passiveSkillId = item.ContainsKey("passiveSkillId") ? ReadInt(item, "passiveSkillId") : 0,
                 };
 
                 // innateBuffIds
@@ -286,6 +338,92 @@ namespace Camp
             }
 
             Debug.Log($"[TribeConfigLoader] 加载 { _affixes.Count} 个词缀配置");
+        }
+
+        private void LoadRaritySpawnConfig()
+        {
+            string json = ReadConfigFile("rarity_spawn_config");
+            if (string.IsNullOrEmpty(json)) return;
+
+            var data = JsonMapper.ToObject(json);
+            var array = data.ContainsKey("regions") ? data["regions"] : null;
+            if (array == null) return;
+
+            _raritySpawnConfig = new RaritySpawnConfig { regions = new List<RegionRarityConfig>() };
+
+            for (int i = 0; i < array.Count; i++)
+            {
+                var item = array[i];
+                var region = new RegionRarityConfig
+                {
+                    regionId = ReadInt(item, "regionId"),
+                    rates = new List<RaritySpawnEntry>()
+                };
+
+                var ratesArray = item.ContainsKey("rates") ? item["rates"] : null;
+                if (ratesArray != null && ratesArray.IsArray)
+                {
+                    for (int j = 0; j < ratesArray.Count; j++)
+                    {
+                        region.rates.Add(new RaritySpawnEntry
+                        {
+                            rarity = ReadInt(ratesArray[j], "rarity"),
+                            spawnRate = ReadFloat(ratesArray[j], "spawnRate"),
+                            bornEnhanceRate = ReadFloat(ratesArray[j], "bornEnhanceRate")
+                        });
+                    }
+                }
+
+                _raritySpawnConfig.regions.Add(region);
+            }
+
+            Debug.Log($"[TribeConfigLoader] 加载 {_raritySpawnConfig.regions.Count} 个区域稀有度配置");
+        }
+
+        private void LoadRelicConfig()
+        {
+            string json = ReadConfigFile("relic_config");
+            if (string.IsNullOrEmpty(json)) return;
+
+            var data = JsonMapper.ToObject(json);
+            var array = data.ContainsKey("relics") ? data["relics"] : null;
+            if (array == null) return;
+
+            for (int i = 0; i < array.Count; i++)
+            {
+                var item = array[i];
+                var config = new RelicConfig
+                {
+                    relicId = ReadString(item, "relicId"),
+                    name = ReadString(item, "name"),
+                    description = ReadString(item, "description"),
+                    rarity = ReadInt(item, "rarity"),
+                    mechanismTag = ReadString(item, "mechanismTag"),
+                    isBossRelic = ReadBool(item, "isBossRelic", false),
+                };
+
+                // effects
+                var effectsArray = item.ContainsKey("effects") ? item["effects"] : null;
+                if (effectsArray != null && effectsArray.IsArray)
+                {
+                    config.effects = new List<BuffEffectItem>();
+                    for (int j = 0; j < effectsArray.Count; j++)
+                    {
+                        var eff = effectsArray[j];
+                        config.effects.Add(new BuffEffectItem
+                        {
+                            statType = ReadString(eff, "statType"),
+                            isPercent = ReadBool(eff, "isPercent", false),
+                            value = ReadFloat(eff, "value"),
+                            gameEffectType = ReadInt(eff, "gameEffectType"),
+                        });
+                    }
+                }
+
+                _relics[config.relicId] = config;
+            }
+
+            Debug.Log($"[TribeConfigLoader] 加载 {_relics.Count} 个圣物配置");
         }
 
         // ── 工具方法 ──

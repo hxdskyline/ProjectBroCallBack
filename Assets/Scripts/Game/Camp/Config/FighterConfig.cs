@@ -24,6 +24,10 @@ namespace Camp
         public List<string> tags;
         public int populationCost;
         public int deployZones; // 位标志: inner=1, middle=2, outer=4
+        public int rarity;              // Rarity 枚举值，0=普通/1=高级/2=稀有
+        public int enhanceLevel;        // 配置中的默认强化等级（通常0，天生强化时为1）
+        public string mechanismTag;     // 机制标签，用于圣物系统匹配
+        public int passiveSkillId;      // 被动技能 ID
 
         public bool CanDeployInner => (deployZones & 1) != 0;
         public bool CanDeployMiddle => (deployZones & 2) != 0;
@@ -51,6 +55,14 @@ namespace Camp
         public TribeType GetTribeType()
         {
             return (TribeType)tribeType;
+        }
+
+        /// <summary>
+        /// 转换为 Rarity 枚举
+        /// </summary>
+        public Rarity GetRarity()
+        {
+            return (Rarity)rarity;
         }
     }
 }

@@ -26,7 +26,8 @@ namespace Camp
         public string name;
         public float currentHp;
         public int zone;             // UnitZone 枚举值
-        public bool hasWoundsDebuff; // 满目疮痍 debuff
+        public int rarity;           // Rarity 枚举值
+        public int enhanceLevel;     // 0=未强化, 1=已强化（全属性+50%）
 
         [NonSerialized]
         private List<UnifiedBuff> _activeBuffs = new List<UnifiedBuff>();
@@ -46,5 +47,7 @@ namespace Camp
         public TribeType GetTribeType() => (TribeType)tribeType;
         public UnitZone GetZone() => (UnitZone)zone;
         public void SetZone(UnitZone z) => zone = (int)z;
+        public Rarity GetRarity() => (Rarity)rarity;
+        public bool IsEnhanced() => enhanceLevel >= 1;
     }
 }

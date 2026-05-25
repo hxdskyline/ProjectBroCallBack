@@ -305,6 +305,10 @@ namespace Combat.Fighter
 
             UnitRuntimeAttributes runtimeAttributes = new UnitRuntimeAttributes(attrs);
 
+            // 用持久化的当前HP覆盖满血初始值
+            if (definition.CurrentHp > 0)
+                runtimeAttributes.CurrentHp = Mathf.Min(definition.CurrentHp, runtimeAttributes.MaxHp);
+
             // 天生 buff
             List<int> innateBuffIds = new List<int>();
             if (definition.FighterId > 0)
@@ -339,6 +343,20 @@ namespace Combat.Fighter
                 foreach (var buff in definition.AuraBuffs)
                 {
                     runtimeAttributes.ApplyBuff(buff.Clone());
+                }
+            }
+
+            // 强化 buff：enhanceLevel == 1 时，全属性 +50%
+            if (definition.EnhanceLevel >= 1)
+            {
+                var statTypes = new[] { Camp.StatType.Attack, Camp.StatType.Defense, Camp.StatType.Hp, Camp.StatType.MoveSpeed, Camp.StatType.AttackSpeed };
+                foreach (var stat in statTypes)
+                {
+                    var enhanceBuff = Camp.UnifiedBuff.CreateStatBuff(
+                        $"enhance_{stat}", "强化",
+                        Camp.BuffSource.Enhancement, "enhance",
+                        stat, true, 0.5f);
+                    runtimeAttributes.ApplyBuff(enhanceBuff);
                 }
             }
 

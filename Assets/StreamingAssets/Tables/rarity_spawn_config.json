@@ -1,0 +1,28 @@
+{
+  "regions": [
+    {
+      "regionId": 1,
+      "rates": [
+        { "rarity": 0, "spawnRate": 0.69, "bornEnhanceRate": 0.0 },
+        { "rarity": 1, "spawnRate": 0.30, "bornEnhanceRate": 0.0 },
+        { "rarity": 2, "spawnRate": 0.01, "bornEnhanceRate": 0.0 }
+      ]
+    },
+    {
+      "regionId": 2,
+      "rates": [
+        { "rarity": 0, "spawnRate": 0.30, "bornEnhanceRate": 0.35 },
+        { "rarity": 1, "spawnRate": 0.67, "bornEnhanceRate": 0.35 },
+        { "rarity": 2, "spawnRate": 0.03, "bornEnhanceRate": 0.0 }
+      ]
+    },
+    {
+      "regionId": 3,
+      "rates": [
+        { "rarity": 0, "spawnRate": 0.10, "bornEnhanceRate": 1.0 },
+        { "rarity": 1, "spawnRate": 0.85, "bornEnhanceRate": 0.65 },
+        { "rarity": 2, "spawnRate": 0.05, "bornEnhanceRate": 0.30 }
+      ]
+    }
+  ]
+}

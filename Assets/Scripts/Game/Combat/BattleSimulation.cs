@@ -124,7 +124,9 @@ namespace Combat
                 var f = _playerFighters[i];
                 if (f == null || !f.IsAlive || f.RuntimeAttributes == null) continue;
                 int heal = Mathf.RoundToInt(f.RuntimeAttributes.MaxHp * 0.5f);
-                f.RuntimeAttributes.CurrentHp = Mathf.Min(f.RuntimeAttributes.CurrentHp + heal, f.RuntimeAttributes.MaxHp);
+                int actualHeal = Mathf.Min(heal, f.RuntimeAttributes.MaxHp - f.RuntimeAttributes.CurrentHp);
+                f.RuntimeAttributes.CurrentHp += actualHeal;
+                f.TotalHealingDone += actualHeal;
             }
             Debug.Log("[Consumable] HealPotion: healed all allies for 50% MaxHp");
         }
@@ -197,6 +199,7 @@ namespace Combat
                 if (result.dotDamage > 0)
                 {
                     f.RuntimeAttributes.CurrentHp = Mathf.Max(0, f.RuntimeAttributes.CurrentHp - result.dotDamage);
+                    f.TotalDamageTaken += result.dotDamage;
                     // 显示伤害数字
                     if (f.Transform != null)
                     {
@@ -544,6 +547,10 @@ namespace Combat
                 int damage = Mathf.Max(1, Mathf.RoundToInt(finalF)) + attackerRuntime.TrueDamage;
                 int newHp = Mathf.Max(0, defenderRuntime.CurrentHp - damage);
                 defenderRuntime.CurrentHp = newHp;
+
+                // 战斗统计
+                attacker.TotalDamageDealt += damage;
+                defender.TotalDamageTaken += damage;
 
                 // Show damage popup and update HUD if present
                 if (defender != null && defender.Transform != null)

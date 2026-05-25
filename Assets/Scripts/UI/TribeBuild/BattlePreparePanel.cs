@@ -306,8 +306,9 @@ public class BattlePreparePanel : UIPanel
         {
             foreach (var unit in tribe.units)
             {
-                if ((UnitZone)unit.zone != UnitZone.Deployed) continue;
-                if (unit.hasWoundsDebuff) continue;
+                var zone = unit.GetZone();
+                // 显示待上阵和已上阵的单位（不显示生产区）
+                if (zone != UnitZone.Deployed && zone != UnitZone.Standby) continue;
 
                 var config = TribeConfigLoader.Instance.GetFighterConfig(unit.fighterId);
                 if (config == null) continue;

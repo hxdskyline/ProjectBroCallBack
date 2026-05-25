@@ -31,6 +31,11 @@ namespace Combat.Fighter
         public GameObject HitEffect;
         public float HitEffectTimer;
 
+        // ── 战斗统计 ──
+        public int TotalDamageDealt;
+        public int TotalDamageTaken;
+        public int TotalHealingDone;
+
         public int CurrentHp => RuntimeAttributes?.CurrentHp ?? 0;
         public bool IsDead => CurrentHp <= 0;
         public bool IsAlive => !IsRemoved && !IsDying && CurrentHp > 0;

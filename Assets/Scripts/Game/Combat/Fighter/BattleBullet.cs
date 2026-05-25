@@ -70,6 +70,11 @@ namespace Combat.Fighter
             int newHp = Mathf.Max(0, defenderRuntime.CurrentHp - _damage);
             defenderRuntime.CurrentHp = newHp;
 
+            // 战斗统计
+            if (_attacker != null)
+                _attacker.TotalDamageDealt += _damage;
+            _target.TotalDamageTaken += _damage;
+
             // 显示伤害数字
             if (_target.Transform != null)
             {

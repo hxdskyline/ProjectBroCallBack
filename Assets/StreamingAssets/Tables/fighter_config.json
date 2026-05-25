@@ -15,7 +15,11 @@
       "avatarId": "youxia",
       "tags": ["ranged", "leader"],
       "populationCost": 2,
-      "deployZones": 4
+      "deployZones": 4,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 2000,
@@ -32,7 +36,11 @@
       "avatarId": "dajuleader",
       "tags": ["melee", "tank", "leader"],
       "populationCost": 2,
-      "deployZones": 3
+      "deployZones": 3,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 3000,
@@ -49,7 +57,11 @@
       "avatarId": "nainiuleader",
       "tags": ["melee", "swarm", "leader"],
       "populationCost": 2,
-      "deployZones": 1
+      "deployZones": 1,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 4000,
@@ -66,7 +78,11 @@
       "avatarId": "xianluo",
       "tags": ["ranged", "mage", "teleport", "leader"],
       "populationCost": 2,
-      "deployZones": 4
+      "deployZones": 4,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 1001,
@@ -83,7 +99,11 @@
       "avatarId": "maomao",
       "tags": ["ranged", "dps"],
       "populationCost": 1,
-      "deployZones": 6
+      "deployZones": 6,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 1002,
@@ -100,7 +120,11 @@
       "avatarId": "maoqishi",
       "tags": ["melee", "assassin"],
       "populationCost": 1,
-      "deployZones": 1
+      "deployZones": 1,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 1003,
@@ -117,7 +141,11 @@
       "avatarId": "lihua",
       "tags": ["ranged", "glass_cannon"],
       "populationCost": 1,
-      "deployZones": 4
+      "deployZones": 4,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 2001,
@@ -134,7 +162,11 @@
       "avatarId": "jituiyongshi",
       "tags": ["melee", "tank"],
       "populationCost": 1,
-      "deployZones": 1
+      "deployZones": 1,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 2002,
@@ -151,7 +183,11 @@
       "avatarId": "cangying",
       "tags": ["ranged", "swarm"],
       "populationCost": 1,
-      "deployZones": 4
+      "deployZones": 4,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 2003,
@@ -168,7 +204,11 @@
       "avatarId": "daju",
       "tags": ["melee", "tank", "slow"],
       "populationCost": 1,
-      "deployZones": 2
+      "deployZones": 2,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 3001,
@@ -185,7 +225,11 @@
       "avatarId": "nainiu",
       "tags": ["melee", "swarm"],
       "populationCost": 1,
-      "deployZones": 1
+      "deployZones": 1,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 3002,
@@ -202,7 +246,11 @@
       "avatarId": "jiaorouche",
       "tags": ["aoe", "swarm"],
       "populationCost": 1,
-      "deployZones": 4
+      "deployZones": 4,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 4001,
@@ -219,7 +267,11 @@
       "avatarId": "lingnengxuetu",
       "tags": ["ranged", "mage", "teleport"],
       "populationCost": 1,
-      "deployZones": 4
+      "deployZones": 4,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 4002,
@@ -236,7 +288,11 @@
       "avatarId": "longyishushi",
       "tags": ["ranged", "glass_cannon", "mage"],
       "populationCost": 1,
-      "deployZones": 4
+      "deployZones": 4,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 4003,
@@ -253,7 +309,11 @@
       "avatarId": "xianluo",
       "tags": ["ranged", "mage", "glass_cannon"],
       "populationCost": 1,
-      "deployZones": 4
+      "deployZones": 4,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 5000,
@@ -270,7 +330,11 @@
       "avatarId": "laoshu",
       "tags": ["melee", "enemy"],
       "populationCost": 1,
-      "deployZones": 7
+      "deployZones": 7,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 5010,
@@ -287,7 +351,11 @@
       "avatarId": "maomao",
       "tags": ["ranged", "enemy"],
       "populationCost": 1,
-      "deployZones": 7
+      "deployZones": 7,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 5020,
@@ -304,7 +372,11 @@
       "avatarId": "maoqishi",
       "tags": ["melee", "enemy"],
       "populationCost": 1,
-      "deployZones": 7
+      "deployZones": 7,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 5030,
@@ -321,7 +393,11 @@
       "avatarId": "nainiuleader",
       "tags": ["melee", "enemy", "leader"],
       "populationCost": 1,
-      "deployZones": 7
+      "deployZones": 7,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 5040,
@@ -338,24 +414,32 @@
       "avatarId": "youxia",
       "tags": ["ranged", "enemy", "leader"],
       "populationCost": 1,
-      "deployZones": 7
+      "deployZones": 7,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 9001,
       "fighterName": "我方看板",
       "tribeType": 0,
       "tier": 0,
-      "attack": 6,
+      "attack": 20,
       "defense": 0,
-      "hp": 20,
+      "hp": 500,
       "moveSpeed": 0,
-      "attackSpeed": 1.0,
-      "attackRange": 10.0,
+      "attackSpeed": 1.5,
+      "attackRange": 7.5,
       "innateBuffIds": [],
       "avatarId": "jiaorouche",
       "tags": ["billboard", "player"],
       "populationCost": 0,
-      "deployZones": 0
+      "deployZones": 0,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     },
     {
       "fighterId": 9002,
@@ -372,7 +456,11 @@
       "avatarId": "jiaorouche",
       "tags": ["billboard", "enemy"],
       "populationCost": 0,
-      "deployZones": 0
+      "deployZones": 0,
+      "rarity": 0,
+      "enhanceLevel": 0,
+      "mechanismTag": "",
+      "passiveSkillId": 0
     }
   ]
 }

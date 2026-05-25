@@ -297,16 +297,30 @@ namespace Camp
 
         private void ValidateConnections(List<List<MapNode>> layers)
         {
+            // 保证每个节点都有入边
             for (int i = 1; i < layers.Count; i++)
             {
                 for (int j = 0; j < layers[i].Count; j++)
                 {
                     if (layers[i][j].prevNodeIds.Count == 0)
                     {
-                        // 强制连接到上一层最近的节点
                         var prevLayer = layers[i - 1];
                         int nearest = Mathf.Min(j, prevLayer.Count - 1);
                         Connect(prevLayer[nearest], layers[i][j]);
+                    }
+                }
+            }
+
+            // 保证每个非末层节点都有出边
+            for (int i = 0; i < layers.Count - 1; i++)
+            {
+                for (int j = 0; j < layers[i].Count; j++)
+                {
+                    if (layers[i][j].nextNodeIds.Count == 0)
+                    {
+                        var nextLayer = layers[i + 1];
+                        int nearest = Mathf.Min(j, nextLayer.Count - 1);
+                        Connect(layers[i][j], nextLayer[nearest]);
                     }
                 }
             }
