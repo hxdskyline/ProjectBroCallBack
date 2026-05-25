@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Camp;
+using Combat;
 
 /// <summary>
 /// 地图面板 — v2.0 连线绘制 + 按类型着色 + 状态视觉 + 呼吸动画
@@ -218,6 +219,12 @@ public class MapPanel : UIPanel
         stripImg.color = GetTypeColor(node.nodeType);
         stripImg.raycastTarget = false;
 
+        // 战斗类节点：显示敌方单位头像
+        if (node.nodeType == MapNodeType.Battle || node.nodeType == MapNodeType.EliteBattle || node.nodeType == MapNodeType.Boss)
+        {
+            CreateEnemyIcons(go, node);
+        }
+
         // 文字
         var textGo = new GameObject("Text");
         textGo.transform.SetParent(go.transform, false);
@@ -256,6 +263,74 @@ public class MapPanel : UIPanel
         // 可用节点：加入呼吸动画列表
         if (node.state == MapNodeState.Available)
             _availableNodes.Add(rect);
+    }
+
+    /// <summary>
+    /// 在战斗类节点上显示敌方单位头像
+    /// </summary>
+    private void CreateEnemyIcons(GameObject nodeGo, MapNode node)
+    {
+        var campaign = GameManager.Instance?.BattleCampaignRuntime;
+        if (campaign == null) return;
+
+        int[] enemyIds = node.enemyUnitIds ?? campaign.GetEnemyUnitIdsForBattle(node.battleNumber);
+        if (enemyIds == null || enemyIds.Length == 0) return;
+
+        // 去重，取最多5个
+        var uniqueIds = new HashSet<int>();
+        var displayIds = new List<int>();
+        foreach (int id in enemyIds)
+        {
+            if (uniqueIds.Add(id) && displayIds.Count < 5)
+                displayIds.Add(id);
+        }
+
+        if (displayIds.Count == 0) return;
+
+        // 创建头像容器
+        var iconsGo = new GameObject("EnemyIcons");
+        iconsGo.transform.SetParent(nodeGo.transform, false);
+        var iconsRect = iconsGo.AddComponent<RectTransform>();
+        iconsRect.anchorMin = new Vector2(0, 0);
+        iconsRect.anchorMax = new Vector2(1, 0.5f);
+        iconsRect.sizeDelta = Vector2.zero;
+        iconsRect.anchoredPosition = Vector2.zero;
+
+        int count = displayIds.Count;
+        float iconSize = 120f;
+        float gap = 8f;
+        float totalW = count * iconSize + (count - 1) * gap;
+        float startX = -totalW / 2f + iconSize / 2f;
+
+        for (int i = 0; i < count; i++)
+        {
+            var cfg = TribeConfigLoader.Instance?.GetFighterConfig(displayIds[i]);
+            if (cfg == null) continue;
+
+            var iconGo = new GameObject($"Icon_{displayIds[i]}");
+            iconGo.transform.SetParent(iconsGo.transform, false);
+            var iconRect = iconGo.AddComponent<RectTransform>();
+            iconRect.anchorMin = new Vector2(0.5f, 0.5f);
+            iconRect.anchorMax = new Vector2(0.5f, 0.5f);
+            iconRect.pivot = new Vector2(0.5f, 0.5f);
+            iconRect.sizeDelta = new Vector2(iconSize, iconSize);
+            iconRect.anchoredPosition = new Vector2(startX + i * (iconSize + gap), 0);
+
+            var iconImg = iconGo.AddComponent<Image>();
+            string addr = $"avatartemp/{cfg.avatarId}1";
+            var sprite = GameManager.Instance.ResourceManager.LoadResource<Sprite>(addr);
+            if (sprite != null)
+            {
+                iconImg.sprite = sprite;
+                iconImg.SetNativeSize();
+                iconRect.sizeDelta = new Vector2(iconSize, iconSize);
+            }
+            else
+            {
+                iconImg.color = new Color(0.5f, 0.5f, 0.5f, 0.6f);
+            }
+            iconImg.raycastTarget = false;
+        }
     }
 
     // ====== ScrollView ======

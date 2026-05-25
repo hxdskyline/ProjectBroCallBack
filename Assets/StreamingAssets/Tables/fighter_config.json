@@ -13,7 +13,10 @@
       "attackRange": 5.0,
       "innateBuffIds": [],
       "avatarId": "youxia",
-      "tags": ["ranged", "leader"],
+      "tags": [
+        "ranged",
+        "leader"
+      ],
       "populationCost": 2,
       "deployZones": 4,
       "rarity": 0,
@@ -34,9 +37,13 @@
       "attackRange": 1.0,
       "innateBuffIds": [],
       "avatarId": "dajuleader",
-      "tags": ["melee", "tank", "leader"],
+      "tags": [
+        "melee",
+        "tank",
+        "leader"
+      ],
       "populationCost": 2,
-      "deployZones": 3,
+      "deployZones": 1,
       "rarity": 0,
       "enhanceLevel": 0,
       "mechanismTag": "",
@@ -55,7 +62,11 @@
       "attackRange": 1.0,
       "innateBuffIds": [],
       "avatarId": "nainiuleader",
-      "tags": ["melee", "swarm", "leader"],
+      "tags": [
+        "melee",
+        "swarm",
+        "leader"
+      ],
       "populationCost": 2,
       "deployZones": 1,
       "rarity": 0,
@@ -76,7 +87,12 @@
       "attackRange": 3.0,
       "innateBuffIds": [],
       "avatarId": "xianluo",
-      "tags": ["ranged", "mage", "teleport", "leader"],
+      "tags": [
+        "ranged",
+        "mage",
+        "teleport",
+        "leader"
+      ],
       "populationCost": 2,
       "deployZones": 4,
       "rarity": 0,
@@ -97,9 +113,12 @@
       "attackRange": 5.0,
       "innateBuffIds": [],
       "avatarId": "maomao",
-      "tags": ["ranged", "dps"],
+      "tags": [
+        "ranged",
+        "dps"
+      ],
       "populationCost": 1,
-      "deployZones": 6,
+      "deployZones": 4,
       "rarity": 0,
       "enhanceLevel": 0,
       "mechanismTag": "",
@@ -116,9 +135,14 @@
       "moveSpeed": 1.45,
       "attackSpeed": 1.45,
       "attackRange": 2.0,
-      "innateBuffIds": [401],
+      "innateBuffIds": [
+        401
+      ],
       "avatarId": "maoqishi",
-      "tags": ["melee", "assassin"],
+      "tags": [
+        "melee",
+        "assassin"
+      ],
       "populationCost": 1,
       "deployZones": 1,
       "rarity": 0,
@@ -137,9 +161,15 @@
       "moveSpeed": 1.1,
       "attackSpeed": 1.3,
       "attackRange": 5.0,
-      "innateBuffIds": [402, 403],
+      "innateBuffIds": [
+        402,
+        403
+      ],
       "avatarId": "lihua",
-      "tags": ["ranged", "glass_cannon"],
+      "tags": [
+        "ranged",
+        "glass_cannon"
+      ],
       "populationCost": 1,
       "deployZones": 4,
       "rarity": 0,
@@ -160,7 +190,10 @@
       "attackRange": 1.0,
       "innateBuffIds": [],
       "avatarId": "jituiyongshi",
-      "tags": ["melee", "tank"],
+      "tags": [
+        "melee",
+        "tank"
+      ],
       "populationCost": 1,
       "deployZones": 1,
       "rarity": 0,
@@ -179,9 +212,14 @@
       "moveSpeed": 2.0,
       "attackSpeed": 1.0,
       "attackRange": 2.2,
-      "innateBuffIds": [404],
+      "innateBuffIds": [
+        404
+      ],
       "avatarId": "cangying",
-      "tags": ["ranged", "swarm"],
+      "tags": [
+        "ranged",
+        "swarm"
+      ],
       "populationCost": 1,
       "deployZones": 4,
       "rarity": 0,
@@ -200,9 +238,15 @@
       "moveSpeed": 0.5,
       "attackSpeed": 2.0,
       "attackRange": 1.0,
-      "innateBuffIds": [405],
+      "innateBuffIds": [
+        405
+      ],
       "avatarId": "daju",
-      "tags": ["melee", "tank", "slow"],
+      "tags": [
+        "melee",
+        "tank",
+        "slow"
+      ],
       "populationCost": 1,
       "deployZones": 2,
       "rarity": 0,
@@ -223,7 +267,10 @@
       "attackRange": 1.0,
       "innateBuffIds": [],
       "avatarId": "nainiu",
-      "tags": ["melee", "swarm"],
+      "tags": [
+        "melee",
+        "swarm"
+      ],
       "populationCost": 1,
       "deployZones": 1,
       "rarity": 0,
@@ -242,9 +289,14 @@
       "moveSpeed": 0.6,
       "attackSpeed": 2.0,
       "attackRange": 5.0,
-      "innateBuffIds": [406],
+      "innateBuffIds": [
+        406
+      ],
       "avatarId": "jiaorouche",
-      "tags": ["aoe", "swarm"],
+      "tags": [
+        "aoe",
+        "swarm"
+      ],
       "populationCost": 1,
       "deployZones": 4,
       "rarity": 0,
@@ -265,7 +317,11 @@
       "attackRange": 3.0,
       "innateBuffIds": [],
       "avatarId": "lingnengxuetu",
-      "tags": ["ranged", "mage", "teleport"],
+      "tags": [
+        "ranged",
+        "mage",
+        "teleport"
+      ],
       "populationCost": 1,
       "deployZones": 4,
       "rarity": 0,
@@ -284,9 +340,15 @@
       "moveSpeed": 1.0,
       "attackSpeed": 1.3,
       "attackRange": 4.0,
-      "innateBuffIds": [407],
+      "innateBuffIds": [
+        407
+      ],
       "avatarId": "longyishushi",
-      "tags": ["ranged", "glass_cannon", "mage"],
+      "tags": [
+        "ranged",
+        "glass_cannon",
+        "mage"
+      ],
       "populationCost": 1,
       "deployZones": 4,
       "rarity": 0,
@@ -305,9 +367,16 @@
       "moveSpeed": 1.1,
       "attackSpeed": 1.5,
       "attackRange": 3.0,
-      "innateBuffIds": [408, 409],
+      "innateBuffIds": [
+        408,
+        409
+      ],
       "avatarId": "xianluo",
-      "tags": ["ranged", "mage", "glass_cannon"],
+      "tags": [
+        "ranged",
+        "mage",
+        "glass_cannon"
+      ],
       "populationCost": 1,
       "deployZones": 4,
       "rarity": 0,
@@ -328,9 +397,12 @@
       "attackRange": 1.5,
       "innateBuffIds": [],
       "avatarId": "laoshu",
-      "tags": ["melee", "enemy"],
+      "tags": [
+        "melee",
+        "enemy"
+      ],
       "populationCost": 1,
-      "deployZones": 7,
+      "deployZones": 1,
       "rarity": 0,
       "enhanceLevel": 0,
       "mechanismTag": "",
@@ -349,9 +421,12 @@
       "attackRange": 5.0,
       "innateBuffIds": [],
       "avatarId": "maomao",
-      "tags": ["ranged", "enemy"],
+      "tags": [
+        "ranged",
+        "enemy"
+      ],
       "populationCost": 1,
-      "deployZones": 7,
+      "deployZones": 4,
       "rarity": 0,
       "enhanceLevel": 0,
       "mechanismTag": "",
@@ -370,9 +445,12 @@
       "attackRange": 2.0,
       "innateBuffIds": [],
       "avatarId": "maoqishi",
-      "tags": ["melee", "enemy"],
+      "tags": [
+        "melee",
+        "enemy"
+      ],
       "populationCost": 1,
-      "deployZones": 7,
+      "deployZones": 2,
       "rarity": 0,
       "enhanceLevel": 0,
       "mechanismTag": "",
@@ -391,9 +469,13 @@
       "attackRange": 1.0,
       "innateBuffIds": [],
       "avatarId": "nainiuleader",
-      "tags": ["melee", "enemy", "leader"],
+      "tags": [
+        "melee",
+        "enemy",
+        "leader"
+      ],
       "populationCost": 1,
-      "deployZones": 7,
+      "deployZones": 1,
       "rarity": 0,
       "enhanceLevel": 0,
       "mechanismTag": "",
@@ -412,9 +494,13 @@
       "attackRange": 5.0,
       "innateBuffIds": [],
       "avatarId": "youxia",
-      "tags": ["ranged", "enemy", "leader"],
+      "tags": [
+        "ranged",
+        "enemy",
+        "leader"
+      ],
       "populationCost": 1,
-      "deployZones": 7,
+      "deployZones": 4,
       "rarity": 0,
       "enhanceLevel": 0,
       "mechanismTag": "",
@@ -433,7 +519,10 @@
       "attackRange": 7.5,
       "innateBuffIds": [],
       "avatarId": "jiaorouche",
-      "tags": ["billboard", "player"],
+      "tags": [
+        "billboard",
+        "player"
+      ],
       "populationCost": 0,
       "deployZones": 0,
       "rarity": 0,
@@ -454,7 +543,10 @@
       "attackRange": 10.0,
       "innateBuffIds": [],
       "avatarId": "jiaorouche",
-      "tags": ["billboard", "enemy"],
+      "tags": [
+        "billboard",
+        "enemy"
+      ],
       "populationCost": 0,
       "deployZones": 0,
       "rarity": 0,

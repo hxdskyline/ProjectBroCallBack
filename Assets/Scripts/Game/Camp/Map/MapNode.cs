@@ -18,6 +18,7 @@ namespace Camp
         public MapNodeType nodeType;
         public MapNodeState state;
         public int battleNumber;  // 对应关卡编号
+        public int[] enemyUnitIds; // 该节点的敌方单位组成
         public List<int> nextNodeIds = new List<int>();
         public List<int> prevNodeIds = new List<int>();
 

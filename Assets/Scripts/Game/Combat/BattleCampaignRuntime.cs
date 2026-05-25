@@ -66,6 +66,9 @@ namespace Combat
         // Enemy type names (loaded from enemyTypes in config)
         private readonly Dictionary<int, string> _enemyTypeNames = new Dictionary<int, string>();
 
+        // 预生成：每个关卡的敌人组成在新游戏时一次性随机确定
+        private int[][] _preGeneratedEnemyIds;
+
         // Popup priorities
         private readonly Dictionary<string, int> _popupPriorities = new Dictionary<string, int>();
 
@@ -96,6 +99,21 @@ namespace Combat
         {
             _currentBattleIndex = 0;
             _isCompleted = false;
+            PreGenerateEnemyCompositions();
+        }
+
+        /// <summary>
+        /// 新游戏时一次性随机确定所有关卡的敌人组成
+        /// </summary>
+        private void PreGenerateEnemyCompositions()
+        {
+            int count = MaxBattleCount;
+            _preGeneratedEnemyIds = new int[count][];
+            for (int i = 0; i < count; i++)
+            {
+                int battleNumber = i + 1;
+                _preGeneratedEnemyIds[i] = RollEnemyUnitIds(battleNumber);
+            }
         }
 
         public int GetEnemyCountForBattle(int battleNumber)
@@ -106,23 +124,29 @@ namespace Combat
 
         public int[] GetEnemyUnitIdsForBattle(int battleNumber)
         {
-            // 优先从随机变体中抽取
+            if (_preGeneratedEnemyIds != null)
+            {
+                int idx = battleNumber - 1;
+                if (idx >= 0 && idx < _preGeneratedEnemyIds.Length)
+                    return _preGeneratedEnemyIds[idx];
+            }
+            return RollEnemyUnitIds(battleNumber);
+        }
+
+        private int[] RollEnemyUnitIds(int battleNumber)
+        {
             if (_enemyUnitVariantsMap.TryGetValue(battleNumber, out var variants) && variants.Count > 0)
             {
                 int index = _rng.Next(variants.Count);
                 return variants[index];
             }
 
-            // 回退到原有 formation 逻辑
             var ids = GetEnemyUnitIds(battleNumber, EnemyFormationType.Single);
             if (ids != null && ids.Length > 0)
                 return ids;
 
             ids = GetEnemyUnitIds(battleNumber, EnemyFormationType.Swarm);
-            if (ids != null && ids.Length > 0)
-                return ids;
-
-            return null;
+            return ids;
         }
 
         public string GetEnemyName(int enemyUnitId)
