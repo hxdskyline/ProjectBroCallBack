@@ -97,7 +97,17 @@ public class BattlePreparePanel : UIPanel
         }
 
         var campaign = GameManager.Instance.BattleCampaignRuntime;
-        int[] enemyIds = campaign.GetEnemyUnitIdsForBattle(_battleNumber);
+        // 优先使用节点预生成的敌人
+        int[] enemyIds = null;
+        var gfc = GameFlowController.Instance;
+        if (gfc != null)
+        {
+            var node = gfc.GetCurrentMapNode();
+            if (node?.enemyUnitIds != null && node.enemyUnitIds.Length > 0)
+                enemyIds = node.enemyUnitIds;
+        }
+        if (enemyIds == null)
+            enemyIds = campaign.GetEnemyUnitIdsForBattle(_battleNumber);
         var enemyStats = campaign.GetEnemyStats(_battleNumber, DifficultyLevel.Normal);
         var scenarios = campaign.GetScenarioOptions(_battleNumber);
         var scenario = scenarios.Count > 0 ? scenarios[0] : default;

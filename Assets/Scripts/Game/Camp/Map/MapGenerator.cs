@@ -122,6 +122,9 @@ namespace Camp
             // Phase D: 生成连线
             GenerateEdges(layers);
 
+            // Phase E: 为每个战斗节点填充敌方单位（同层不同敌人）
+            AssignEnemies(layers, regionIndex);
+
             return map;
         }
 
@@ -369,6 +372,131 @@ namespace Camp
                 list[i] = list[j];
                 list[j] = temp;
             }
+        }
+
+        // ====== Phase E: Assign Enemies ======
+
+        /// <summary>
+        /// 为每个战斗类节点分配敌方单位，保证同层节点兵种组合不同
+        /// </summary>
+        private void AssignEnemies(List<List<MapNode>> layers, int regionIndex)
+        {
+            var campaign = UnityEngine.GameObject.FindObjectOfType<GameManager>()?.BattleCampaignRuntime;
+            if (campaign == null) return;
+
+            for (int layerIdx = 0; layerIdx < layers.Count; layerIdx++)
+            {
+                var layerNodes = layers[layerIdx];
+                int battleNum = regionIndex * _layersPerRegion + (layerIdx + 1);
+
+                // 获取该 battleNumber 的基础敌人列表
+                int[] baseIds = campaign.GetEnemyUnitIdsForBattle(battleNum);
+                if (baseIds == null || baseIds.Length == 0) continue;
+
+                // 收集本层战斗类节点
+                var battleNodes = new List<MapNode>();
+                foreach (var n in layerNodes)
+                {
+                    if (n.nodeType == MapNodeType.Battle || n.nodeType == MapNodeType.EliteBattle || n.nodeType == MapNodeType.Boss)
+                        battleNodes.Add(n);
+                }
+                if (battleNodes.Count == 0) continue;
+
+                // 统计每种敌人的数量
+                var typeCounts = new Dictionary<int, int>();
+                foreach (int id in baseIds)
+                {
+                    if (!typeCounts.ContainsKey(id)) typeCounts[id] = 0;
+                    typeCounts[id]++;
+                }
+
+                var uniqueTypes = new List<int>(typeCounts.Keys);
+                int totalBase = baseIds.Length;
+
+                // 只有一种兵种 → 无法差异化，都一样
+                if (uniqueTypes.Count <= 1)
+                {
+                    foreach (var n in battleNodes)
+                        n.enemyUnitIds = baseIds;
+                    continue;
+                }
+
+                // 为每个节点生成不同的兵种组合
+                // 策略：从 totalBase 里随机抽取，每种兵种数量在 [0, totalBase] 之间随机，
+                // 总数保持和 baseIds 一样，但比例不同
+                var usedSignatures = new HashSet<string>();
+                for (int i = 0; i < battleNodes.Count; i++)
+                {
+                    int[] composition;
+                    int attempts = 0;
+                    do
+                    {
+                        composition = RollComposition(uniqueTypes, totalBase);
+                        attempts++;
+                    }
+                    while (usedSignatures.Contains(Signature(composition)) && attempts < 20);
+
+                    usedSignatures.Add(Signature(composition));
+                    battleNodes[i].enemyUnitIds = composition;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 随机生成一个敌人组合：总数 = totalCount，从 types 中随机分配
+        /// </summary>
+        private int[] RollComposition(List<int> types, int totalCount)
+        {
+            // 随机决定每种兵种的数量，总和 = totalCount
+            var weights = new float[types.Count];
+            float sum = 0;
+            for (int i = 0; i < types.Count; i++)
+            {
+                weights[i] = (float)(_rng.NextDouble() + 0.1);
+                sum += weights[i];
+            }
+
+            var result = new List<int>();
+            int remaining = totalCount;
+            for (int i = 0; i < types.Count; i++)
+            {
+                int count = (i == types.Count - 1) ? remaining : Mathf.RoundToInt(totalCount * weights[i] / sum);
+                count = Mathf.Clamp(count, 0, remaining);
+                remaining -= count;
+                for (int j = 0; j < count; j++)
+                    result.Add(types[i]);
+            }
+
+            // 如果还有剩余（四舍五入误差），随机分配
+            while (remaining > 0)
+            {
+                result.Add(types[_rng.Next(types.Count)]);
+                remaining--;
+            }
+
+            // 打乱顺序
+            var arr = result.ToArray();
+            for (int i = arr.Length - 1; i > 0; i--)
+            {
+                int j = _rng.Next(i + 1);
+                int tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+            }
+            return arr;
+        }
+
+        private static string Signature(int[] composition)
+        {
+            var counts = new Dictionary<int, int>();
+            foreach (int id in composition)
+            {
+                if (!counts.ContainsKey(id)) counts[id] = 0;
+                counts[id]++;
+            }
+            var parts = new List<string>();
+            foreach (var kv in counts)
+                parts.Add($"{kv.Key}:{kv.Value}");
+            parts.Sort();
+            return string.Join(",", parts);
         }
     }
 }

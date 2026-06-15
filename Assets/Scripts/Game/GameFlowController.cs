@@ -58,6 +58,13 @@ public class GameFlowController : MonoBehaviour
     public int CurrentRound => _currentRound;
     public int CurrentRegion => _currentRegion;
     public bool IsGameStarted => _isGameStarted;
+
+    public MapNode GetCurrentMapNode()
+    {
+        if (_currentRegionMap != null && _currentNodeId >= 0)
+            return _currentRegionMap.GetNode(_currentNodeId);
+        return null;
+    }
     public MapData CurrentRegionMap => _currentRegionMap;
     public int CurrentNodeId => _currentNodeId;
     public TribeZoneService ZoneService => _zoneService;
@@ -471,8 +478,16 @@ public class GameFlowController : MonoBehaviour
         var campaign = GameManager.Instance.BattleCampaignRuntime;
         int battleNumber = _currentRound;
 
-        // 敌方数据
-        int[] enemyIds = campaign.GetEnemyUnitIdsForBattle(battleNumber);
+        // 敌方数据：优先使用节点预生成的敌人，否则回退到关卡配置
+        int[] enemyIds = null;
+        if (_currentRegionMap != null && _currentNodeId >= 0)
+        {
+            var currentNode = _currentRegionMap.GetNode(_currentNodeId);
+            if (currentNode?.enemyUnitIds != null && currentNode.enemyUnitIds.Length > 0)
+                enemyIds = currentNode.enemyUnitIds;
+        }
+        if (enemyIds == null)
+            enemyIds = campaign.GetEnemyUnitIdsForBattle(battleNumber);
         var enemyStats = campaign.GetEnemyStats(battleNumber, DifficultyLevel.Normal);
         var scenarios = campaign.GetScenarioOptions(battleNumber);
         var scenario = scenarios.Count > 0 ? scenarios[0] : default;
