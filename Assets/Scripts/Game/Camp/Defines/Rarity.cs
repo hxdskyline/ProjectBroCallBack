@@ -7,6 +7,7 @@ namespace Camp
     {
         Normal = 0,    // 普通
         Advanced = 1,  // 高级
-        Rare = 2       // 稀有
+        Rare = 2,      // 稀有
+        Boss = 3       // Boss（用于圣物等）
     }
 }

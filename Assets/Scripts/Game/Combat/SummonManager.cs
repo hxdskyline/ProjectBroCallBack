@@ -132,6 +132,58 @@ namespace Combat
             _summons.Clear();
         }
 
+        /// <summary>
+        /// 召唤分身（铀235猫裂变用）
+        /// </summary>
+        public void SummonClone(BattleFighter source, int count)
+        {
+            if (source == null) return;
+            var pos = source.Transform != null ? source.Transform.position : Vector3.zero;
+            int cloneHp = Mathf.Max(1, source.StaticAttributes.MaxHp / 2);
+            int cloneAtk = Mathf.Max(1, source.RuntimeAttributes.Attack / 2);
+
+            for (int i = 0; i < count; i++)
+            {
+                var data = new SummonData
+                {
+                    summonName = source.Name + "_分身",
+                    hp = cloneHp,
+                    attack = cloneAtk,
+                    moveSpeed = source.RuntimeAttributes.MoveSpeed,
+                    attackSpeed = source.RuntimeAttributes.CorrectedAttackSpeed > 0 ? 1f / source.RuntimeAttributes.CorrectedAttackSpeed : 1f,
+                    lifetime = -1f,
+                    isPlayerOwned = source.Camp == BattleCamp.Player
+                };
+                Vector3 offset = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), 0f);
+                SpawnSummon(data, pos + offset);
+            }
+        }
+
+        /// <summary>
+        /// 召唤骷髅猫（缝合猫用）
+        /// </summary>
+        public void SummonSkeleton(BattleFighter source)
+        {
+            if (source == null) return;
+            var pos = source.Transform != null ? source.Transform.position : Vector3.zero;
+
+            int skeletonHp = Mathf.Max(1, Mathf.RoundToInt(source.RuntimeAttributes.MaxHp * 0.2f));
+            int skeletonAtk = source.RuntimeAttributes.Attack;
+
+            var data = new SummonData
+            {
+                summonName = "骷髅猫",
+                hp = skeletonHp,
+                attack = skeletonAtk,
+                moveSpeed = 4f,
+                attackSpeed = 1f,
+                lifetime = -1f,
+                isPlayerOwned = source.Camp == BattleCamp.Player
+            };
+            Vector3 offset = new Vector3(Random.Range(-1.5f, 1.5f), Random.Range(-1.5f, 1.5f), 0f);
+            SpawnSummon(data, pos + offset);
+        }
+
         private void UpdateSummonAI(SummonRecord summon, float deltaTime)
         {
             if (_enemyFighters == null) return;

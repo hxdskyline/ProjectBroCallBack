@@ -254,7 +254,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 应用属性增益
+        /// 应用属性增益 — 通过buff系统
         /// </summary>
         private ComboEffectResult ApplyStatBuff(ComboSkillInstance combo, List<BattleFighter> targets)
         {
@@ -262,8 +262,14 @@ namespace Combat
             {
                 if (target != null && target.IsAlive && target.RuntimeAttributes != null)
                 {
-                    // TODO: 添加临时buff
-                    target.RuntimeAttributes.Attack = (int)(target.RuntimeAttributes.Attack * (1 + combo.config.effectValue));
+                    var buff = Camp.UnifiedBuff.CreateTimedBuff(
+                        $"combo_{combo.config.skillId}", combo.config.skillName,
+                        Camp.BuffSource.Innate, combo.config.skillId,
+                        Camp.StatType.Attack, true, combo.config.effectValue,
+                        combo.config.effectDuration, Camp.BuffStackRule.None, 1);
+                    target.RuntimeAttributes.ApplyBuff(buff);
+                    target.RuntimeAttributes.SyncStatBuffs();
+                    target.RuntimeAttributes.Recalculate();
                 }
             }
 
@@ -285,7 +291,8 @@ namespace Combat
             {
                 if (target != null && target.IsAlive && target.RuntimeAttributes != null)
                 {
-                    target.RuntimeAttributes.CurrentHp -= (int)combo.config.effectValue;
+                    int dmg = (int)combo.config.effectValue;
+                    target.RuntimeAttributes.CurrentHp = Mathf.Max(0, target.RuntimeAttributes.CurrentHp - dmg);
                 }
             }
 
@@ -298,16 +305,17 @@ namespace Combat
         }
 
         /// <summary>
-        /// 应用控制效果
+        /// 应用控制效果 — 冻结
         /// </summary>
         private ComboEffectResult ApplyCrowdControl(ComboSkillInstance combo, List<BattleFighter> targets)
         {
+            var freezeBuff = Combat.Effects.StatusEffectFactory.CreateFreeze(combo.config.effectDuration);
             foreach (var target in targets)
             {
-                if (target != null && target.IsAlive)
+                if (target != null && target.IsAlive && target.RuntimeAttributes != null)
                 {
-                    // TODO: 应用冻结效果
-                    target.FreezeTimer = combo.config.effectDuration;
+                    target.RuntimeAttributes.ApplyBuff(freezeBuff);
+                    target.FreezeTimer = Mathf.Max(target.FreezeTimer, combo.config.effectDuration);
                 }
             }
 
@@ -325,9 +333,8 @@ namespace Combat
         /// </summary>
         private ComboEffectResult ApplySummon(ComboSkillInstance combo, List<BattleFighter> allies)
         {
-            // TODO: 召唤精灵单位
             Debug.Log($"[ComboSkillSystem] 触发连携技: {combo.config.skillName}");
-
+            // 召唤逻辑由 SummonManager 处理，此处仅记录
             return new ComboEffectResult
             {
                 comboName = combo.config.skillName,

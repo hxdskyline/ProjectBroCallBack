@@ -42,6 +42,7 @@ namespace Camp
         public float HpPercentBuff;
         public float SpeedPercentBuff;
         public float SpeedPercentDebuff;
+        public float AttackSpeedPercentBuff;
         public float DamageReceivePercentBuff;
         public int DamageReceiveFlatBuff;
         public float SkillMultiplier;
@@ -77,6 +78,7 @@ namespace Camp
             HpPercentBuff = 0f;
             SpeedPercentBuff = 0f;
             SpeedPercentDebuff = 0f;
+            AttackSpeedPercentBuff = 0f;
             DamageReceivePercentBuff = 0f;
             DamageReceiveFlatBuff = 0;
             SkillMultiplier = 1f;
@@ -97,16 +99,133 @@ namespace Camp
             float moveSpeed = _baseMoveSpeed * (1f + SpeedPercentBuff - SpeedPercentDebuff);
             CorrectedMoveSpeed = Mathf.Max(0.001f, moveSpeed);
 
-            CorrectedAttackSpeed = Mathf.Max(0.1f, _baseAttackSpeed);
+            float atkSpeed = _baseAttackSpeed * (1f + AttackSpeedPercentBuff);
+            CorrectedAttackSpeed = Mathf.Max(0.1f, atkSpeed);
             AttackRange = Mathf.Max(0.1f, _baseAttackRange);
         }
 
+        // ── 控制状态查询 ──
+
+        /// <summary>是否被缠绕（无法移动，可攻击）</summary>
+        public bool IsRooted => HasActiveEffect(GameEffect.Root);
+
+        /// <summary>是否被眩晕（无法行动和攻击）</summary>
+        public bool IsStunned => HasActiveEffect(GameEffect.Stun) ||
+                                 HasActiveEffect(GameEffect.Freeze) ||
+                                 HasActiveEffect(GameEffect.KnockUp) ||
+                                 HasActiveEffect(GameEffect.KnockDown);
+
+        /// <summary>是否被沉默（无法触发技能）</summary>
+        public bool IsSilenced => HasActiveEffect(GameEffect.Silence) && !HasActiveEffect(GameEffect.Taunt);
+
+        /// <summary>是否处于霸体状态（免疫控制）</summary>
+        public bool HasSuperArmor => HasActiveEffect(GameEffect.SuperArmor);
+
+        /// <summary>是否被嘲讽</summary>
+        public bool IsTaunted => HasActiveEffect(GameEffect.Taunt);
+
+        public bool HasActiveEffect(GameEffect effect)
+        {
+            if (ActiveBuffs == null) return false;
+            for (int i = 0; i < ActiveBuffs.Count; i++)
+            {
+                if (ActiveBuffs[i].gameEffect == effect && !ActiveBuffs[i].IsExpired)
+                    return true;
+            }
+            return false;
+        }
+
         /// <summary>
-        /// 添加 buff
+        /// 从 ActiveBuffs 同步所有属性修正到运行时字段，应在 Recalculate() 前调用
+        /// </summary>
+        public void SyncStatBuffs()
+        {
+            // 重置所有修正字段
+            AttackPercentBuff = 0f;
+            DefensePercentBuff = 0f;
+            HpPercentBuff = 0f;
+            SpeedPercentBuff = 0f;
+            AttackSpeedPercentBuff = 0f;
+            AttackFlatBuff = 0;
+            DefenseFlatBuff = 0;
+            HpFlatBuff = 0;
+
+            if (ActiveBuffs == null) return;
+
+            for (int i = 0; i < ActiveBuffs.Count; i++)
+            {
+                var buff = ActiveBuffs[i];
+                if (buff.IsExpired) continue;
+
+                // 只处理有 statType 的属性 buff
+                if (buff.statType == StatType.Attack)
+                {
+                    if (buff.isPercent) AttackPercentBuff += buff.value;
+                    else AttackFlatBuff += Mathf.RoundToInt(buff.value);
+                }
+                else if (buff.statType == StatType.Defense)
+                {
+                    if (buff.isPercent) DefensePercentBuff += buff.value;
+                    else DefenseFlatBuff += Mathf.RoundToInt(buff.value);
+                }
+                else if (buff.statType == StatType.Hp)
+                {
+                    if (buff.isPercent) HpPercentBuff += buff.value;
+                    else HpFlatBuff += Mathf.RoundToInt(buff.value);
+                }
+                else if (buff.statType == StatType.MoveSpeed)
+                {
+                    if (buff.isPercent) SpeedPercentBuff += buff.value;
+                    // 固定值移速暂不处理（需要换算）
+                }
+                else if (buff.statType == StatType.AttackSpeed)
+                {
+                    if (buff.isPercent) AttackSpeedPercentBuff += buff.value;
+                    // 固定值攻速暂不处理
+                }
+            }
+        }
+
+        /// <summary>
+        /// 添加 buff，按叠加规则处理
+        /// 控制效果叠加规则：同一控制不叠加取最高值，不同控制可叠加，
+        /// 位移型控制解除束缚型/仇恨型控制，嘲讽与沉默互斥
         /// </summary>
         public void ApplyBuff(UnifiedBuff buff)
         {
             if (buff == null) return;
+
+            // 霸体免疫控制效果
+            if (HasSuperArmor && Combat.Effects.StatusEffectFactory.IsControlEffect(buff.gameEffect))
+                return;
+
+            // 嘲讽与沉默互斥：被嘲讽时无法被沉默
+            if (buff.gameEffect == GameEffect.Silence && HasActiveEffect(GameEffect.Taunt))
+                return;
+
+            // 位移型控制解除束缚型和仇恨型控制
+            if (Combat.Effects.StatusEffectFactory.IsDisplacementControl(buff.gameEffect))
+            {
+                RemoveEffect(GameEffect.Root);
+                RemoveEffect(GameEffect.Freeze);
+                RemoveEffect(GameEffect.Taunt);
+            }
+
+            // 同一控制效果不叠加，取最高值（刷新持续时间）
+            for (int i = 0; i < ActiveBuffs.Count; i++)
+            {
+                if (ActiveBuffs[i].gameEffect == buff.gameEffect &&
+                    Combat.Effects.StatusEffectFactory.IsControlEffect(buff.gameEffect))
+                {
+                    var existing = ActiveBuffs[i];
+                    // 取较高值
+                    if (buff.effectParam1 > existing.effectParam1)
+                        existing.effectParam1 = buff.effectParam1;
+                    existing.remainingDuration = buff.remainingDuration;
+                    ActiveBuffs[i] = existing;
+                    return;
+                }
+            }
 
             // 查找是否已有同 id 的 buff
             for (int i = 0; i < ActiveBuffs.Count; i++)
@@ -118,7 +237,6 @@ namespace Camp
                     switch (existing.stackRule)
                     {
                         case BuffStackRule.None:
-                            // 刷新持续时间
                             existing.remainingDuration = buff.remainingDuration;
                             ActiveBuffs[i] = existing;
                             return;
@@ -145,12 +263,28 @@ namespace Camp
         }
 
         /// <summary>
+        /// 移除指定 GameEffect 的所有 buff
+        /// </summary>
+        public void RemoveEffect(GameEffect effect)
+        {
+            if (ActiveBuffs == null) return;
+            for (int i = ActiveBuffs.Count - 1; i >= 0; i--)
+            {
+                if (ActiveBuffs[i].gameEffect == effect)
+                    ActiveBuffs.RemoveAt(i);
+            }
+        }
+
+        /// <summary>
         /// 每帧 tick 所有 buff：递减持续时间、执行 DoT、移除过期 buff
         /// </summary>
         public TickBuffResult TickBuffs(float deltaTime)
         {
             TickBuffResult result = new TickBuffResult();
             if (ActiveBuffs == null) return result;
+
+            int pendingHeal = 0;
+            int pendingFreezeBreakDamage = 0;
 
             for (int i = ActiveBuffs.Count - 1; i >= 0; i--)
             {
@@ -182,6 +316,13 @@ namespace Camp
                     }
                 }
 
+                // 治疗效果（立即回复）
+                if (buff.gameEffect == GameEffect.Heal && buff.remainingDuration > 0f)
+                {
+                    pendingHeal += Mathf.RoundToInt(buff.effectParam1);
+                    buff.remainingDuration = 0f;
+                }
+
                 // 冻结效果
                 if (buff.gameEffect == GameEffect.Freeze && buff.remainingDuration > 0f)
                 {
@@ -195,16 +336,18 @@ namespace Camp
                     result.needsRecalculate = true;
                 }
 
-                // 过期移除
-                if (buff.remainingDuration >= 0f && buff.remainingDuration < 0f)
-                {
-                    // 浮点误差容忍
-                }
+                // 过期检测
                 bool expired = buff.remainingDuration == 0f ||
                                (buff.remainingDuration > 0f && buff.remainingDuration < 0.001f);
 
                 if (expired)
                 {
+                    // 冰冻结束时受到破冰伤害
+                    if (buff.gameEffect == GameEffect.Freeze)
+                    {
+                        pendingFreezeBreakDamage += Mathf.RoundToInt(buff.effectParam2);
+                    }
+
                     // 移除时清理
                     if (buff.gameEffect == GameEffect.Slow)
                     {
@@ -218,6 +361,19 @@ namespace Camp
                 }
 
                 ActiveBuffs[i] = buff;
+            }
+
+            // 应用治疗
+            if (pendingHeal > 0)
+            {
+                CurrentHp = Mathf.Min(MaxHp, CurrentHp + pendingHeal);
+            }
+
+            // 应用破冰伤害
+            if (pendingFreezeBreakDamage > 0)
+            {
+                CurrentHp = Mathf.Max(0, CurrentHp - pendingFreezeBreakDamage);
+                result.dotDamage += pendingFreezeBreakDamage;
             }
 
             return result;

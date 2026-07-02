@@ -346,20 +346,28 @@ namespace Combat.Fighter
                 }
             }
 
-            // 强化 buff：enhanceLevel == 1 时，全属性 +50%
-            if (definition.EnhanceLevel >= 1)
+            // 强化 buff：按配置的 enhanceStatModifiers 添加属性修正
+            if (definition.EnhanceLevel >= 1 && definition.FighterId > 0)
             {
-                var statTypes = new[] { Camp.StatType.Attack, Camp.StatType.Defense, Camp.StatType.Hp, Camp.StatType.MoveSpeed, Camp.StatType.AttackSpeed };
-                foreach (var stat in statTypes)
+                var fighterConfig = Camp.TribeConfigLoader.Instance?.GetFighterConfig(definition.FighterId);
+                if (fighterConfig != null && fighterConfig.HasEnhanceStatModifiers)
                 {
-                    var enhanceBuff = Camp.UnifiedBuff.CreateStatBuff(
-                        $"enhance_{stat}", "强化",
-                        Camp.BuffSource.Enhancement, "enhance",
-                        stat, true, 0.5f);
-                    runtimeAttributes.ApplyBuff(enhanceBuff);
+                    foreach (var mod in fighterConfig.enhanceStatModifiers)
+                    {
+                        if (string.IsNullOrEmpty(mod.statType)) continue;
+                        if (System.Enum.TryParse<Camp.StatType>(mod.statType, out var stat))
+                        {
+                            var enhanceBuff = Camp.UnifiedBuff.CreateStatBuff(
+                                $"enhance_{mod.statType}", "强化",
+                                Camp.BuffSource.Enhancement, "enhance",
+                                stat, mod.isPercent, mod.value);
+                            runtimeAttributes.ApplyBuff(enhanceBuff);
+                        }
+                    }
                 }
             }
 
+            runtimeAttributes.SyncStatBuffs();
             runtimeAttributes.Recalculate();
 
             // 受击火花
@@ -384,7 +392,9 @@ namespace Combat.Fighter
                 TribeType = definition.TribeType,
                 FighterId = definition.FighterId,
                 InnateBuffIds = innateBuffIds,
-                HitEffect = hitEffect
+                HitEffect = hitEffect,
+                EnhanceLevel = definition.EnhanceLevel,
+                SkillId = Camp.TribeConfigLoader.Instance?.GetFighterConfig(definition.FighterId)?.GetSkillId(definition.EnhanceLevel) ?? ""
             };
         }
 
@@ -510,6 +520,7 @@ namespace Combat.Fighter
             }
 
             // 重新计算属性（确保 innate buff 和 aura buff 的修正生效）
+            runtimeAttributes.SyncStatBuffs();
             runtimeAttributes.Recalculate();
 
             // 创建受击火花（初始隐藏）
@@ -542,7 +553,8 @@ namespace Combat.Fighter
                 TribeType = tribeType,
                 FighterId = fighterId,
                 InnateBuffIds = innateBuffIds,
-                HitEffect = hitEffect
+                HitEffect = hitEffect,
+                SkillId = fighterId > 0 ? (Camp.TribeConfigLoader.Instance?.GetFighterConfig(fighterId)?.GetSkillId(0) ?? "") : ""
             };
         }
 

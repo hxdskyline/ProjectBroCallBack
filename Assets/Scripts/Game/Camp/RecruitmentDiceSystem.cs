@@ -100,7 +100,7 @@ namespace Camp
                             fighterId = recruitConfig.fighterId,
                             name = recruitConfig.fighterName,
                             tribeType = recruitConfig.tribeType,
-                            populationCost = 1,
+                            populationCost = recruitConfig.populationCost,
                             goldCost = CalculateRecruitCost(recruitConfig),
                             diceResult = DiceResult.Failure,
                             config = recruitConfig,
@@ -118,7 +118,7 @@ namespace Camp
                     fighterId = recruitConfig.fighterId,
                     name = recruitConfig.fighterName,
                     tribeType = recruitConfig.tribeType,
-                    populationCost = 1,
+                    populationCost = recruitConfig.populationCost,
                     goldCost = CalculateRecruitCost(recruitConfig),
                     diceResult = DiceResult.Failure,
                     config = recruitConfig,
@@ -187,16 +187,33 @@ namespace Camp
         }
 
         /// <summary>
-        /// 掷骰子：暂时固定 100% 成功，将来根据兵种给予不同概率
+        /// 掷骰子：根据兵种属性和主角咪格魅力计算成功率
         /// </summary>
         public void RollDice(RecruitmentCard card)
         {
-            if (card == null) return;
-            card.diceResult = DiceResult.Success;
+            if (card == null || card.config == null) return;
+
+            // 基础成功率：品质越高越难招募
+            float baseRate = card.config.rarity switch
+            {
+                0 => 0.7f,   // 普通 70%
+                1 => 0.5f,   // 高级 50%
+                2 => 0.3f,   // 稀有 30%
+                _ => 0.5f
+            };
+
+            // 咪格魅力加成：每点魅力+5%
+            int charisma = GameManager.Instance?.DataManager?.GetCharisma() ?? 1;
+            float charismaBonus = charisma * 0.05f;
+
+            float finalRate = Mathf.Clamp01(baseRate + charismaBonus);
+            card.diceResult = _rng.NextDouble() < finalRate ? DiceResult.Success : DiceResult.Failure;
+
+            GameLogger.Log("Recruit", $"掷骰子: {card.name} base={baseRate:F0%} charisma+{charismaBonus:F0%} final={finalRate:F0%} result={card.diceResult}");
         }
 
         /// <summary>
-        /// 招募单位：将成功的卡片转为 FighterData 加入待上阵区
+        /// 招募单位：将成功的卡片转为 FighterData 加入待上阵区，扣除招募费用
         /// </summary>
         public bool RecruitUnit(RecruitmentCard card)
         {
@@ -205,6 +222,17 @@ namespace Camp
             var dataManager = GameManager.Instance?.DataManager;
             if (dataManager == null) return false;
 
+            // 扣除招募费用
+            if (card.goldCost > 0)
+            {
+                var currencyMgr = GameManager.Instance?.CurrencyManager;
+                if (currencyMgr != null && !currencyMgr.TrySpendCurrency(CurrencyType.Gold, card.goldCost))
+                {
+                    GameLogger.Log("Recruit", $"招募失败：猫币不足 {card.goldCost}");
+                    return false;
+                }
+            }
+
             var cfg = card.config;
             var fighterData = new FighterData
             {
@@ -212,7 +240,7 @@ namespace Camp
                 tribeType = card.tribeType,
                 tier = cfg?.tier ?? 1,
                 name = card.name,
-                currentHp = card.bornEnhanced && cfg != null ? Mathf.RoundToInt(cfg.hp * 1.5f) : (cfg?.hp ?? 100),
+                currentHp = card.bornEnhanced && cfg != null ? cfg.GetEffectiveMaxHp(1) : (cfg?.hp ?? 100),
                 zone = (int)UnitZone.Standby,
                 rarity = card.rarity,
                 enhanceLevel = card.bornEnhanced ? 1 : 0

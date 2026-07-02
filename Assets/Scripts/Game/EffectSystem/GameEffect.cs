@@ -53,6 +53,26 @@ namespace Camp
         Slow = 64,               // 减速：移速 -effectParam1%，持续 effectParam2 秒
         HuntMark = 65,           // 狸花猫狩猎标记：受到伤害 +effectParam1%
 
+        // ── 控制效果类 ──
+        Root = 70,               // 缠绕：无法移动，可攻击，持续 effectParam1 秒
+        Silence = 71,            // 沉默：无法触发技能，持续 effectParam1 秒
+        Stun = 72,               // 眩晕：无法行动和攻击，持续 effectParam1 秒
+        KnockBack = 73,          // 击退：位移 effectParam1 米
+        KnockDown = 74,          // 击倒：倒地 effectParam1 秒
+        KnockUp = 75,            // 击飞：浮空+倒地 effectParam1 秒
+        Taunt = 76,              // 嘲讽：强制攻击施法者，持续 effectParam1 秒
+
+        // ── 防御/增益类 ──
+        Heal = 80,               // 治疗：立即回复 effectParam1 点HP
+        ShareDamage = 81,        // 分摊：连接分摊伤害和治疗，持续 effectParam1 秒
+        SuperArmor = 82,         // 霸体：免疫所有控制效果，持续 effectParam1 秒
+        FreezeBreakDamage = 83,  // 破冰伤害：冰冻结束时受到 effectParam1 点伤害
+
+        // ── 特殊效果类 ──
+        Split = 90,              // 分裂：攻击/技能多触发1次
+        Bounce = 91,             // 弹射：伤害后弹射至另一敌人
+        Summon = 92,             // 召唤：召唤 effectParam1 个单位
+
         // ── 战斗内成长类（可叠加层数） ──
         FullnessStack = 66,      // 橘猫饱食：每层 +value 生命 / +value 攻击
         DragonCharge = 67,       // 无毛猫龙语充能：每层 +value% 法术伤害

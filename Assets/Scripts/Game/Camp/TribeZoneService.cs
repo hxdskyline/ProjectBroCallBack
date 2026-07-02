@@ -57,7 +57,12 @@ namespace Camp
                 {
                     if (unit != null && unit.GetZone() == UnitZone.Production)
                     {
-                        totalOutput += 10; // 每个生产区单位产出 10 木天蓼叶
+                        // 产出与战斗力匹配：基础10 + 攻击力/2 + HP/20
+                        var cfg = TribeConfigLoader.Instance?.GetFighterConfig(unit.fighterId);
+                        if (cfg != null)
+                            totalOutput += 10 + cfg.attack / 2 + cfg.hp / 20;
+                        else
+                            totalOutput += 10;
                     }
                 }
             }
@@ -71,11 +76,32 @@ namespace Camp
         }
 
         /// <summary>
-        /// 将单位从待上阵区移到上阵区（检查人口上限）
+        /// 将单位从上阵区移回待上阵区（生产区单位不可移出）
+        /// </summary>
+        public void MoveToStandby(FighterData unit)
+        {
+            if (unit == null) return;
+            // 生产区不可逆：不允许从生产区移出
+            if (unit.GetZone() == UnitZone.Production)
+            {
+                Debug.LogWarning($"[TribeZoneService] 单位 {unit.name} 在生产区，不可移出");
+                return;
+            }
+            unit.SetZone(UnitZone.Standby);
+        }
+
+        /// <summary>
+        /// 将单位从待上阵区移到上阵区（生产区单位不可移出）
         /// </summary>
         public bool MoveToDeployed(FighterData unit)
         {
             if (unit == null) return false;
+            // 生产区不可逆：不允许从生产区移出
+            if (unit.GetZone() == UnitZone.Production)
+            {
+                Debug.LogWarning($"[TribeZoneService] 单位 {unit.name} 在生产区，不可移出");
+                return false;
+            }
 
             var dataManager = GameManager.Instance?.DataManager;
             if (dataManager == null) return false;
@@ -83,9 +109,11 @@ namespace Camp
             int populationCap = dataManager.GetPopulationCap();
             int currentPopulation = CountDeployedUnits();
 
-            // 查找单位所在族群的人口消耗
-            var tribes = dataManager.GetTribes();
-            int unitPopCost = 1; // 默认人口消耗
+            // 查找单位的人口消耗
+            int unitPopCost = 1;
+            var cfg = TribeConfigLoader.Instance?.GetFighterConfig(unit.fighterId);
+            if (cfg != null)
+                unitPopCost = cfg.populationCost;
 
             if (currentPopulation + unitPopCost > populationCap)
             {
@@ -95,15 +123,6 @@ namespace Camp
 
             unit.SetZone(UnitZone.Deployed);
             return true;
-        }
-
-        /// <summary>
-        /// 将单位从上阵区移回待上阵区
-        /// </summary>
-        public void MoveToStandby(FighterData unit)
-        {
-            if (unit != null)
-                unit.SetZone(UnitZone.Standby);
         }
 
         /// <summary>

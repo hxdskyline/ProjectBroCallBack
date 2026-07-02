@@ -3,7 +3,8 @@ using UnityEngine;
 namespace Camp
 {
     /// <summary>
-    /// 强化服务 — 将兵种从 enhanceLevel 0 提升到 1（全属性+50%），并回满HP
+    /// 强化服务 — 将兵种从 enhanceLevel 0 提升到 1，回满HP
+    /// 强化属性变化由 fighter_config.json 的 enhanceStatModifiers 配置决定
     /// </summary>
     public static class EnhancementService
     {
@@ -17,10 +18,10 @@ namespace Camp
 
             unit.enhanceLevel = 1;
 
-            // 回满HP：强化后实际 maxHp = 基础hp * 1.5（+50% buff），这里设为增强后满血
+            // 回满HP：有效最大HP由配置的 enhanceStatModifiers 决定
             var config = TribeConfigLoader.Instance?.GetFighterConfig(unit.fighterId);
-            int baseHp = config != null ? config.hp : 100;
-            unit.currentHp = Mathf.RoundToInt(baseHp * 1.5f);
+            int effectiveMaxHp = config != null ? config.GetEffectiveMaxHp(1) : 100;
+            unit.currentHp = effectiveMaxHp;
 
             // 重建 buff 并保存
             var dataManager = GameManager.Instance?.DataManager;
@@ -30,7 +31,7 @@ namespace Camp
                 dataManager.SavePlayerData();
             }
 
-            GameLogger.Log("Enhance", $"强化成功: {unit.name} enhanceLevel={unit.enhanceLevel}");
+            GameLogger.Log("Enhance", $"强化成功: {unit.name} enhanceLevel={unit.enhanceLevel} maxHp={effectiveMaxHp}");
             return true;
         }
     }

@@ -1,50 +1,29 @@
 {
   "tribes": [
     {
-      "tribeType": 1,
-      "tribeName": "狸花猫族",
-      "description": "致命的射手",
-      "deployCostPerCat": 10,
-      "leaderFighterId": 1000,
-      "unitTypes": [
-        { "tier": 1, "fighterId": 1001 },
-        { "tier": 2, "fighterId": 1002 },
-        { "tier": 3, "fighterId": 1003 }
-      ]
-    },
-    {
       "tribeType": 2,
-      "tribeName": "大橘猫族",
-      "description": "巨大体型\n无情碾压对手",
+      "tribeName": "猫族",
+      "description": "全体猫兵种",
       "deployCostPerCat": 10,
-      "leaderFighterId": 2000,
+      "leaderFighterId": 1001,
       "unitTypes": [
-        { "tier": 1, "fighterId": 2001 },
-        { "tier": 2, "fighterId": 2002 },
-        { "tier": 3, "fighterId": 2003 }
-      ]
-    },
-    {
-      "tribeType": 3,
-      "tribeName": "奶牛猫族",
-      "description": "增殖、分裂\n猫越多就越强",
-      "deployCostPerCat": 8,
-      "leaderFighterId": 3000,
-      "unitTypes": [
-        { "tier": 1, "fighterId": 3001 },
-        { "tier": 2, "fighterId": 3002 }
-      ]
-    },
-    {
-      "tribeType": 4,
-      "tribeName": "暹罗猫族",
-      "description": "闪现、能量盾\n神秘魔法输出",
-      "deployCostPerCat": 12,
-      "leaderFighterId": 4000,
-      "unitTypes": [
-        { "tier": 1, "fighterId": 4001 },
-        { "tier": 2, "fighterId": 4002 },
-        { "tier": 3, "fighterId": 4003 }
+        { "tier": 0, "fighterId": 1001 },
+        { "tier": 0, "fighterId": 1002 },
+        { "tier": 0, "fighterId": 1003 },
+        { "tier": 0, "fighterId": 1004 },
+        { "tier": 0, "fighterId": 1005 },
+        { "tier": 0, "fighterId": 1101 },
+        { "tier": 0, "fighterId": 1102 },
+        { "tier": 0, "fighterId": 1103 },
+        { "tier": 0, "fighterId": 1104 },
+        { "tier": 0, "fighterId": 1105 },
+        { "tier": 0, "fighterId": 1106 },
+        { "tier": 0, "fighterId": 1107 },
+        { "tier": 0, "fighterId": 1201 },
+        { "tier": 0, "fighterId": 1202 },
+        { "tier": 0, "fighterId": 1203 },
+        { "tier": 0, "fighterId": 1204 },
+        { "tier": 0, "fighterId": 1205 }
       ]
     }
   ]

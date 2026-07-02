@@ -75,6 +75,39 @@ namespace Camp
                     next.state = MapNodeState.Available;
                 }
             }
+
+            // 更新迷雾：当前层+3以内的可见，超过的设为 Fogged
+            UpdateFog(visited.layer);
+        }
+
+        /// <summary>
+        /// 更新迷雾状态：当前层+3以内可见，超过的设为 Fogged
+        /// 第12层后全部解锁
+        /// </summary>
+        public void UpdateFog(int currentLayer)
+        {
+            int fogThreshold = currentLayer + 3;
+            bool unlockAll = currentLayer >= 12;
+
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                var node = nodes[i];
+                if (node == null) continue;
+                if (node.state == MapNodeState.Visited || node.state == MapNodeState.Available)
+                    continue; // 已访问或可选的节点不受迷雾影响
+
+                if (unlockAll || node.layer <= fogThreshold)
+                {
+                    // 可见：如果之前是 Fogged，恢复为 Locked
+                    if (node.state == MapNodeState.Fogged)
+                        node.state = MapNodeState.Locked;
+                }
+                else
+                {
+                    // 超过3层：设为 Fogged
+                    node.state = MapNodeState.Fogged;
+                }
+            }
         }
     }
 }

@@ -377,8 +377,12 @@ namespace Combat
             _simulation?.SummonManager?.Clear();
 
             // 处理HP持久化（战后回血等）
-            var campaign = GameManager.Instance?.BattleCampaignRuntime;
-            bool isBossBattle = campaign != null && _levelId >= campaign.MaxBattleCount;
+            // Boss关检测：通过 GameFlowController 的当前节点类型判断，而非仅检查最后一关
+            var gfc = GameFlowController.Instance;
+            bool isBossBattle = gfc != null &&
+                gfc.CurrentRegionMap != null &&
+                gfc.CurrentNodeId >= 0 &&
+                gfc.CurrentRegionMap.GetNode(gfc.CurrentNodeId)?.nodeType == Camp.MapNodeType.Boss;
             var healthPersistence = new HealthPersistenceSystem();
             healthPersistence.OnBattleEnd(victory, isBossBattle);
 
@@ -1697,15 +1701,7 @@ namespace Combat
             }
             if (orangeUnit == null) return;
 
-            // 应用饱食层（Persistent buff，自动叠加）
-            for (int k = 0; k < newKills; k++)
-            {
-                int prevMaxHp = orangeUnit.RuntimeAttributes.MaxHp;
-                orangeUnit.RuntimeAttributes.ApplyBuff(StatusEffectFactory.CreateFullnessStack(60f, 4f));
-                orangeUnit.RuntimeAttributes.ApplyBuff(StatusEffectFactory.CreateFullnessAtkStack(4f));
-                orangeUnit.RuntimeAttributes.Recalculate();
-                orangeUnit.RuntimeAttributes.CurrentHp += orangeUnit.RuntimeAttributes.MaxHp - prevMaxHp;
-            }
+            // 旧饱食机制已移除，改为被动技能系统处理
         }
 
         /// <summary>

@@ -73,3 +73,10 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# .codely-cli auto-saves
+.codely-cli/
+
+# Codely config files
+.codelyignore
+.com-unity-codely.json

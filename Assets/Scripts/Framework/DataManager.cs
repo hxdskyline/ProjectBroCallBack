@@ -862,6 +862,52 @@ public class DataManager : MonoBehaviour
         {
             _playerData.ownedRelics = new System.Collections.Generic.List<Camp.RelicRecord>();
         }
+
+        if (_playerData.historyLog == null)
+        {
+            _playerData.historyLog = new HistoryLog();
+        }
+    }
+
+    // ── 商店/抉择相关 accessor ──
+
+    public float GetShopPriceModifier()
+    {
+        if (_playerData == null) return 1.0f;
+        return _playerData.shopPriceModifier;
+    }
+
+    public void SetShopPriceModifier(float modifier, bool saveImmediately = true)
+    {
+        if (_playerData == null) return;
+        _playerData.shopPriceModifier = modifier;
+        if (saveImmediately) SavePlayerData();
+    }
+
+    public bool IsShopRefreshLocked()
+    {
+        if (_playerData == null) return false;
+        return _playerData.shopRefreshLocked;
+    }
+
+    public void SetShopRefreshLocked(bool locked, bool saveImmediately = true)
+    {
+        if (_playerData == null) return;
+        _playerData.shopRefreshLocked = locked;
+        if (saveImmediately) SavePlayerData();
+    }
+
+    public int GetExtraWeatherCount()
+    {
+        if (_playerData == null) return 0;
+        return _playerData.extraWeatherCount;
+    }
+
+    public void SetExtraWeatherCount(int count, bool saveImmediately = true)
+    {
+        if (_playerData == null) return;
+        _playerData.extraWeatherCount = count;
+        if (saveImmediately) SavePlayerData();
     }
 
     /// <summary>
@@ -955,7 +1001,7 @@ public class DataManager : MonoBehaviour
             Debug.Log($"[RebuildAuraBuffs] Tribe {tribe.tribeType}: unit buffs {buffCountBefore}->{buffCountAfter}");
         }
 
-        // ── 强化 buff：enhanceLevel == 1 时，全属性 +50% ──
+        // ── 强化 buff：enhanceLevel == 1 时，按配置的 enhanceStatModifiers 添加属性修正 ──
         foreach (var tribe in _playerData.tribes)
         {
             if (tribe == null || !tribe.isActive || tribe.units == null) continue;
@@ -968,20 +1014,31 @@ public class DataManager : MonoBehaviour
             }
         }
 
-        // ── 圣物 buff：遍历已拥有的圣物，为匹配 mechanismTag 的兵种添加效果 ──
+        // ── 圣物 buff：遍历已拥有的圣物，为匹配 mechanismTags 的兵种添加效果 ──
         if (_playerData.ownedRelics != null)
         {
             foreach (var relic in _playerData.ownedRelics)
             {
                 if (relic.effects == null || string.IsNullOrEmpty(relic.mechanismTag)) continue;
+                var relicTags = relic.mechanismTag.Split(',');
                 foreach (var tribe in _playerData.tribes)
                 {
                     if (tribe == null || !tribe.isActive || tribe.units == null) continue;
                     foreach (var unit in tribe.units)
                     {
                         var config = Camp.TribeConfigLoader.Instance?.GetFighterConfig(unit.fighterId);
-                        if (config == null) continue;
-                        if (config.mechanismTag == relic.mechanismTag)
+                        if (config == null || config.mechanismTags == null) continue;
+                        bool matched = false;
+                        foreach (var tag in relicTags)
+                        {
+                            var trimmed = tag.Trim();
+                            if (!string.IsNullOrEmpty(trimmed) && config.mechanismTags.Contains(trimmed))
+                            {
+                                matched = true;
+                                break;
+                            }
+                        }
+                        if (matched)
                         {
                             ApplyAuraEffectsGeneric(unit, relic.effects, relic.name, relic.relicId, relic.description);
                         }
@@ -992,17 +1049,28 @@ public class DataManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 为强化兵种应用全属性+50% buff
+    /// 为强化兵种应用配置定义的属性修正 buff
     /// </summary>
     private static void ApplyEnhancementBuffs(Camp.IHasBuffs unit)
     {
-        var statTypes = new[] { Camp.StatType.Attack, Camp.StatType.Defense, Camp.StatType.Hp, Camp.StatType.MoveSpeed, Camp.StatType.AttackSpeed };
-        foreach (var stat in statTypes)
+        // 获取该单位的配置
+        var fighterData = unit as FighterData;
+        if (fighterData == null) return;
+
+        var config = Camp.TribeConfigLoader.Instance?.GetFighterConfig(fighterData.fighterId);
+        if (config == null || !config.HasEnhanceStatModifiers) return;
+
+        foreach (var mod in config.enhanceStatModifiers)
         {
+            if (string.IsNullOrEmpty(mod.statType)) continue;
+            var statType = Camp.StatType.Attack;
+            if (System.Enum.TryParse<Camp.StatType>(mod.statType, out var parsed))
+                statType = parsed;
+
             var buff = Camp.UnifiedBuff.CreateStatBuff(
-                $"enhance_{stat}", "强化",
+                $"enhance_{mod.statType}", "强化",
                 Camp.BuffSource.Enhancement, "enhance",
-                stat, true, 0.5f);
+                statType, mod.isPercent, mod.value);
             unit.AddUnifiedBuff(buff);
         }
     }
@@ -1089,6 +1157,14 @@ public class PlayerData
 
     // 上次展开的族群ID（-1表示无）
     public int lastExpandedTribeId = -1;
+
+    // 历史记录
+    public HistoryLog historyLog;
+
+    // ── 抉择事件对商店/天气的影响（每次新关卡重置） ──
+    public float shopPriceModifier = 1.0f;   // 1.0=正常, 1.2=奸商陷阱加价
+    public bool shopRefreshLocked = false;    // 奸商陷阱禁止刷新
+    public int extraWeatherCount = 0;         // "我全要了"额外天气数
 }
 
 [System.Serializable]

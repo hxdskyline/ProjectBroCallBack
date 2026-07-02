@@ -22,6 +22,7 @@ namespace Camp
         private int _quotaShop = 3;
         private int _quotaElite = 3;
         private int _quotaEvent = 3;
+        private int _quotaFate = 3;
 
         private float _columnSpacing = 500f;
         private float _rowSpacing = 160f;
@@ -63,6 +64,7 @@ namespace Camp
                     _quotaShop = ReadInt(q, "shop", _quotaShop);
                     _quotaElite = ReadInt(q, "elite", _quotaElite);
                     _quotaEvent = ReadInt(q, "event", _quotaEvent);
+                    _quotaFate = ReadInt(q, "fate", _quotaFate);
                 }
 
                 Debug.Log($"[MapGenerator] Config loaded: layers={_layersPerRegion}, regions={_regionCount}");
@@ -172,31 +174,28 @@ namespace Camp
             layers[_specialLayerBoss - 1][0].nodeType = MapNodeType.Boss;
 
             // Step 2: 构建特殊节点池
-            // 已固定：1温泉(14层) + 1商店(14层)。剩余：2温泉+2商店+3精英+3事件 = 10
+            // 已固定：1温泉(14层) + 1商店(14层)。剩余：2温泉+2商店+3精英+3事件+3命运 = 13
             var specialPool = new List<MapNodeType>();
             for (int i = 0; i < _quotaHotSpring - 1; i++) specialPool.Add(MapNodeType.HotSpring);
             for (int i = 0; i < _quotaShop - 1; i++) specialPool.Add(MapNodeType.Shop);
             for (int i = 0; i < _quotaElite; i++) specialPool.Add(MapNodeType.EliteBattle);
             for (int i = 0; i < _quotaEvent; i++) specialPool.Add(MapNodeType.Event);
+            for (int i = 0; i < _quotaFate; i++) specialPool.Add(MapNodeType.Fate);
             Shuffle(specialPool);
 
             // Step 3: 按层段分配
-            // 前段(层4-8, index 3-7)：4个特殊节点分布到5层
-            DistributeSpecialsToLayers(specialPool, 0, 4, layers, 3, 7);
+            // 前段(层4-8, index 3-7)：5个特殊节点分布到5层
+            DistributeSpecialsToLayers(specialPool, 0, 5, layers, 3, 7);
 
             // 中段(层9-12, index 8-11)：4个特殊节点，每层恰好1个
-            DistributeExactOnePerLayer(specialPool, 4, 4, layers, 8, 11);
+            DistributeExactOnePerLayer(specialPool, 5, 4, layers, 8, 11);
 
-            // 后段(层13, index 12)：2个特殊节点
+            // 后段(层13, index 12)：4个特殊节点（如果该层节点数足够）
             var layer13 = layers[12];
-            if (layer13.Count >= 2)
+            int layer13Count = Mathf.Min(layer13.Count, 4);
+            for (int i = 0; i < layer13Count; i++)
             {
-                layer13[0].nodeType = specialPool[8];
-                layer13[1].nodeType = specialPool[9];
-            }
-            else if (layer13.Count == 1)
-            {
-                layer13[0].nodeType = specialPool[8];
+                layer13[i].nodeType = specialPool[9 + i];
             }
 
             // Step 4: 剩余槽位已经是 Battle（占位值），无需额外填充

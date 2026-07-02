@@ -27,7 +27,7 @@ namespace Camp
         public float currentHp;
         public int zone;             // UnitZone 枚举值
         public int rarity;           // Rarity 枚举值
-        public int enhanceLevel;     // 0=未强化, 1=已强化（全属性+50%）
+        public int enhanceLevel;     // 0=原版, 1=强化版（属性变化由配置决定）
 
         [NonSerialized]
         private List<UnifiedBuff> _activeBuffs = new List<UnifiedBuff>();

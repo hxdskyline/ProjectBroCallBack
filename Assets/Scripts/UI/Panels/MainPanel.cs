@@ -19,6 +19,11 @@ public class MainPanel : UIPanel
 
         var continueBtn = CreateButton("ContinueButton", "继续游戏", OnContinue);
         continueBtn.anchoredPosition = new Vector2(0, -80);
+
+        var clearBtn = CreateButton("ClearSaveButton", "清除存档", OnClearSave);
+        clearBtn.anchoredPosition = new Vector2(0, -160);
+        // 红色警示
+        clearBtn.GetComponent<Image>().color = new Color(0.7f, 0.2f, 0.2f);
     }
 
     private void OnNewGame()
@@ -42,6 +47,17 @@ public class MainPanel : UIPanel
         Debug.Log("[MainPanel] 继续游戏");
         Hide();
         GameFlowController.Instance.Initialize();
+    }
+
+    private void OnClearSave()
+    {
+        GameLogger.Log("MainP", "ClearSave");
+
+        var dataManager = GameManager.Instance.DataManager;
+        dataManager.DeleteSaveData();
+
+        // 重新初始化解锁"继续游戏"按钮状态
+        GameFlowController.Instance.ReturnToMainMenu();
     }
 
     // ── UI 工具方法 ──

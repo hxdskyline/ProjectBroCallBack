@@ -54,6 +54,11 @@ public class GameFlowController : MonoBehaviour
     private bool _isGameStarted = false;
     private BattleFlowController _battleFlowController;
 
+    // 构筑阶段三大系统
+    private FateSystem _fateSystem;
+    private ChoiceEventSystem _choiceEventSystem;
+    private ShopSystem _shopSystem;
+
     public GameState CurrentState => _currentState;
     public int CurrentRound => _currentRound;
     public int CurrentRegion => _currentRegion;
@@ -161,6 +166,14 @@ public class GameFlowController : MonoBehaviour
             }
         }
 
+        // 初始化构筑阶段三大系统
+        _fateSystem = new FateSystem();
+        _fateSystem.Initialize();
+        _choiceEventSystem = new ChoiceEventSystem();
+        _choiceEventSystem.Initialize();
+        _shopSystem = new ShopSystem();
+        _shopSystem.Initialize();
+
         // 从存档加载当前回合
         int savedRound = _dataManager.GetCurrentRound();
         _roundManager.SetRound(savedRound);
@@ -185,7 +198,7 @@ public class GameFlowController : MonoBehaviour
     }
 
     /// <summary>
-    /// 新游戏默认角色 — 橘猫族长(2000) + 矛猫(1001)
+    /// 新游戏默认角色 — 橘猫(1001) + 长矛猫(1004)
     /// </summary>
     private void SetupDefaultStartUnits()
     {
@@ -198,7 +211,7 @@ public class GameFlowController : MonoBehaviour
         var dataManager = _dataManager;
 
         // 角色配置
-        int[] fighterIds = { 2000, 1001 };
+        int[] fighterIds = { 1001, 1004 };
         foreach (int fid in fighterIds)
         {
             var cfg = loader.GetFighterConfig(fid);
@@ -392,6 +405,27 @@ public class GameFlowController : MonoBehaviour
                 return;
             }
 
+            // 商店节点：显示猫市面板
+            if (currentNode != null && currentNode.nodeType == MapNodeType.Shop)
+            {
+                ShowShopNodePanel();
+                return;
+            }
+
+            // 随机事件节点：显示抉择面板
+            if (currentNode != null && currentNode.nodeType == MapNodeType.Event)
+            {
+                ShowEventNodePanel();
+                return;
+            }
+
+            // 命运节点：显示命运面板
+            if (currentNode != null && currentNode.nodeType == MapNodeType.Fate)
+            {
+                ShowFateNodePanel();
+                return;
+            }
+
             // Boss关：全员上阵（包括生产区单位）
             if (currentNode != null && currentNode.nodeType == MapNodeType.Boss)
             {
@@ -434,6 +468,101 @@ public class GameFlowController : MonoBehaviour
         else
         {
             Debug.LogWarning("[GameFlowController] HotSpringPanel not found, skip healing");
+            CompleteNonBattleNode();
+        }
+    }
+
+    /// <summary>
+    /// 显示猫市面板（地图上的商店节点）
+    /// </summary>
+    private void ShowShopNodePanel()
+    {
+        Debug.Log("[GameFlowController] 显示猫市面板（节点）");
+
+        // 确保实例已初始化
+        if (_shopSystem == null)
+        {
+            _shopSystem = new ShopSystem();
+            _shopSystem.Initialize();
+        }
+        _shopSystem.ResetForNewRound();
+        _shopSystem.GenerateInventory();
+
+        var shopPanel = _uiManager?.ShowPanel<ShopPanel>(UIManager.UILayer.Normal);
+        if (shopPanel != null)
+        {
+            shopPanel.ShowShop(_shopSystem, () =>
+            {
+                CompleteNonBattleNode();
+            });
+        }
+        else
+        {
+            Debug.LogWarning("[GameFlowController] ShopPanel not found, skip");
+            CompleteNonBattleNode();
+        }
+    }
+
+    /// <summary>
+    /// 显示抉择事件面板（地图上的事件节点）
+    /// </summary>
+    private void ShowEventNodePanel()
+    {
+        Debug.Log("[GameFlowController] 显示抉择事件面板（节点）");
+
+        if (_choiceEventSystem == null)
+        {
+            _choiceEventSystem = new ChoiceEventSystem();
+            _choiceEventSystem.Initialize();
+        }
+
+        var evt = _choiceEventSystem.GetEventForLevel(_currentRound);
+        if (evt == null)
+        {
+            Debug.LogWarning("[GameFlowController] 无抉择事件，跳过");
+            CompleteNonBattleNode();
+            return;
+        }
+
+        var panel = _uiManager?.ShowPanel<RandomEventPanel>(UIManager.UILayer.Normal);
+        if (panel != null)
+        {
+            panel.ShowChoiceEvent(evt, _choiceEventSystem, () =>
+            {
+                CompleteNonBattleNode();
+            });
+        }
+        else
+        {
+            Debug.LogWarning("[GameFlowController] RandomEventPanel not found, skip");
+            CompleteNonBattleNode();
+        }
+    }
+
+    /// <summary>
+    /// 显示命运面板（地图上的命运节点）
+    /// </summary>
+    private void ShowFateNodePanel()
+    {
+        Debug.Log("[GameFlowController] 显示命运面板（节点）");
+
+        if (_fateSystem == null)
+        {
+            _fateSystem = new FateSystem();
+            _fateSystem.Initialize();
+        }
+
+        var panel = _uiManager?.ShowPanel<FatePanel>(UIManager.UILayer.Normal);
+        if (panel != null)
+        {
+            panel.ShowFate(_fateSystem, () =>
+            {
+                CompleteNonBattleNode();
+            });
+        }
+        else
+        {
+            Debug.LogWarning("[GameFlowController] FatePanel not found, skip");
             CompleteNonBattleNode();
         }
     }
@@ -571,8 +700,8 @@ public class GameFlowController : MonoBehaviour
 
                 var avatar = LoadAvatarDefinition(cfg.avatarId);
                 var attrs = cfg.ToStaticAttributes();
-                // 使用当前 HP（战后可能不满血），不超过配置最大值（强化单位允许超过基础值）
-                int hpCap = unit.IsEnhanced() ? Mathf.RoundToInt(cfg.hp * 1.5f) : cfg.hp;
+                // 使用当前 HP（战后可能不满血），不超过有效最大值
+                int hpCap = cfg.GetEffectiveMaxHp(unit.enhanceLevel);
                 attrs.MaxHp = unit.currentHp > 0 ? (int)Mathf.Min(unit.currentHp, hpCap) : cfg.hp;
 
                 playerDefs.Add(new BattleFighterSpawnDefinition(
@@ -633,7 +762,7 @@ public class GameFlowController : MonoBehaviour
 
             var avatar = LoadAvatarDefinition(cfg.avatarId);
             var attrs = cfg.ToStaticAttributes();
-            int hpCap = unit.IsEnhanced() ? Mathf.RoundToInt(cfg.hp * 1.5f) : cfg.hp;
+            int hpCap = cfg.GetEffectiveMaxHp(unit.enhanceLevel);
             attrs.MaxHp = unit.currentHp > 0 ? (int)Mathf.Max(unit.currentHp, hpCap) : cfg.hp;
 
             var def = new Combat.Fighter.BattleFighterSpawnDefinition(
@@ -646,7 +775,7 @@ public class GameFlowController : MonoBehaviour
 
         // 加载默认玩家 avatar（用于 ConfigureDemoAvatars）
         var defaultPlayerAvatar = LoadAvatarDefinition(
-            Camp.TribeConfigLoader.Instance.GetFighterConfig(1000)?.avatarId ?? "youxia");
+            Camp.TribeConfigLoader.Instance.GetFighterConfig(1001)?.avatarId ?? "dajuleader");
         existingManager.ConfigureDemoAvatars(defaultPlayerAvatar, null);
 
         // 在指定位置添加玩家单位
@@ -827,30 +956,31 @@ public class GameFlowController : MonoBehaviour
 
             if (isBossBattle)
             {
-                // Boss关：先展示Boss奖励（稀有兵种三选一 + Boss圣物），再普通招募，最后切地区
+                // Boss关：先展示Boss奖励（稀有兵种三选一 + Boss圣物），再普通招募，然后切换到下一地区并选关
                 ShowBossRareFighterReward(() =>
                 {
                     ShowBossRelicReward(() =>
                     {
-                        ShowBattleResultRecruitment();
-
-                        // 切换到下一地区
-                        _currentRegion++;
-                        if (_currentRegion <= _mapDataList.Count)
+                        ShowBattleResultRecruitment(() =>
                         {
-                            _currentRegionMap = _mapDataList[_currentRegion - 1];
-                            if (_currentRegionMap.nodes.Count > 0)
+                            // 切换到下一地区
+                            _currentRegion++;
+                            if (_currentRegion <= _mapDataList.Count)
                             {
-                                _currentRegionMap.nodes[0].state = MapNodeState.Available;
+                                _currentRegionMap = _mapDataList[_currentRegion - 1];
+                                if (_currentRegionMap.nodes.Count > 0)
+                                {
+                                    _currentRegionMap.nodes[0].state = MapNodeState.Available;
+                                }
+                                _currentNodeId = -1;
                             }
-                            _currentNodeId = -1;
-                        }
+                        });
                     });
                 });
             }
             else
             {
-                ShowBattleResultRecruitment();
+                ShowBattleResultRecruitment(null);
             }
         }
         else
@@ -916,14 +1046,15 @@ public class GameFlowController : MonoBehaviour
     /// <summary>
     /// 显示战斗后招募界面（使用 RecruitmentSelectPanel）
     /// </summary>
-    private void ShowBattleResultRecruitment()
+    /// <param name="onComplete">招募+构筑全部完成后回调（Boss关用于切换地区）</param>
+    private void ShowBattleResultRecruitment(Action onComplete)
     {
         List<int> enemyFighterIds = GetEnemyFighterIdsForCurrentLevel();
 
         if (enemyFighterIds == null || enemyFighterIds.Count == 0)
         {
-            Debug.Log("[GameFlowController] 没有可招募的敌方兵种，直接进入选关");
-            EnterMapSelection();
+            Debug.Log("[GameFlowController] 没有可招募的敌方兵种，进入构筑阶段");
+            EnterBuildPhase(onComplete);
             return;
         }
 
@@ -932,8 +1063,8 @@ public class GameFlowController : MonoBehaviour
 
         if (cards == null || cards.Count == 0)
         {
-            Debug.Log("[GameFlowController] 没有生成招募卡片，直接进入选关");
-            EnterMapSelection();
+            Debug.Log("[GameFlowController] 没有生成招募卡片，进入构筑阶段");
+            EnterBuildPhase(onComplete);
             return;
         }
 
@@ -947,8 +1078,8 @@ public class GameFlowController : MonoBehaviour
         var successCards = cards.FindAll(c => c.diceResult == DiceResult.Success);
         if (successCards.Count == 0)
         {
-            Debug.Log("[GameFlowController] 招募全部失败，直接进入选关");
-            EnterMapSelection();
+            Debug.Log("[GameFlowController] 招募全部失败，进入构筑阶段");
+            EnterBuildPhase(onComplete);
             return;
         }
 
@@ -958,7 +1089,7 @@ public class GameFlowController : MonoBehaviour
         {
             // 面板创建失败，自动招募第一个成功的
             recruitmentSystem.RecruitUnit(successCards[0]);
-            EnterMapSelection();
+            EnterBuildPhase(onComplete);
             return;
         }
 
@@ -967,11 +1098,11 @@ public class GameFlowController : MonoBehaviour
             onSelected: card =>
             {
                 recruitmentSystem.RecruitUnit(card);
-                EnterMapSelection();
+                EnterBuildPhase(onComplete);
             },
             onSkipped: () =>
             {
-                EnterMapSelection();
+                EnterBuildPhase(onComplete);
             },
             title: "招募",
             skipText: "跳过招募");
@@ -980,25 +1111,149 @@ public class GameFlowController : MonoBehaviour
     /// <summary>
     /// 进入构筑阶段（命运/抉择/猫市），完成后进入选关
     /// 文档：每关流程 = 战斗准备→战斗→构筑→选关
+    /// 弹出优先级由 BattleCampaignRuntime.GetSortedPopupEvents 决定：命运(20) > 抉择(10) > 猫市(0)
     /// </summary>
-    private void EnterBuildPhase()
+    /// <param name="onComplete">构筑+选关全部完成后回调（Boss关用于切换地区）</param>
+    private void EnterBuildPhase(Action onComplete = null)
     {
         GameLogger.Log("GFC", "EnterBuildPhase");
         ChangeGameState(GameState.RoundPreparation);
 
         if (_uiManager == null)
-        {
             _uiManager = GameManager.Instance?.UIManager;
-        }
 
-        // 显示族群构筑主界面（包含命运/抉择/猫市）
-        _tribeBuildPanel = _uiManager?.ShowPanel<TribeBuildPanel>(UIManager.UILayer.Normal);
-
-        if (_tribeBuildPanel == null)
+        if (_uiManager == null)
         {
-            Debug.LogWarning("[GameFlowController] TribeBuildPanel not found, fallback to MapSelection");
+            GameLogger.LogError("GFC", "EnterBuildPhase: UIManager null");
             EnterMapSelection();
+            onComplete?.Invoke();
+            return;
         }
+
+        // 关闭旧面板
+        _uiManager.ClosePanel("MapPanel");
+
+        // 根据关卡配置获取本关需要弹出的构筑事件（按优先级排序）
+        var campaign = GameManager.Instance?.BattleCampaignRuntime;
+        var events = campaign?.GetSortedPopupEvents(_currentRound);
+
+        if (events == null || events.Count == 0)
+        {
+            // 无构筑事件，直接进入选关
+            EnterMapSelection();
+            onComplete?.Invoke();
+            return;
+        }
+
+        // 依次处理事件队列，最后进入选关
+        ProcessBuildPhaseEvents(events, 0, onComplete);
+    }
+
+    /// <summary>
+    /// 递归处理构筑事件队列
+    /// </summary>
+    private void ProcessBuildPhaseEvents(List<string> events, int index, Action onComplete = null)
+    {
+        if (index >= events.Count)
+        {
+            // 所有事件处理完毕，进入选关
+            EnterMapSelection();
+            onComplete?.Invoke();
+            return;
+        }
+
+        string eventType = events[index];
+        GameLogger.Log("GFC", $"ProcessBuildPhaseEvents [{index}] = {eventType}");
+
+        switch (eventType)
+        {
+            case "ritual":
+                ShowFatePanel(() => ProcessBuildPhaseEvents(events, index + 1, onComplete));
+                break;
+            case "randomEvent":
+                ShowChoicePanel(() => ProcessBuildPhaseEvents(events, index + 1, onComplete));
+                break;
+            case "shop":
+                ShowShopPanel(() => ProcessBuildPhaseEvents(events, index + 1, onComplete));
+                break;
+            default:
+                // 未知事件类型（如 newTribeEvent/recruitment），跳过
+                ProcessBuildPhaseEvents(events, index + 1, onComplete);
+                break;
+        }
+    }
+
+    /// <summary>
+    /// 显示命运面板
+    /// </summary>
+    private void ShowFatePanel(Action onComplete)
+    {
+        GameLogger.Log("GFC", "ShowFatePanel");
+
+        var panel = _uiManager?.ShowPanel<FatePanel>(UIManager.UILayer.PopUp);
+        if (panel == null)
+        {
+            GameLogger.LogWarning("GFC", "FatePanel 创建失败，跳过");
+            onComplete?.Invoke();
+            return;
+        }
+
+        panel.ShowFate(_fateSystem, onComplete);
+    }
+
+    /// <summary>
+    /// 显示抉择事件面板
+    /// </summary>
+    private void ShowChoicePanel(Action onComplete)
+    {
+        GameLogger.Log("GFC", "ShowChoicePanel");
+
+        var evt = _choiceEventSystem.GetEventForLevel(_currentRound);
+        if (evt == null)
+        {
+            GameLogger.Log("GFC", "无抉择事件，跳过");
+            onComplete?.Invoke();
+            return;
+        }
+
+        var panel = _uiManager?.ShowPanel<RandomEventPanel>(UIManager.UILayer.PopUp);
+        if (panel == null)
+        {
+            GameLogger.LogWarning("GFC", "RandomEventPanel 创建失败，跳过");
+            onComplete?.Invoke();
+            return;
+        }
+
+        panel.ShowChoiceEvent(evt, _choiceEventSystem, onComplete);
+    }
+
+    /// <summary>
+    /// 显示猫市面板
+    /// </summary>
+    private void ShowShopPanel(Action onComplete)
+    {
+        GameLogger.Log("GFC", "ShowShopPanel");
+
+        // 确保实例已初始化
+        if (_shopSystem == null)
+        {
+            _shopSystem = new ShopSystem();
+            _shopSystem.Initialize();
+        }
+
+        // 每回合开始时重置商店状态（清除奸商陷阱等）
+        _shopSystem.ResetForNewRound();
+        _shopSystem.GenerateInventory();
+
+        var panel = _uiManager?.ShowPanel<ShopPanel>(UIManager.UILayer.PopUp);
+        if (panel == null)
+        {
+            GameLogger.LogWarning("GFC", "ShopPanel 创建失败，跳过");
+            onComplete?.Invoke();
+            return;
+        }
+
+        panel.ShowShop(_shopSystem, onComplete);
     }
 
     /// <summary>

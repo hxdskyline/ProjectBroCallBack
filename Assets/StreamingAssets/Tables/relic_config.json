@@ -1,6 +1,117 @@
 {
   "relics": [
     {
+      "relicId": "Relic_BluePill",
+      "name": "蓝色药丸",
+      "description": "所有猫攻速提升10%",
+      "rarity": 0,
+      "mechanismTag": "",
+      "effects": [
+        { "statType": "AttackSpeed", "isPercent": true, "value": 0.1, "gameEffect": 13 }
+      ],
+      "isBossRelic": false
+    },
+    {
+      "relicId": "Relic_ForbiddenBook",
+      "name": "禁忌之书",
+      "description": "所有控制效果时间延长20%",
+      "rarity": 1,
+      "mechanismTag": "slow,root,silence,stun,freeze,knock_back,knock_down,knock_up,taunt",
+      "effects": [
+        { "statType": "", "isPercent": true, "value": 0.2, "gameEffect": 0 }
+      ],
+      "isBossRelic": false
+    },
+    {
+      "relicId": "Relic_Daruma",
+      "name": "不倒翁",
+      "description": "受到击倒、击退、击飞效果时有50%概率免疫此次控制",
+      "rarity": 1,
+      "mechanismTag": "knock_back,knock_down,knock_up",
+      "effects": [
+        { "statType": "", "isPercent": true, "value": 0.5, "gameEffect": 0 }
+      ],
+      "isBossRelic": false
+    },
+    {
+      "relicId": "Relic_BoxingGloves",
+      "name": "拳王手套",
+      "description": "击退、击飞敌人时距离增加100%",
+      "rarity": 1,
+      "mechanismTag": "knock_back,knock_up",
+      "effects": [
+        { "statType": "", "isPercent": true, "value": 1.0, "gameEffect": 0 }
+      ],
+      "isBossRelic": false
+    },
+    {
+      "relicId": "Relic_SlimeFluid",
+      "name": "史莱姆体液",
+      "description": "每次触发分裂效果时会判断2次是否触发",
+      "rarity": 2,
+      "mechanismTag": "split",
+      "effects": [
+        { "statType": "", "isPercent": true, "value": 2.0, "gameEffect": 0 }
+      ],
+      "isBossRelic": false
+    },
+    {
+      "relicId": "Relic_MilkBottle",
+      "name": "奶瓶",
+      "description": "受到治疗时获得1秒霸体",
+      "rarity": 1,
+      "mechanismTag": "heal",
+      "effects": [
+        { "statType": "", "isPercent": false, "value": 1.0, "gameEffect": 0 }
+      ],
+      "isBossRelic": false
+    },
+    {
+      "relicId": "Relic_ThornCrown",
+      "name": "荆棘王冠",
+      "description": "中毒伤害降低90%，可以无限叠加",
+      "rarity": 2,
+      "mechanismTag": "poison",
+      "effects": [
+        { "statType": "", "isPercent": true, "value": -0.9, "gameEffect": 0 }
+      ],
+      "isBossRelic": false
+    },
+    {
+      "relicId": "Relic_FrostSorrow",
+      "name": "霜之哀伤",
+      "description": "冰冻持续时间增加2秒，破冰伤害增加100%",
+      "rarity": 2,
+      "mechanismTag": "freeze",
+      "effects": [
+        { "statType": "", "isPercent": true, "value": 2.0, "gameEffect": 0 }
+      ],
+      "isBossRelic": false
+    },
+    {
+      "relicId": "Relic_FireJoy",
+      "name": "火之高兴",
+      "description": "灼烧持续时间增加2秒",
+      "rarity": 0,
+      "mechanismTag": "burn",
+      "effects": [
+        { "statType": "", "isPercent": false, "value": 2.0, "gameEffect": 0 }
+      ],
+      "isBossRelic": false
+    },
+    {
+      "relicId": "Relic_GloryShield",
+      "name": "荣耀之盾",
+      "description": "坦克标签的猫攻速提升100%，伤害降低50%",
+      "rarity": 1,
+      "mechanismTag": "tank",
+      "effects": [
+        { "statType": "AttackSpeed", "isPercent": true, "value": 1.0, "gameEffect": 13 },
+        { "statType": "Attack", "isPercent": true, "value": -0.5, "gameEffect": 0 }
+      ],
+      "isBossRelic": false
+    },
+    {
       "relicId": "Relic_Boss_Region1",
       "name": "Boss圣物·第一关",
       "description": "Boss专属圣物，增强特定机制",

@@ -270,6 +270,14 @@ public class MapPanel : UIPanel
     /// </summary>
     private void CreateEnemyIcons(GameObject nodeGo, MapNode node)
     {
+        // 情报系统：根据街头情报等级决定显示内容
+        int intelLevel = GameManager.Instance?.DataManager?.GetStreetIntel() ?? 0;
+        if (intelLevel <= 0)
+        {
+            // Lv.0：不显示任何敌方信息
+            return;
+        }
+
         var campaign = GameManager.Instance?.BattleCampaignRuntime;
         if (campaign == null) return;
 
@@ -286,6 +294,49 @@ public class MapPanel : UIPanel
         }
 
         if (displayIds.Count == 0) return;
+
+        // Lv.1：模糊描述（只显示数量，不显示头像）
+        if (intelLevel <= 1)
+        {
+            var hintGo = new GameObject("EnemyHint");
+            hintGo.transform.SetParent(nodeGo.transform, false);
+            var hintRect = hintGo.AddComponent<RectTransform>();
+            hintRect.anchorMin = new Vector2(0, 0);
+            hintRect.anchorMax = new Vector2(1, 0.5f);
+            hintRect.sizeDelta = Vector2.zero;
+            var hintTxt = hintGo.AddComponent<Text>();
+            string desc = enemyIds.Length <= 3 ? "少量敌人" : enemyIds.Length <= 6 ? "中等数量" : "大量敌人";
+            hintTxt.text = desc;
+            try { hintTxt.font = GameManager.Instance.ResourceManager.LoadResource<Font>("assets/bundle/font/fzy3k_gbk"); } catch { }
+            hintTxt.fontSize = 20;
+            hintTxt.color = new Color(0.7f, 0.7f, 0.7f);
+            hintTxt.alignment = TextAnchor.MiddleCenter;
+            hintTxt.raycastTarget = false;
+            return;
+        }
+
+        // Lv.2：大致范围（显示数量范围，不显示头像）
+        if (intelLevel <= 2)
+        {
+            var hintGo = new GameObject("EnemyHint");
+            hintGo.transform.SetParent(nodeGo.transform, false);
+            var hintRect = hintGo.AddComponent<RectTransform>();
+            hintRect.anchorMin = new Vector2(0, 0);
+            hintRect.anchorMax = new Vector2(1, 0.5f);
+            hintRect.sizeDelta = Vector2.zero;
+            var hintTxt = hintGo.AddComponent<Text>();
+            int min = Mathf.Max(1, enemyIds.Length - 3);
+            int max = enemyIds.Length + 3;
+            hintTxt.text = $"敌人约 {min}-{max} 只";
+            try { hintTxt.font = GameManager.Instance.ResourceManager.LoadResource<Font>("assets/bundle/font/fzy3k_gbk"); } catch { }
+            hintTxt.fontSize = 20;
+            hintTxt.color = new Color(0.8f, 0.8f, 0.8f);
+            hintTxt.alignment = TextAnchor.MiddleCenter;
+            hintTxt.raycastTarget = false;
+            return;
+        }
+
+        // Lv.3：精确数字 + 敌方头像（原逻辑继续）
 
         // 创建头像容器
         var iconsGo = new GameObject("EnemyIcons");
@@ -441,6 +492,7 @@ public class MapPanel : UIPanel
             case MapNodeType.Event: return "事件";
             case MapNodeType.HotSpring: return "温泉";
             case MapNodeType.Boss: return "BOSS";
+            case MapNodeType.Fate: return "命运";
             default: return "?";
         }
     }
@@ -455,6 +507,8 @@ public class MapPanel : UIPanel
                 return new Color(0.4f, 0.4f, 0.45f, 0.95f);
             case MapNodeState.Locked:
                 return new Color(0.15f, 0.15f, 0.18f, 0.6f);
+            case MapNodeState.Fogged:
+                return new Color(0.08f, 0.08f, 0.1f, 0.85f);
             default:
                 return Color.gray;
         }
@@ -470,6 +524,7 @@ public class MapPanel : UIPanel
             case MapNodeType.Event: return new Color(0.9f, 0.6f, 0.15f);
             case MapNodeType.HotSpring: return new Color(0.2f, 0.8f, 0.4f);
             case MapNodeType.Boss: return new Color(0.7f, 0.1f, 0.15f);
+            case MapNodeType.Fate: return new Color(0.6f, 0.2f, 0.8f);
             default: return Color.white;
         }
     }

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using Camp;
 
 /// <summary>
-/// 温泉面板 — 二选一：全体回复满 HP 或选择一个单位强化（全属性+50%，回满HP）
+/// 温泉面板 — 二选一：全体回复满 HP 或选择一个单位强化（技能效果提升，HP回满）
 /// </summary>
 public class HotSpringPanel : UIPanel
 {
@@ -97,7 +97,7 @@ public class HotSpringPanel : UIPanel
         var title = CreateText("Title", "选择强化单位", 30, new Color(1f, 0.85f, 0.4f));
         title.rectTransform.anchoredPosition = new Vector2(0, 320);
 
-        var desc = CreateText("Desc", "强化后全属性+50%，HP回满", 20, new Color(0.8f, 0.8f, 0.8f));
+        var desc = CreateText("Desc", "强化后技能效果提升，HP回满", 20, new Color(0.8f, 0.8f, 0.8f));
         desc.rectTransform.anchoredPosition = new Vector2(0, 270);
 
         // 兵种列表
