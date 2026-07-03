@@ -100,7 +100,8 @@ public class BattlePreparePanel : UIPanel
         // 优先使用节点预生成的敌人
         int[] enemyIds = null;
         var gfc = GameFlowController.Instance;
-        if (gfc != null)
+        bool useNodeEnemyIds = campaign.GetEnemyUnitVariantsForBattle(_battleNumber) == null;
+        if (useNodeEnemyIds && gfc != null)
         {
             var node = gfc.GetCurrentMapNode();
             if (node?.enemyUnitIds != null && node.enemyUnitIds.Length > 0)

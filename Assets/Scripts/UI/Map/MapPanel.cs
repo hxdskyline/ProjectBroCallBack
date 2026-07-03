@@ -281,7 +281,9 @@ public class MapPanel : UIPanel
         var campaign = GameManager.Instance?.BattleCampaignRuntime;
         if (campaign == null) return;
 
-        int[] enemyIds = node.enemyUnitIds ?? campaign.GetEnemyUnitIdsForBattle(node.battleNumber);
+        int[] enemyIds = campaign.GetEnemyUnitVariantsForBattle(node.battleNumber) != null
+            ? campaign.GetEnemyUnitIdsForBattle(node.battleNumber)
+            : (node.enemyUnitIds ?? campaign.GetEnemyUnitIdsForBattle(node.battleNumber));
         if (enemyIds == null || enemyIds.Length == 0) return;
 
         // 去重，取最多5个

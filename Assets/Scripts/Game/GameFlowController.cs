@@ -610,7 +610,11 @@ public class GameFlowController : MonoBehaviour
 
         // 敌方数据：优先使用节点预生成的敌人，否则回退到关卡配置
         int[] enemyIds = null;
-        if (_currentRegionMap != null && _currentNodeId >= 0)
+        bool useNodeEnemyIds = true;
+        if (campaign.GetEnemyUnitVariantsForBattle(battleNumber) != null)
+            useNodeEnemyIds = false;
+
+        if (useNodeEnemyIds && _currentRegionMap != null && _currentNodeId >= 0)
         {
             var currentNode = _currentRegionMap.GetNode(_currentNodeId);
             if (currentNode?.enemyUnitIds != null && currentNode.enemyUnitIds.Length > 0)

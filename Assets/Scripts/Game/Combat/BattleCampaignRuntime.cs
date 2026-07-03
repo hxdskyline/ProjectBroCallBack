@@ -133,6 +133,25 @@ namespace Combat
             return RollEnemyUnitIds(battleNumber);
         }
 
+        public List<int[]> GetEnemyUnitVariantsForBattle(int battleNumber)
+        {
+            if (_enemyUnitVariantsMap.TryGetValue(battleNumber, out var variants) && variants != null && variants.Count > 0)
+            {
+                var result = new List<int[]>(variants.Count);
+                for (int i = 0; i < variants.Count; i++)
+                {
+                    var variant = variants[i];
+                    if (variant == null || variant.Length == 0) continue;
+                    var copy = new int[variant.Length];
+                    System.Array.Copy(variant, copy, variant.Length);
+                    result.Add(copy);
+                }
+                return result;
+            }
+
+            return null;
+        }
+
         private int[] RollEnemyUnitIds(int battleNumber)
         {
             if (_enemyUnitVariantsMap.TryGetValue(battleNumber, out var variants) && variants.Count > 0)

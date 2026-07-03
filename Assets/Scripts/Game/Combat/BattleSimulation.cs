@@ -966,7 +966,7 @@ namespace Combat
 
             // 倒地方向：沿击退方向向后倒
             float sign = fighter.KnockdownDir.x >= 0 ? 1f : -1f;
-            fighter.Transform.localEulerAngles = new Vector3(leanAngle * sign, 0f, 0f);
+            fighter.Transform.localEulerAngles = new Vector3(0f, 0f, leanAngle * sign);
         }
 
         private void TickKnockdowns(BattleFighter[] fighters, float deltaTime)
