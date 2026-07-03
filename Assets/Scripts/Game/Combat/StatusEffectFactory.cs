@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Camp;
 
 namespace Combat.Effects
@@ -93,7 +93,7 @@ namespace Combat.Effects
             return new UnifiedBuff
             {
                 buffId = "slow",
-                displayName = "减速",
+                displayName = "\u51CF\u901F",
                 source = BuffSource.Innate,
                 sourceId = "slow",
                 persistence = BuffPersistence.BattleOnly,
@@ -233,7 +233,7 @@ namespace Combat.Effects
             return new UnifiedBuff
             {
                 buffId = "knock_down",
-                displayName = "击倒",
+                displayName = "\u51FB\u5012",
                 source = BuffSource.Innate,
                 sourceId = "knock_down",
                 persistence = BuffPersistence.BattleOnly,
@@ -391,7 +391,7 @@ namespace Combat.Effects
         // ── 特殊效果类 ──
 
         /// <summary>
-        /// 创建分裂buff（攻击/技能多触发1次，目标不变）
+        /// 创建分裂buff（触发时向主目标旁的其他敌人发射额外子弹）
         /// </summary>
         public static UnifiedBuff CreateSplit(float chance = 1f)
         {

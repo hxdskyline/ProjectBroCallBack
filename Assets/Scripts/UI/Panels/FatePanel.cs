@@ -5,8 +5,8 @@ using UnityEngine.UI;
 using Camp;
 
 /// <summary>
-/// 命运面板 — 选择档次 + 选择祝福 两步流程
-/// 设计参考：正式文档/105_系统_命运.md
+/// 鍛借繍闈㈡澘 鈥?閫夋嫨妗ｆ + 閫夋嫨绁濈 涓ゆ娴佺▼
+/// 璁捐鍙傝€冿細姝ｅ紡鏂囨。/105_绯荤粺_鍛借繍.md
 /// </summary>
 public class FatePanel : UIPanel
 {
@@ -17,17 +17,26 @@ public class FatePanel : UIPanel
     private bool _showingBlessings;
 
     /// <summary>
-    /// 显示命运面板
+    /// 鏄剧ず鍛借繍闈㈡澘
     /// </summary>
     public void ShowFate(FateSystem fateSystem, Action onComplete)
     {
         _fateSystem = fateSystem;
         _onComplete = onComplete;
         _showingBlessings = false;
+
+        if (_fateSystem == null)
+        {
+            GameLogger.LogError("FatePanel", "ShowFate called with null FateSystem");
+            Close();
+            _onComplete?.Invoke();
+            return;
+        }
+
         ShowTierSelection();
     }
 
-    // ── 第一步：选择档次 ──
+    // 鈹€鈹€ 绗竴姝ワ細閫夋嫨妗ｆ 鈹€鈹€
 
     private void ShowTierSelection()
     {
@@ -36,10 +45,27 @@ public class FatePanel : UIPanel
         var bg = CreateImage("BG", new Color(0.1f, 0.1f, 0.15f, 0.95f));
         bg.rectTransform.anchoredPosition = Vector2.zero;
 
-        var title = CreateText("Title", "命运 — 选择祈愿档次", 36, new Color(1f, 0.85f, 0.4f));
+        var title = CreateText("Title", "鍛借繍 鈥?閫夋嫨绁堟効妗ｆ", 36, new Color(1f, 0.85f, 0.4f));
         title.rectTransform.anchoredPosition = new Vector2(0, 350);
 
         var tiers = _fateSystem.GetTierConfigs();
+        if (tiers == null || tiers.Count == 0)
+        {
+            GameLogger.LogWarning("FatePanel", "No tier configs available");
+
+            var emptyText = CreateText("Empty", "\u6682\u65E0\u53EF\u7528\u7684\u7948\u798F\u6863\u6B21", 24, Color.gray);
+            emptyText.rectTransform.anchoredPosition = new Vector2(0, 100);
+
+            var confirmBtn = CreateButton("ConfirmBtn", "纭畾", 200, 50);
+            confirmBtn.anchoredPosition = new Vector2(0, -100);
+            confirmBtn.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                Close();
+                _onComplete?.Invoke();
+            });
+            return;
+        }
+
         float startX = -300f;
         float spacing = 300f;
         for (int i = 0; i < tiers.Count; i++)
@@ -61,44 +87,44 @@ public class FatePanel : UIPanel
             btnRect.GetComponent<Button>().onClick.AddListener(() => OnTierSelected(capturedTier));
         }
 
-        // 跳过按钮
-        var skipBtn = CreateButton("SkipBtn", "先等等", 200, 50);
+        // 璺宠繃鎸夐挳
+        var skipBtn = CreateButton("SkipBtn", "\u5148\u7B49\u7B49", 200, 50);
         skipBtn.anchoredPosition = new Vector2(0, -250);
         skipBtn.GetComponent<Button>().onClick.AddListener(() =>
         {
-            GameLogger.Log("FatePanel", "跳过祈愿");
+            GameLogger.Log("FatePanel", "璺宠繃绁堟効");
             Close();
             _onComplete?.Invoke();
         });
 
-        var hint = CreateText("Hint", "保底：每次祈愿必定获得100木天蓼叶", 18, new Color(0.6f, 0.6f, 0.6f));
+        var hint = CreateText("Hint", "\u4FDD\u5E95\uFF1A\u6BCF\u6B21\u7948\u613F\u5FC5\u5B9A\u83B7\u5F97 100 \u5C0F\u9C7C\u5E72", 18, new Color(0.6f, 0.6f, 0.6f));
         hint.rectTransform.anchoredPosition = new Vector2(0, -180);
     }
 
     private string costText(int cost)
     {
-        return cost > 0 ? $"{cost} 木天蓼叶" : "免费";
+        return cost > 0 ? $"{cost} \u5C0F\u9C7C\u5E72" : "\u514D\u8D39";
     }
 
     private void OnTierSelected(string tierName)
     {
-        GameLogger.Log("FatePanel", "选择档次: " + tierName);
+        GameLogger.Log("FatePanel", "閫夋嫨妗ｆ: " + tierName);
         _selectedTier = tierName;
 
-        // 扣除档次费用
+        // 鎵ｉ櫎妗ｆ璐圭敤
         if (!_fateSystem.TrySpendTierCost(tierName))
         {
-            GameLogger.Log("FatePanel", "猫币不足");
+            GameLogger.Log("FatePanel", "鐚竵涓嶈冻");
             return;
         }
 
-        // 生成祝福
+        // 鐢熸垚绁濈
         _blessings = _fateSystem.GenerateBlessings(tierName);
         _showingBlessings = true;
         ShowBlessingSelection();
     }
 
-    // ── 第二步：选择祝福 ──
+    // 鈹€鈹€ 绗簩姝ワ細閫夋嫨绁濈 鈹€鈹€
 
     private void ShowBlessingSelection()
     {
@@ -110,15 +136,15 @@ public class FatePanel : UIPanel
         var tierConfig = _fateSystem.GetTierConfig(_selectedTier);
         string tierName = tierConfig != null ? tierConfig.displayName : _selectedTier;
 
-        var title = CreateText("Title", $"{tierName} — 选择祝福", 32, new Color(1f, 0.85f, 0.4f));
+        var title = CreateText("Title", $"{tierName} 鈥?閫夋嫨绁濈", 32, new Color(1f, 0.85f, 0.4f));
         title.rectTransform.anchoredPosition = new Vector2(0, 350);
 
         if (_blessings == null || _blessings.Count == 0)
         {
-            var noBlessing = CreateText("NoBlessing", "没有可用的祝福", 24, Color.gray);
+            var noBlessing = CreateText("NoBlessing", "\u6CA1\u6709\u53EF\u7528\u7684\u795D\u798F", 24, Color.gray);
             noBlessing.rectTransform.anchoredPosition = new Vector2(0, 100);
 
-            var confirmBtn = CreateButton("ConfirmBtn", "确定", 200, 50);
+            var confirmBtn = CreateButton("ConfirmBtn", "纭畾", 200, 50);
             confirmBtn.anchoredPosition = new Vector2(0, -100);
             confirmBtn.GetComponent<Button>().onClick.AddListener(() =>
             {
@@ -138,22 +164,22 @@ public class FatePanel : UIPanel
             var blessing = _blessings[i];
             float x = startX + i * spacing;
 
-            // 卡片背景
+            // 鍗＄墖鑳屾櫙
             var card = CreateImage($"Card_{i}", new Color(0.2f, 0.2f, 0.25f, 1f));
             card.rectTransform.anchoredPosition = new Vector2(x, 80);
             card.rectTransform.sizeDelta = new Vector2(cardWidth, 220);
 
-            // 祝福名称
+            // 绁濈鍚嶇О
             var nameText = CreateText($"Name_{i}", blessing.displayName, 22, new Color(1f, 0.9f, 0.6f));
             nameText.rectTransform.anchoredPosition = new Vector2(x, 140);
 
-            // 祝福描述
+            // 绁濈鎻忚堪
             var descText = CreateText($"Desc_{i}", blessing.description, 18, new Color(0.8f, 0.8f, 0.8f));
             descText.rectTransform.anchoredPosition = new Vector2(x, 80);
 
-            // 选择按钮
+            // 閫夋嫨鎸夐挳
             int capturedIndex = i;
-            var selectBtn = CreateButton($"Select_{i}", "选择", 200, 45);
+            var selectBtn = CreateButton($"Select_{i}", "閫夋嫨", 200, 45);
             selectBtn.anchoredPosition = new Vector2(x, 0);
             selectBtn.GetComponent<Button>().onClick.AddListener(() => OnBlessingSelected(capturedIndex));
         }
@@ -164,7 +190,7 @@ public class FatePanel : UIPanel
         if (_blessings == null || index < 0 || index >= _blessings.Count) return;
 
         var blessing = _blessings[index];
-        GameLogger.Log("FatePanel", "选择祝福: " + blessing.displayName);
+        GameLogger.Log("FatePanel", "閫夋嫨绁濈: " + blessing.displayName);
 
         _fateSystem.ApplyBlessing(blessing);
         _fateSystem.ApplyGuaranteedCatFood();
@@ -173,7 +199,7 @@ public class FatePanel : UIPanel
         _onComplete?.Invoke();
     }
 
-    // ── UI 工具方法 ──
+    // 鈹€鈹€ UI 宸ュ叿鏂规硶 鈹€鈹€
 
     private void ClearChildren()
     {

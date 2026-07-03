@@ -38,7 +38,7 @@ public class ShopPanel : UIPanel
         title.rectTransform.anchoredPosition = new Vector2(0, 400);
 
         long catFood = GameManager.Instance?.DataManager?.GetCatFood() ?? 0;
-        _currencyText = CreateText("Currency", "木天蓼叶: " + catFood, 24, new Color(1f, 0.9f, 0.5f));
+        _currencyText = CreateText("Currency", "小鱼干: " + catFood, 24, new Color(1f, 0.9f, 0.5f));
         _currencyText.rectTransform.anchoredPosition = new Vector2(0, 340);
 
         // 奸商陷阱提示
@@ -59,7 +59,7 @@ public class ShopPanel : UIPanel
         // 刷新按钮
         int refreshCost = _shopSystem.GetRefreshCost();
         bool canRefresh = _shopSystem.CanRefresh();
-        var refreshBtn = CreateButton("RefreshBtn", "刷新 (" + refreshCost + "木天蓼叶)", 250, 60, canRefresh ? new Color(0.2f, 0.4f, 0.6f) : new Color(0.3f, 0.3f, 0.3f));
+        var refreshBtn = CreateButton("RefreshBtn", "刷新 (" + refreshCost + "小鱼干)", 250, 60, canRefresh ? new Color(0.2f, 0.4f, 0.6f) : new Color(0.3f, 0.3f, 0.3f));
         refreshBtn.anchoredPosition = new Vector2(-200, -300);
         refreshBtn.GetComponent<Button>().interactable = canRefresh;
         _refreshText = refreshBtn.GetComponentInChildren<Text>();
@@ -91,7 +91,7 @@ public class ShopPanel : UIPanel
         var descText = CreateChildText(slotGo.transform, "Desc", item.description, 14, new Color(0.7f, 0.7f, 0.7f));
         descText.rectTransform.anchoredPosition = new Vector2(0, 20);
 
-        var priceText = CreateChildText(slotGo.transform, "Price", item.price + " 木天蓼叶", 18, new Color(1f, 0.85f, 0.4f));
+        var priceText = CreateChildText(slotGo.transform, "Price", item.price + " 小鱼干", 18, new Color(1f, 0.85f, 0.4f));
         priceText.rectTransform.anchoredPosition = new Vector2(0, -30);
 
         var buyBtnGo = new GameObject("BuyBtn");
@@ -143,13 +143,13 @@ public class ShopPanel : UIPanel
     {
         // 更新货币
         long catFood = GameManager.Instance?.DataManager?.GetCatFood() ?? 0;
-        if (_currencyText != null) _currencyText.text = "木天蓼叶: " + catFood;
+        if (_currencyText != null) _currencyText.text = "小鱼干: " + catFood;
 
         // 更新刷新按钮
         if (_refreshText != null)
         {
             int refreshCost = _shopSystem.GetRefreshCost();
-            _refreshText.text = "刷新 (" + refreshCost + "木天蓼叶)";
+            _refreshText.text = "刷新 (" + refreshCost + "小鱼干)";
         }
 
         // 重建商品槽位

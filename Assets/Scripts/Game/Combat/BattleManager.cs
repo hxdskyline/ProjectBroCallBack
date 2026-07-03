@@ -1094,7 +1094,7 @@ namespace Combat
         /// </summary>
         private void OnCurrencyDropped(int amount)
         {
-            Debug.Log($"[BattleManager] 货币掉落: {amount} 木天蓼叶");
+            Debug.Log($"[BattleManager] 货币掉落: {amount} 小鱼干");
 
             // 添加货币到玩家数据
             DataManager dataManager = GameManager.Instance?.DataManager;

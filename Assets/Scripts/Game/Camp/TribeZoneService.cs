@@ -36,7 +36,7 @@ namespace Camp
         }
 
         /// <summary>
-        /// 结算生产区产出：每个在生产区的单位产出一定量的木天蓼叶
+        /// 结算生产区产出：每个在生产区的单位产出一定量的小鱼干叶
         /// </summary>
         public int SettleProductionOutput()
         {

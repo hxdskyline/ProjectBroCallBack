@@ -1167,38 +1167,18 @@ namespace Combat
         private List<(string subType, float value)> GetArtifactSubTypes(List<Camp.EquipmentRecord> equipments)
         {
             var result = new List<(string, float)>();
-            // 读取 artifact_config.json 获取 subType
-            // 简化：通过 effects 中的 gameEffectType 判断
             foreach (var eq in equipments)
             {
-                if (eq.effects == null) continue;
-                string subType = null;
+                if (eq == null || string.IsNullOrEmpty(eq.equipmentId)) continue;
+
+                var artifact = TribeConfigLoader.Instance?.GetArtifact(eq.equipmentId);
+                if (artifact == null || string.IsNullOrEmpty(artifact.subType)) continue;
+
                 float value = 0f;
+                if (artifact.effects != null && artifact.effects.Count > 0)
+                    value = artifact.effects[0].value;
 
-                // 通过 equipmentId 匹配已知特效奇物
-                if (eq.equipmentId == "Artifact_KillHeal15")
-                {
-                    subType = "KillHeal";
-                    value = 0.15f;
-                }
-                else if (eq.equipmentId == "Artifact_DmgReduce10")
-                {
-                    subType = "DamageReduce";
-                    value = 0.1f;
-                }
-                else if (eq.equipmentId == "Artifact_LowHpDmg30")
-                {
-                    subType = "LowHpBonus";
-                    value = 0.3f;
-                }
-                else if (eq.equipmentId == "Artifact_ShieldOnKill")
-                {
-                    subType = "KillShield";
-                    value = 200f;
-                }
-
-                if (subType != null)
-                    result.Add((subType, value));
+                result.Add((artifact.subType, value));
             }
             return result;
         }

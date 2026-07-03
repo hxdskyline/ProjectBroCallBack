@@ -262,7 +262,7 @@ namespace Camp
                 case "CatFood":
                     option.catFoodAmount = RollInt(data.minAmount, data.maxAmount);
                     option.displayName = $"+{option.catFoodAmount}猫币";
-                    option.description = $"获得{option.catFoodAmount}木天蓼叶";
+                    option.description = $"获得{option.catFoodAmount}小鱼干";
                     option.iconColor = "#4CAF50";
                     break;
 

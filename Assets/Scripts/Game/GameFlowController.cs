@@ -187,6 +187,7 @@ public class GameFlowController : MonoBehaviour
         if (isNewGame)
         {
             GameLogger.Log("GFC", $"Initialize→NewGame round={_currentRound}");
+            ChangeGameState(GameState.InitialSelection);
             SetupDefaultStartUnits();
             OnInitialTribeSelectionComplete();
         }
@@ -1068,44 +1069,25 @@ public class GameFlowController : MonoBehaviour
             return;
         }
 
-        // 先为所有卡片掷骰子
-        foreach (var card in cards)
-        {
-            recruitmentSystem.RollDice(card);
-        }
-
-        // 过滤出成功的卡片
-        var successCards = cards.FindAll(c => c.diceResult == DiceResult.Success);
-        if (successCards.Count == 0)
-        {
-            Debug.Log("[GameFlowController] 招募全部失败，进入构筑阶段");
-            EnterBuildPhase(onComplete);
-            return;
-        }
-
-        // 用 RecruitmentSelectPanel 展示
         var panel = _uiManager?.ShowPanel<RecruitmentSelectPanel>(UIManager.UILayer.PopUp);
         if (panel == null)
         {
-            // 面板创建失败，自动招募第一个成功的
-            recruitmentSystem.RecruitUnit(successCards[0]);
             EnterBuildPhase(onComplete);
             return;
         }
 
         panel.ShowRecruitment(
-            successCards,
+            cards,
             onSelected: card =>
             {
                 recruitmentSystem.RecruitUnit(card);
-                EnterBuildPhase(onComplete);
             },
             onSkipped: () =>
             {
                 EnterBuildPhase(onComplete);
             },
             title: "招募",
-            skipText: "跳过招募");
+            skipText: "完成招募");
     }
 
     /// <summary>
@@ -1189,6 +1171,13 @@ public class GameFlowController : MonoBehaviour
     private void ShowFatePanel(Action onComplete)
     {
         GameLogger.Log("GFC", "ShowFatePanel");
+
+        // 构筑阶段事件链也可能直接进入命运面板，这里需要和地图节点路径一样确保已初始化
+        if (_fateSystem == null)
+        {
+            _fateSystem = new FateSystem();
+            _fateSystem.Initialize();
+        }
 
         var panel = _uiManager?.ShowPanel<FatePanel>(UIManager.UILayer.PopUp);
         if (panel == null)
@@ -1290,8 +1279,7 @@ public class GameFlowController : MonoBehaviour
         var panel = _uiManager?.ShowPanel<RecruitmentSelectPanel>(UIManager.UILayer.PopUp);
         if (panel == null)
         {
-            // 面板创建失败，自动招募第一个
-            recruitmentSystem.RecruitUnit(cards[0]);
+            recruitmentSystem.RecruitRareFighter(cards[0].config);
             onComplete?.Invoke();
             return;
         }
@@ -1300,8 +1288,7 @@ public class GameFlowController : MonoBehaviour
             cards,
             onSelected: card =>
             {
-                recruitmentSystem.RecruitUnit(card);
-                onComplete?.Invoke();
+                recruitmentSystem.RecruitRareFighter(card.config);
             },
             onSkipped: () =>
             {
@@ -1355,8 +1342,13 @@ public class GameFlowController : MonoBehaviour
         var bossRelics = TribeConfigLoader.Instance?.GetBossRelics();
         if (bossRelics == null || bossRelics.Count == 0) return null;
 
-        // 简单策略：随机选一个Boss圣物
-        // 后续可根据 regionId 过滤特定圣物
+        string expectedId = $"Relic_Boss_Region{regionId}";
+        foreach (var relic in bossRelics)
+        {
+            if (relic != null && relic.relicId == expectedId)
+                return relic;
+        }
+
         int idx = UnityEngine.Random.Range(0, bossRelics.Count);
         return bossRelics[idx];
     }
@@ -1482,7 +1474,7 @@ public class GameFlowController : MonoBehaviour
             _dataManager.ClearRunEquipment();
         }
 
-        // 给默认角色，重新开始
+        ChangeGameState(GameState.InitialSelection);
         SetupDefaultStartUnits();
         OnInitialTribeSelectionComplete();
     }

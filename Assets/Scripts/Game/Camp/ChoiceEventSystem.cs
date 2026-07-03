@@ -165,10 +165,10 @@ namespace Camp
                     description = "一只流浪猫向你献上了礼物", levelGroup = 5,
                     options = new List<ChoiceOption>
                     {
-                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "收下礼物", description = "获得200木天蓼叶", catFoodReward = 200 },
-                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "贪婪索取", description = "获得500木天蓼叶，但下场战斗攻击力降低10%", catFoodReward = 500,
+                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "收下礼物", description = "获得200小鱼干", catFoodReward = 200 },
+                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "贪婪索取", description = "获得500小鱼干，但下场战斗攻击力降低10%", catFoodReward = 500,
                             effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "Attack", isPercent = true, value = -0.1f, gameEffectType = 0 } } },
-                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "获得700木天蓼叶，但下场战斗出现2种天气效果", catFoodReward = 700, causesWeatherPenalty = true },
+                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "获得700小鱼干，但下场战斗出现2种天气效果", catFoodReward = 700, causesWeatherPenalty = true },
                     }
                 },
                 new ChoiceEvent
@@ -235,9 +235,9 @@ namespace Camp
                     description = "一个看起来不太可靠的商人向你招手", levelGroup = 10,
                     options = new List<ChoiceOption>
                     {
-                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "小赚一笔", description = "获得300木天蓼叶", catFoodReward = 300 },
-                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "大捞一笔", description = "获得800木天蓼叶，但下回合商店价格+20%且无法刷新", catFoodReward = 800, causesShopPenalty = true },
-                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "获得1100木天蓼叶，但下场战斗出现2种天气效果", catFoodReward = 1100, causesWeatherPenalty = true },
+                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "小赚一笔", description = "获得300小鱼干", catFoodReward = 300 },
+                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "大捞一笔", description = "获得800小鱼干，但下回合商店价格+20%且无法刷新", catFoodReward = 800, causesShopPenalty = true },
+                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "获得1100小鱼干，但下场战斗出现2种天气效果", catFoodReward = 1100, causesWeatherPenalty = true },
                     }
                 },
                 // ── 关卡组15：流浪猫的馈赠、禁忌的力量、秘密训练营（复用带升级描述）──
@@ -247,10 +247,10 @@ namespace Camp
                     description = "又一只流浪猫出现了，这次带来了更好的东西", levelGroup = 15,
                     options = new List<ChoiceOption>
                     {
-                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "收下馈赠", description = "获得400木天蓼叶", catFoodReward = 400 },
-                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "讨价还价", description = "获得900木天蓼叶，但下场战斗防御力降低10%", catFoodReward = 900,
+                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "收下馈赠", description = "获得400小鱼干", catFoodReward = 400 },
+                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "讨价还价", description = "获得900小鱼干，但下场战斗防御力降低10%", catFoodReward = 900,
                             effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "Defense", isPercent = true, value = -0.1f, gameEffectType = 1 } } },
-                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "获得1300木天蓼叶，但下场战斗出现2种天气效果", catFoodReward = 1300, causesWeatherPenalty = true },
+                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "获得1300小鱼干，但下场战斗出现2种天气效果", catFoodReward = 1300, causesWeatherPenalty = true },
                     }
                 },
             };
