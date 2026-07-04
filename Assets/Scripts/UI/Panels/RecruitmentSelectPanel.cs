@@ -34,7 +34,10 @@ public class RecruitmentSelectPanel : UIPanel
         _onSkipped = onSkipped;
         _recruitmentSystem = new RecruitmentDiceSystem();
 
+        Debug.Log($"[RecruitmentSelectPanel] ShowRecruitment cards={_cards?.Count ?? 0} selectedCallback={(onSelected != null)} skipCallback={(onSkipped != null)}");
         BuildUI(title, skipText);
+        transform.SetAsLastSibling();
+        GameLogger.Log("RecruitmentSelectPanel", "ShowRecruitment built UI and moved to top");
     }
 
     private void BuildUI(string title, string skipText)
@@ -83,6 +86,7 @@ public class RecruitmentSelectPanel : UIPanel
 
         var cardBg = cardGo.AddComponent<Image>();
         cardBg.color = new Color(0.15f, 0.15f, 0.25f, 0.95f);
+        cardBg.raycastTarget = false;
 
         // 稀有度颜色条
         Color rarityColor = card.rarity switch
@@ -153,6 +157,7 @@ public class RecruitmentSelectPanel : UIPanel
 
     private void OnRollDice(RecruitmentCard card, int index, float xPos)
     {
+        Debug.Log($"[RecruitmentSelectPanel] OnRollDice card={card?.name} id={card?.fighterId}");
         _recruitmentSystem.RollDice(card);
 
         // 重建这张卡片的UI
@@ -167,14 +172,18 @@ public class RecruitmentSelectPanel : UIPanel
 
     private void OnSelectCard(RecruitmentCard card)
     {
-        _onSelected?.Invoke(card);
+        Debug.Log($"[RecruitmentSelectPanel] OnSelectCard card={card?.name} id={card?.fighterId}");
         Close();
+        GameManager.Instance?.UIManager?.ClosePanel("RecruitmentSelectPanel");
+        _onSelected?.Invoke(card);
     }
 
     private void OnSkip()
     {
-        _onSkipped?.Invoke();
+        Debug.Log("[RecruitmentSelectPanel] OnSkip");
         Close();
+        GameManager.Instance?.UIManager?.ClosePanel("RecruitmentSelectPanel");
+        _onSkipped?.Invoke();
     }
 
     // ── UI 工具方法 ──
@@ -193,6 +202,7 @@ public class RecruitmentSelectPanel : UIPanel
         var rect = go.AddComponent<RectTransform>();
         var image = go.AddComponent<Image>();
         image.color = new Color(0.05f, 0.05f, 0.1f, 0.9f);
+        image.raycastTarget = false;
         return go;
     }
 
@@ -249,8 +259,12 @@ public class RecruitmentSelectPanel : UIPanel
         rect.sizeDelta = new Vector2(200, 50);
         var image = go.AddComponent<Image>();
         image.color = bgColor;
+        image.raycastTarget = true;
         var btn = go.AddComponent<Button>();
         btn.targetGraphic = image;
+        btn.interactable = true;
+        btn.transition = Selectable.Transition.None;
+        btn.navigation = new UnityEngine.UI.Navigation { mode = UnityEngine.UI.Navigation.Mode.None };
         btn.onClick.AddListener(onClick);
         var textGo = new GameObject("Text");
         textGo.transform.SetParent(go.transform, false);
@@ -276,8 +290,12 @@ public class RecruitmentSelectPanel : UIPanel
         rect.sizeDelta = new Vector2(250, 55);
         var image = go.AddComponent<Image>();
         image.color = bgColor;
+        image.raycastTarget = true;
         var btn = go.AddComponent<Button>();
         btn.targetGraphic = image;
+        btn.interactable = true;
+        btn.transition = Selectable.Transition.None;
+        btn.navigation = new UnityEngine.UI.Navigation { mode = UnityEngine.UI.Navigation.Mode.None };
         btn.onClick.AddListener(onClick);
         var textGo = new GameObject("Text");
         textGo.transform.SetParent(go.transform, false);

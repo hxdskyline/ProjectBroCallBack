@@ -38,7 +38,8 @@ namespace Camp
                 Debug.LogWarning("[FateSystem] 命运配置为空，使用默认值");
                 _tierConfigs = CreateDefaultTiers();
             }
-            GameLogger.Log("Fate", $"初始化完成，加载 {_tierConfigs.Count} 个档次");
+            int tierCount = _tierConfigs?.Count ?? 0;
+            GameLogger.Log("Fate", $"初始化完成，加载 {tierCount} 个档次");
         }
 
         /// <summary>

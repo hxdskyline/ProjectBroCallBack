@@ -373,7 +373,8 @@ public class BattlePreparePanel : UIPanel
         nameTxt.fontSize = 16;
         nameTxt.color = Color.white;
         nameTxt.alignment = TextAnchor.MiddleCenter;
-        nameTxt.text = config.fighterName;
+        int displayLevel = unit.tier > 0 ? unit.tier : config.tier;
+        nameTxt.text = $"{config.fighterName}\n等级: {displayLevel}";
         nameTxt.raycastTarget = false;
 
         // 人口费角标（背景和文字分开，避免同 GameObject 上两个 Graphic）

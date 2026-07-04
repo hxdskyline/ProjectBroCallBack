@@ -187,6 +187,7 @@ public class BattleResultPanel : UIPanel
         var rect = go.AddComponent<RectTransform>();
         var img = go.AddComponent<Image>();
         img.color = color;
+        img.raycastTarget = true;
         return img;
     }
 
@@ -198,8 +199,12 @@ public class BattleResultPanel : UIPanel
         rect.sizeDelta = new Vector2(300, 55);
         var image = go.AddComponent<Image>();
         image.color = new Color(0.2f, 0.5f, 0.8f);
+        image.raycastTarget = true;
         var btn = go.AddComponent<Button>();
         btn.targetGraphic = image;
+        btn.interactable = true;
+        btn.transition = Selectable.Transition.None;
+        btn.navigation = new UnityEngine.UI.Navigation { mode = UnityEngine.UI.Navigation.Mode.None };
         btn.onClick.AddListener(onClick);
         var textGo = new GameObject("Text");
         textGo.transform.SetParent(go.transform, false);
@@ -228,5 +233,6 @@ public class BattleResultPanel : UIPanel
         GameLogger.Log("BattleResult", "确认关闭");
         GameManager.Instance?.UIManager?.ClosePanel("BattleResultPanel");
         _onClosed?.Invoke();
+        GameLogger.Log("BattleResult", "继续执行后续流程");
     }
 }

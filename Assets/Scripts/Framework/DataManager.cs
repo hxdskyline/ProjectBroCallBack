@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.IO;
 using Camp;
@@ -155,6 +156,12 @@ public class DataManager : MonoBehaviour
         }
 
         EnsurePlayerDataDefaults();
+
+        if (currencyId == CurrencyManager.GetCurrencyKey(CurrencyType.Gold))
+        {
+            return _playerData.catFood;
+        }
+
         return GetCurrencyAmountInternal(currencyId);
     }
 
@@ -180,6 +187,16 @@ public class DataManager : MonoBehaviour
         }
 
         EnsurePlayerDataDefaults();
+
+        if (currencyId == CurrencyManager.GetCurrencyKey(CurrencyType.Gold))
+        {
+            _playerData.catFood = Math.Max(0L, amount);
+            if (saveImmediately)
+            {
+                SavePlayerData();
+            }
+            return;
+        }
 
         bool updated = false;
         for (int i = 0; i < _playerData.currencies.Count; i++)

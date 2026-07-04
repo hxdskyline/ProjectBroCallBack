@@ -22,6 +22,11 @@ public class FatePanel : UIPanel
     public void ShowFate(FateSystem fateSystem, Action onComplete)
     {
         _fateSystem = fateSystem;
+        if (_fateSystem == null)
+        {
+            _fateSystem = new FateSystem();
+            _fateSystem.Initialize();
+        }
         _onComplete = onComplete;
         _showingBlessings = false;
         ShowTierSelection();
@@ -39,7 +44,29 @@ public class FatePanel : UIPanel
         var title = CreateText("Title", "命运 — 选择祈愿档次", 36, new Color(1f, 0.85f, 0.4f));
         title.rectTransform.anchoredPosition = new Vector2(0, 350);
 
+        long currentGold = GameManager.Instance?.CurrencyManager?.GetCurrencyAmount(CurrencyType.Gold) ?? 0;
+        var statusText = CreateText("Status", $"当前猫币: {currentGold} | 档次数量: {_fateSystem.GetTierConfigs()?.Count ?? 0}", 18, new Color(0.8f, 0.8f, 0.8f));
+        statusText.rectTransform.anchoredPosition = new Vector2(0, 310);
+
         var tiers = _fateSystem.GetTierConfigs();
+        if (tiers == null || tiers.Count == 0)
+        {
+            GameLogger.LogWarning("FatePanel", "命运档次配置为空，显示默认提示");
+            var emptyHint = CreateText("EmptyHint", "命运档次加载失败，无法显示祈愿档次。", 24, Color.white);
+            emptyHint.rectTransform.anchoredPosition = new Vector2(0, 100);
+
+            var backBtn = CreateButton("BackBtn", "返回", 220, 60);
+            backBtn.anchoredPosition = new Vector2(0, -120);
+            backBtn.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                GameLogger.Log("FatePanel", "返回命运");
+                Close();
+                _onComplete?.Invoke();
+            });
+
+            return;
+        }
+
         float startX = -300f;
         float spacing = 300f;
         for (int i = 0; i < tiers.Count; i++)
@@ -193,6 +220,7 @@ public class FatePanel : UIPanel
         rect.sizeDelta = new Vector2(1920, 1080);
         var img = go.AddComponent<Image>();
         img.color = color;
+        img.raycastTarget = false;
         return img;
     }
 

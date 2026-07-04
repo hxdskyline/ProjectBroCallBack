@@ -103,11 +103,13 @@ public class ShopPanel : UIPanel
         buyRect.anchoredPosition = new Vector2(0, -70);
 
         var buyImg = buyBtnGo.AddComponent<Image>();
-        buyImg.color = item.sold ? new Color(0.3f, 0.3f, 0.3f) : new Color(0.2f, 0.5f, 0.2f);
+        long currentCatFood = GameManager.Instance?.DataManager?.GetCatFood() ?? 0;
+        bool canAfford = !item.sold && currentCatFood >= item.price;
+        buyImg.color = item.sold ? new Color(0.3f, 0.3f, 0.3f) : (canAfford ? new Color(0.2f, 0.5f, 0.2f) : new Color(0.4f, 0.4f, 0.4f));
 
         var buyBtn = buyBtnGo.AddComponent<Button>();
         buyBtn.targetGraphic = buyImg;
-        buyBtn.interactable = !item.sold;
+        buyBtn.interactable = canAfford;
 
         var buyText = CreateChildText(buyBtnGo.transform, "Text", item.sold ? "已售" : "购买", 16, Color.white);
         buyText.rectTransform.anchoredPosition = Vector2.zero;

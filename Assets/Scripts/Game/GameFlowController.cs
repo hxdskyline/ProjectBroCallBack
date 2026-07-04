@@ -307,6 +307,19 @@ public class GameFlowController : MonoBehaviour
             _uiManager = GameManager.Instance?.UIManager;
         }
 
+        // 恢复当前地区地图引用（如果因某些异常丢失）
+        if (_currentRegionMap == null && _mapDataList != null && _currentRegion >= 1 && _currentRegion <= _mapDataList.Count)
+        {
+            _currentRegionMap = _mapDataList[_currentRegion - 1];
+        }
+
+        // 如果当前地区没有任何可选节点，至少设置起始节点为 Available
+        if (_currentRegionMap != null && _currentRegionMap.GetAvailableNodes().Count == 0 && _currentRegionMap.nodes.Count > 0)
+        {
+            _currentRegionMap.nodes[0].state = MapNodeState.Available;
+            _currentRegionMap.UpdateFog(_currentRegionMap.nodes[0].layer);
+        }
+
         // 关闭旧 MapPanel，强制重建以刷新节点状态
         _uiManager.ClosePanel("MapPanel");
 
@@ -549,6 +562,12 @@ public class GameFlowController : MonoBehaviour
         if (_fateSystem == null)
         {
             _fateSystem = new FateSystem();
+            _fateSystem.Initialize();
+        }
+
+        if (_fateSystem.GetTierConfigs() == null || _fateSystem.GetTierConfigs().Count == 0)
+        {
+            Debug.LogWarning("[GameFlowController] FateSystem 档次配置为空，重新初始化");
             _fateSystem.Initialize();
         }
 
@@ -961,20 +980,18 @@ public class GameFlowController : MonoBehaviour
                 {
                     ShowBossRelicReward(() =>
                     {
-                        ShowBattleResultRecruitment(() =>
+                        // 切换到下一地区，先准备好下一地区的地图，再进入构筑阶段
+                        _currentRegion++;
+                        if (_currentRegion <= _mapDataList.Count)
                         {
-                            // 切换到下一地区
-                            _currentRegion++;
-                            if (_currentRegion <= _mapDataList.Count)
+                            _currentRegionMap = _mapDataList[_currentRegion - 1];
+                            if (_currentRegionMap.nodes.Count > 0)
                             {
-                                _currentRegionMap = _mapDataList[_currentRegion - 1];
-                                if (_currentRegionMap.nodes.Count > 0)
-                                {
-                                    _currentRegionMap.nodes[0].state = MapNodeState.Available;
-                                }
-                                _currentNodeId = -1;
+                                _currentRegionMap.nodes[0].state = MapNodeState.Available;
                             }
-                        });
+                            _currentNodeId = -1;
+                        }
+                        ShowBattleResultRecruitment(null);
                     });
                 });
             }
@@ -1084,10 +1101,12 @@ public class GameFlowController : MonoBehaviour
         }
 
         // 用 RecruitmentSelectPanel 展示
-        var panel = _uiManager?.ShowPanel<RecruitmentSelectPanel>(UIManager.UILayer.PopUp);
+        GameLogger.Log("GFC", $"ShowBattleResultRecruitment successCards={successCards.Count}");
+        var panel = _uiManager?.ShowPanel<RecruitmentSelectPanel>(UIManager.UILayer.Top);
         if (panel == null)
         {
             // 面板创建失败，自动招募第一个成功的
+            GameLogger.Log("GFC", "RecruitmentSelectPanel 创建失败，直接自动招募");
             recruitmentSystem.RecruitUnit(successCards[0]);
             EnterBuildPhase(onComplete);
             return;
@@ -1097,11 +1116,13 @@ public class GameFlowController : MonoBehaviour
             successCards,
             onSelected: card =>
             {
+                GameLogger.Log("GFC", $"Recruitment selected: {card?.name} id={card?.fighterId}");
                 recruitmentSystem.RecruitUnit(card);
                 EnterBuildPhase(onComplete);
             },
             onSkipped: () =>
             {
+                GameLogger.Log("GFC", "Recruitment skipped");
                 EnterBuildPhase(onComplete);
             },
             title: "招募",
@@ -1157,6 +1178,7 @@ public class GameFlowController : MonoBehaviour
         if (index >= events.Count)
         {
             // 所有事件处理完毕，进入选关
+            GameLogger.Log("GFC", "ProcessBuildPhaseEvents: all events complete");
             EnterMapSelection();
             onComplete?.Invoke();
             return;
@@ -1168,16 +1190,19 @@ public class GameFlowController : MonoBehaviour
         switch (eventType)
         {
             case "ritual":
+                GameLogger.Log("GFC", "ProcessBuildPhaseEvents: ritual event");
                 ShowFatePanel(() => ProcessBuildPhaseEvents(events, index + 1, onComplete));
                 break;
             case "randomEvent":
+                GameLogger.Log("GFC", "ProcessBuildPhaseEvents: randomEvent event");
                 ShowChoicePanel(() => ProcessBuildPhaseEvents(events, index + 1, onComplete));
                 break;
             case "shop":
+                GameLogger.Log("GFC", "ProcessBuildPhaseEvents: shop event");
                 ShowShopPanel(() => ProcessBuildPhaseEvents(events, index + 1, onComplete));
                 break;
             default:
-                // 未知事件类型（如 newTribeEvent/recruitment），跳过
+                GameLogger.LogWarning("GFC", $"ProcessBuildPhaseEvents: unknown event {eventType}, skipping");
                 ProcessBuildPhaseEvents(events, index + 1, onComplete);
                 break;
         }
@@ -1287,10 +1312,12 @@ public class GameFlowController : MonoBehaviour
             return;
         }
 
-        var panel = _uiManager?.ShowPanel<RecruitmentSelectPanel>(UIManager.UILayer.PopUp);
+        GameLogger.Log("GFC", "ShowBossRareFighterReward 显示稀有兵种奖励");
+        var panel = _uiManager?.ShowPanel<RecruitmentSelectPanel>(UIManager.UILayer.Top);
         if (panel == null)
         {
             // 面板创建失败，自动招募第一个
+            GameLogger.Log("GFC", "RecruitmentSelectPanel 创建失败（Boss奖励），直接自动招募");
             recruitmentSystem.RecruitUnit(cards[0]);
             onComplete?.Invoke();
             return;
@@ -1300,11 +1327,13 @@ public class GameFlowController : MonoBehaviour
             cards,
             onSelected: card =>
             {
+                GameLogger.Log("GFC", $"Boss rare recruit selected: {card?.name} id={card?.fighterId}");
                 recruitmentSystem.RecruitUnit(card);
                 onComplete?.Invoke();
             },
             onSkipped: () =>
             {
+                GameLogger.Log("GFC", "Boss rare recruit skipped");
                 onComplete?.Invoke();
             },
             title: "Boss奖励 — 选择一名稀有兵种",
