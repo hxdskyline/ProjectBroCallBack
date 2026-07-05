@@ -644,6 +644,10 @@ public class GameFlowController : MonoBehaviour
         // Avatar 定义
         var enemyAvatar = LoadAvatarDefinition("enemy");
 
+        // 获取敌方属性乘算系数（基于层数和关卡类型）
+        float statMultiplier = campaign.GetEnemyStatMultiplier(battleNumber);
+        GameLogger.Log("GFC", $"Enemy stat multiplier: {statMultiplier:F2}x (battle={battleNumber})");
+
         // 尝试从 fighter_config 构建每个敌人的独立定义（支持混合敌人类型）
         BattleFighterSpawnDefinition[] enemyDefs = null;
         if (enemyIds != null && enemyIds.Length > 0)
@@ -659,8 +663,12 @@ public class GameFlowController : MonoBehaviour
                     var avatar = GameManager.Instance.ResourceManager.LoadResource<AvatarAnimationDefinition>(address);
                     if (avatar == null)
                         avatar = enemyAvatar;
+                    var attrs = cfg.ToStaticAttributes();
+                    // 应用乘算系数到攻击和血量
+                    attrs.Attack = Mathf.RoundToInt(attrs.Attack * statMultiplier);
+                    attrs.MaxHp = Mathf.RoundToInt(attrs.MaxHp * statMultiplier);
                     defs.Add(new BattleFighterSpawnDefinition(
-                        cfg.fighterName, cfg.ToStaticAttributes(), avatar,
+                        cfg.fighterName, attrs, avatar,
                         1.0f, (Camp.TribeType)cfg.tribeType, cfg.fighterId));
                 }
             }
@@ -1201,6 +1209,10 @@ public class GameFlowController : MonoBehaviour
                 GameLogger.Log("GFC", "ProcessBuildPhaseEvents: shop event");
                 ShowShopPanel(() => ProcessBuildPhaseEvents(events, index + 1, onComplete));
                 break;
+            case "newTribeEvent":
+                GameLogger.Log("GFC", "ProcessBuildPhaseEvents: newTribeEvent");
+                ShowNewTribeEvent(() => ProcessBuildPhaseEvents(events, index + 1, onComplete));
+                break;
             default:
                 GameLogger.LogWarning("GFC", $"ProcessBuildPhaseEvents: unknown event {eventType}, skipping");
                 ProcessBuildPhaseEvents(events, index + 1, onComplete);
@@ -1214,6 +1226,12 @@ public class GameFlowController : MonoBehaviour
     private void ShowFatePanel(Action onComplete)
     {
         GameLogger.Log("GFC", "ShowFatePanel");
+
+        if (_fateSystem == null)
+        {
+            _fateSystem = new FateSystem();
+            _fateSystem.Initialize();
+        }
 
         var panel = _uiManager?.ShowPanel<FatePanel>(UIManager.UILayer.PopUp);
         if (panel == null)
@@ -1232,6 +1250,12 @@ public class GameFlowController : MonoBehaviour
     private void ShowChoicePanel(Action onComplete)
     {
         GameLogger.Log("GFC", "ShowChoicePanel");
+
+        if (_choiceEventSystem == null)
+        {
+            _choiceEventSystem = new ChoiceEventSystem();
+            _choiceEventSystem.Initialize();
+        }
 
         var evt = _choiceEventSystem.GetEventForLevel(_currentRound);
         if (evt == null)
@@ -1282,10 +1306,34 @@ public class GameFlowController : MonoBehaviour
     }
 
     /// <summary>
-    /// 获取当前关卡的敌方兵种ID列表
+    /// 显示新族群解锁事件（标记完成，弹窗通知后继续）
+    /// </summary>
+    private void ShowNewTribeEvent(Action onComplete)
+    {
+        GameLogger.Log("GFC", "ShowNewTribeEvent");
+
+        // 标记本回合新族群事件已完成
+        GameManager.Instance?.DataManager?.SetNewTribeEventCompletedForRound(_currentRound);
+
+        // TODO: 后续实现完整的新族群解锁 UI 面板
+        GameLogger.Log("GFC", "新族群事件已标记完成，继续流程");
+        onComplete?.Invoke();
+    }
+
+    /// <summary>
+    /// 获取当前关卡的敌方兵种ID列表（优先使用节点实际敌人，回退到关卡配置）
     /// </summary>
     private List<int> GetEnemyFighterIdsForCurrentLevel()
     {
+        // 优先使用当前地图节点的敌人（与实际战斗一致）
+        if (_currentRegionMap != null && _currentNodeId >= 0)
+        {
+            var currentNode = _currentRegionMap.GetNode(_currentNodeId);
+            if (currentNode?.enemyUnitIds != null && currentNode.enemyUnitIds.Length > 0)
+                return new List<int>(currentNode.enemyUnitIds);
+        }
+
+        // 回退到关卡配置
         var campaign = GameManager.Instance?.BattleCampaignRuntime;
         if (campaign == null) return new List<int>();
 

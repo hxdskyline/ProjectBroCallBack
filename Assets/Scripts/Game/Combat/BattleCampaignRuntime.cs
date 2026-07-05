@@ -69,6 +69,18 @@ namespace Combat
         // 预生成：每个关卡的敌人组成在新游戏时一次性随机确定
         private int[][] _preGeneratedEnemyIds;
 
+        // 敌方人口上限：3层×15关 = 45关
+        // 第一层(1-15关), 第二层(16-30关), 第三层(31-45关)
+        private static readonly int[] _enemyPopulationCap = new int[]
+        {
+            // 第一层 1-15
+            2, 2, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8,
+            // 第二层 16-30
+            4, 4, 5, 5, 6, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10,
+            // 第三层 31-45
+            6, 6, 7, 7, 8, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12
+        };
+
         // Popup priorities
         private readonly Dictionary<string, int> _popupPriorities = new Dictionary<string, int>();
 
@@ -104,6 +116,7 @@ namespace Combat
 
         /// <summary>
         /// 新游戏时一次性随机确定所有关卡的敌人组成
+        /// 遵从敌方人口上限，尽量按照上限生成
         /// </summary>
         private void PreGenerateEnemyCompositions()
         {
@@ -112,6 +125,7 @@ namespace Combat
             for (int i = 0; i < count; i++)
             {
                 int battleNumber = i + 1;
+                // RollEnemyUnitIds 内部已应用人口上限裁剪和填充
                 _preGeneratedEnemyIds[i] = RollEnemyUnitIds(battleNumber);
             }
         }
@@ -135,18 +149,183 @@ namespace Combat
 
         private int[] RollEnemyUnitIds(int battleNumber)
         {
-            if (_enemyUnitVariantsMap.TryGetValue(battleNumber, out var variants) && variants.Count > 0)
+            int cap = GetEnemyPopulationCap(battleNumber);
+            LevelType levelType = GetLevelType(battleNumber);
+
+            switch (levelType)
             {
-                int index = _rng.Next(variants.Count);
-                return variants[index];
+                case LevelType.Boss:
+                    return GenerateBossComposition(cap);
+                case LevelType.Elite:
+                    return GenerateEliteComposition(cap);
+                default:
+                    return GenerateNormalComposition(cap);
+            }
+        }
+
+        /// <summary>
+        /// 普通关卡：鼠辈(5000) + 敌方矛猫(5010) 任意比例，填满人口上限
+        /// </summary>
+        private int[] GenerateNormalComposition(int cap)
+        {
+            // 5000(鼠辈) cost=1, 5010(敌方矛猫) cost=1
+            var result = new List<int>();
+            int remaining = cap;
+
+            while (remaining > 0)
+            {
+                // 随机选择鼠辈或矛猫
+                result.Add(_rng.Next(2) == 0 ? 5000 : 5010);
+                remaining--;
             }
 
-            var ids = GetEnemyUnitIds(battleNumber, EnemyFormationType.Single);
-            if (ids != null && ids.Length > 0)
-                return ids;
+            return result.ToArray();
+        }
 
-            ids = GetEnemyUnitIds(battleNumber, EnemyFormationType.Swarm);
-            return ids;
+        /// <summary>
+        /// 精英关卡：鼠辈(5000) + 敌方矛猫(5010) + 敌方游侠(5040) + 敌方猫骑士(5020)
+        /// 至少包含一只游侠或猫骑士，填满人口上限
+        /// </summary>
+        private int[] GenerateEliteComposition(int cap)
+        {
+            // 5000 cost=1, 5010 cost=1, 5040 cost=2, 5020 cost=3
+            var result = new List<int>();
+            int remaining = cap;
+
+            // 先确保至少有一只游侠(5040)或猫骑士(5020)
+            if (remaining >= 3 && _rng.Next(2) == 0)
+            {
+                result.Add(5020); // 猫骑士 cost=3
+                remaining -= 3;
+            }
+            else if (remaining >= 2)
+            {
+                result.Add(5040); // 游侠 cost=2
+                remaining -= 2;
+            }
+            else if (remaining >= 1)
+            {
+                // 人口太少，放一只鼠辈保证至少有敌人
+                result.Add(5000);
+                remaining -= 1;
+            }
+
+            // 填充剩余人口
+            while (remaining > 0)
+            {
+                // 按概率选择单位：鼠辈/矛猫(1) 60%, 游侠(2) 25%, 猫骑士(3) 15%
+                int roll = _rng.Next(100);
+                if (remaining >= 3 && roll < 15)
+                {
+                    result.Add(5020); // 猫骑士 cost=3
+                    remaining -= 3;
+                }
+                else if (remaining >= 2 && roll < 40)
+                {
+                    result.Add(5040); // 游侠 cost=2
+                    remaining -= 2;
+                }
+                else
+                {
+                    result.Add(_rng.Next(2) == 0 ? 5000 : 5010); // 鼠辈/矛猫 cost=1
+                    remaining -= 1;
+                }
+            }
+
+            return result.ToArray();
+        }
+
+        /// <summary>
+        /// Boss关卡：必定至少一只敌方奶牛猫族长(5030)，其余任意填充，填满人口上限
+        /// </summary>
+        private int[] GenerateBossComposition(int cap)
+        {
+            // 5030 cost=4
+            var result = new List<int>();
+            int remaining = cap;
+
+            // 必定放一只奶牛猫族长
+            result.Add(5030);
+            remaining -= 4;
+
+            // 填充剩余人口（可用所有敌方单位）
+            while (remaining > 0)
+            {
+                if (remaining >= 4 && _rng.Next(100) < 20)
+                {
+                    result.Add(5030); // 再来一只族长 cost=4
+                    remaining -= 4;
+                }
+                else if (remaining >= 3 && _rng.Next(100) < 25)
+                {
+                    result.Add(5020); // 猫骑士 cost=3
+                    remaining -= 3;
+                }
+                else if (remaining >= 2 && _rng.Next(100) < 35)
+                {
+                    result.Add(5040); // 游侠 cost=2
+                    remaining -= 2;
+                }
+                else
+                {
+                    result.Add(_rng.Next(2) == 0 ? 5000 : 5010); // 鼠辈/矛猫 cost=1
+                    remaining -= 1;
+                }
+            }
+
+            return result.ToArray();
+        }
+
+        /// <summary>
+        /// 获取敌方属性乘算系数（基于层数和关卡类型，仅影响攻击和血量）
+        /// 层数：第一层=1.0, 第二层=1.2, 第三层=1.5
+        /// 类型：普通=1.0, 精英=1.2, Boss=2.0
+        /// </summary>
+        public float GetEnemyStatMultiplier(int battleNumber)
+        {
+            // 层数系数：1-15关=第一层, 16-30关=第二层, 31-45关=第三层
+            int region = (battleNumber - 1) / 15;
+            float regionMultiplier = region switch
+            {
+                0 => 1.0f,
+                1 => 1.2f,
+                _ => 1.5f
+            };
+
+            // 关卡类型系数
+            float typeMultiplier = GetLevelType(battleNumber) switch
+            {
+                LevelType.Elite => 1.2f,
+                LevelType.Boss => 2.0f,
+                _ => 1.0f
+            };
+
+            return regionMultiplier * typeMultiplier;
+        }
+
+        /// <summary>
+        /// 获取指定关卡的敌方人口上限
+        /// </summary>
+        public int GetEnemyPopulationCap(int battleNumber)
+        {
+            int idx = battleNumber - 1;
+            if (idx >= 0 && idx < _enemyPopulationCap.Length)
+                return _enemyPopulationCap[idx];
+            return 6; // 默认值
+        }
+
+        /// <summary>
+        /// 计算敌方单位ID数组的总人口成本
+        /// </summary>
+        private int CalculateEnemyPopulationCost(int[] enemyIds)
+        {
+            int total = 0;
+            for (int i = 0; i < enemyIds.Length; i++)
+            {
+                var cfg = TribeConfigLoader.Instance?.GetFighterConfig(enemyIds[i]);
+                total += cfg != null ? cfg.populationCost : 1;
+            }
+            return total;
         }
 
         public string GetEnemyName(int enemyUnitId)

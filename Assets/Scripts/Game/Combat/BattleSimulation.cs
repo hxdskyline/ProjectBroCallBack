@@ -843,7 +843,7 @@ namespace Combat
         // ── 击退系统 ──
 
         private const float KnockbackDistance = 1.5f;   // 击退距离（米）
-        private const float KnockbackChance = 0.15f;    // 击退概率 15%
+        private const float KnockbackChance = 0.05f;    // 击退概率 15%
         private const float MeleeRangeMax = 3.5f;        // 近战范围上限
 
         private const float KnockbackSpeed = 12f;          // 初始击退速度（米/秒）

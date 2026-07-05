@@ -3,7 +3,11 @@
     "allow": [
       "Bash(dotnet build:*)",
       "Bash(python3 -c ':*)",
-      "Bash(python -c \"print\\(''test''\\)\")"
+      "Bash(python -c \"print\\(''test''\\)\")",
+      "Bash(python3 -c ' *)",
+      "Bash(python -c ' *)",
+      "Bash(ls -la \"d:\\\\Work\\\\catcat\\\\CatNew\\\\ProjectBroCallBack\\\\\" | head -30)",
+      "Read(//d/Work/catcat/CatNew/**)"
     ]
   }
 }

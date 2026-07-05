@@ -173,17 +173,15 @@ public class RecruitmentSelectPanel : UIPanel
     private void OnSelectCard(RecruitmentCard card)
     {
         Debug.Log($"[RecruitmentSelectPanel] OnSelectCard card={card?.name} id={card?.fighterId}");
-        Close();
-        GameManager.Instance?.UIManager?.ClosePanel("RecruitmentSelectPanel");
         _onSelected?.Invoke(card);
+        GameManager.Instance?.UIManager?.ClosePanel("RecruitmentSelectPanel");
     }
 
     private void OnSkip()
     {
         Debug.Log("[RecruitmentSelectPanel] OnSkip");
-        Close();
-        GameManager.Instance?.UIManager?.ClosePanel("RecruitmentSelectPanel");
         _onSkipped?.Invoke();
+        GameManager.Instance?.UIManager?.ClosePanel("RecruitmentSelectPanel");
     }
 
     // ── UI 工具方法 ──
