@@ -374,7 +374,8 @@ public class BattlePreparePanel : UIPanel
         nameTxt.fontSize = 16;
         nameTxt.color = Color.white;
         nameTxt.alignment = TextAnchor.MiddleCenter;
-        nameTxt.text = config.fighterName;
+        int displayLevel = unit.tier > 0 ? unit.tier : config.tier;
+        nameTxt.text = $"{config.fighterName}\n等级: {displayLevel}";
         nameTxt.raycastTarget = false;
 
         // 人口费角标（背景和文字分开，避免同 GameObject 上两个 Graphic）
@@ -749,13 +750,25 @@ public class DeployedUnitHandler : MonoBehaviour
     {
         if (_isDragging)
         {
-            // 拖拽结束：更新位置，保持在战场范围内
+            // 拖拽结束：检查是否在允许的部署区域内
             Vector3 pos = transform.position;
-            pos.x = Mathf.Clamp(pos.x, -6.5f, 6.5f);
-            pos.y = Mathf.Clamp(pos.y, -3.5f, 3.5f);
-            pos.z = 0f;
-            transform.position = pos;
-            _panel?.UpdateDeployedPosition(_index, pos);
+            int zone = Combat.BattleManager.GetDeployZone(pos);
+            bool zoneAllowed = zone != 0 && (zone & _config.deployZones) != 0;
+
+            if (zoneAllowed)
+            {
+                // 区域合法，更新位置
+                pos.z = 0f;
+                transform.position = pos;
+                _panel?.UpdateDeployedPosition(_index, pos);
+            }
+            else
+            {
+                // 区域不合法，弹回原位
+                pos = _dragStartPos;
+                pos.z = 0f;
+                transform.position = pos;
+            }
 
             _panel?.OnDragEnd();
         }

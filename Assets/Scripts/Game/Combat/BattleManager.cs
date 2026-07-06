@@ -71,6 +71,7 @@ namespace Combat
 
         // 重新布阵按钮
         private GameObject _retryButtonGo;
+        private GameObject _instantWinButtonGo;
 
         // 区域遮罩系统
         private GameObject _overlay1Neutral, _overlay1Green, _overlay1Red;   // Layer 1, sortingOrder -999, 外圈
@@ -1336,6 +1337,59 @@ namespace Combat
             tmp.color = Color.white;
             tmp.alignment = TMPro.TextAlignmentOptions.Center;
             tmp.raycastTarget = false;
+
+            CreateInstantWinButton(topLayer);
+        }
+
+        private void CreateInstantWinButton(Transform topLayer)
+        {
+            DestroyInstantWinButton();
+
+            _instantWinButtonGo = new GameObject("InstantWinButton", typeof(RectTransform), typeof(Image), typeof(Button));
+            _instantWinButtonGo.transform.SetParent(topLayer, false);
+
+            var rect = _instantWinButtonGo.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(1, 1);
+            rect.anchorMax = new Vector2(1, 1);
+            rect.pivot = new Vector2(1, 1);
+            rect.anchoredPosition = new Vector2(-10, -10);
+            rect.sizeDelta = new Vector2(120, 40);
+
+            var img = _instantWinButtonGo.GetComponent<Image>();
+            img.color = new Color(0.7f, 0.2f, 0.2f, 0.85f);
+
+            var btn = _instantWinButtonGo.GetComponent<Button>();
+            btn.targetGraphic = img;
+            btn.onClick.AddListener(() =>
+            {
+                if (_isInBattle)
+                {
+                    EndBattle(true);
+                }
+            });
+
+            var textGo = new GameObject("Text", typeof(RectTransform), typeof(TMPro.TextMeshProUGUI));
+            textGo.transform.SetParent(_instantWinButtonGo.transform, false);
+            var textRect = textGo.GetComponent<RectTransform>();
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.sizeDelta = Vector2.zero;
+
+            var tmp = textGo.GetComponent<TMPro.TextMeshProUGUI>();
+            tmp.text = "直接获胜";
+            tmp.fontSize = 16;
+            tmp.color = Color.white;
+            tmp.alignment = TMPro.TextAlignmentOptions.Center;
+            tmp.raycastTarget = false;
+        }
+
+        private void DestroyInstantWinButton()
+        {
+            if (_instantWinButtonGo != null)
+            {
+                Destroy(_instantWinButtonGo);
+                _instantWinButtonGo = null;
+            }
         }
 
         private void DestroyRetryButton()
@@ -1345,6 +1399,7 @@ namespace Combat
                 Destroy(_retryButtonGo);
                 _retryButtonGo = null;
             }
+            DestroyInstantWinButton();
         }
 
         /// <summary>

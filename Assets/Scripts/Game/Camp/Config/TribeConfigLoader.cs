@@ -116,6 +116,11 @@ namespace Camp
             return results;
         }
 
+        public List<FighterConfig> GetAllFighterConfigs()
+        {
+            return new List<FighterConfig>(_fighters.Values);
+        }
+
         public RegionRarityConfig GetRegionRarityConfig(int regionId)
         {
             if (_raritySpawnConfig == null || _raritySpawnConfig.regions == null) return null;

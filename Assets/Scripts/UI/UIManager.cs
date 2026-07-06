@@ -58,6 +58,8 @@ public class UIManager : MonoBehaviour
         if (_activePanels.ContainsKey(panelName))
         {
             _activePanels[panelName].Show();
+            _activePanels[panelName].gameObject.transform.SetAsLastSibling();
+            Debug.Log($"[UIManager] Reusing panel and moving to top: {panelName}");
             return _activePanels[panelName] as T;
         }
 
@@ -74,6 +76,7 @@ public class UIManager : MonoBehaviour
         T panel = panelGo.AddComponent<T>();
         panel.Initialize();
         panel.Show();
+        panel.gameObject.transform.SetAsLastSibling();
 
         _activePanels[panelName] = panel;
         GameLogger.Log("UIM", $"Create:{typeof(T).Name}");
@@ -230,6 +233,9 @@ public class UIManager : MonoBehaviour
 
             layerTransform = layerGo.transform;
         }
+
+        // 保证层级顺序按 UILayer 枚举排序
+        layerTransform.SetSiblingIndex((int)layer);
         return layerTransform;
     }
 

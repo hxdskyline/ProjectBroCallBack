@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.IO;
 using Camp;
@@ -95,7 +96,7 @@ public class DataManager : MonoBehaviour
         SetCurrencyAmount(CurrencyManager.GetCurrencyKey(CurrencyType.Diamond), 0, false);
 
         // 初始化主角属性
-        _playerData.leadership = 3;      // 领导力初始值3
+        _playerData.leadership = 4;      // 领导力初始值4
         _playerData.streetIntel = 1;     // 街头情报初始值1
         _playerData.charisma = 1;        // 咪格魅力初始值1
         _playerData.leaderExp = 0;       // 主角经验值初始值0
@@ -155,6 +156,12 @@ public class DataManager : MonoBehaviour
         }
 
         EnsurePlayerDataDefaults();
+
+        if (currencyId == CurrencyManager.GetCurrencyKey(CurrencyType.Gold))
+        {
+            return _playerData.catFood;
+        }
+
         return GetCurrencyAmountInternal(currencyId);
     }
 
@@ -180,6 +187,16 @@ public class DataManager : MonoBehaviour
         }
 
         EnsurePlayerDataDefaults();
+
+        if (currencyId == CurrencyManager.GetCurrencyKey(CurrencyType.Gold))
+        {
+            _playerData.catFood = Math.Max(0L, amount);
+            if (saveImmediately)
+            {
+                SavePlayerData();
+            }
+            return;
+        }
 
         bool updated = false;
         for (int i = 0; i < _playerData.currencies.Count; i++)
@@ -765,7 +782,7 @@ public class DataManager : MonoBehaviour
         // 确保主角属性有默认值
         if (_playerData.leadership <= 0)
         {
-            _playerData.leadership = 3;  // 领导力初始值3
+            _playerData.leadership = 4;  // 领导力初始值4
         }
         if (_playerData.streetIntel <= 0)
         {

@@ -309,6 +309,17 @@ namespace Combat
                 {
                     GameLogger.Log("Skill", $"长矛猫分裂触发但旁边无其他敌人");
                 }
+                else if (HasEnhancedYou235Alive(f) && _rng.NextDouble() < 0.5f)
+                {
+                    // 铀235强化版光环：其他猫触发分裂时，有概率额外弹射一次
+                    foreach (var enemy in enemies)
+                    {
+                        if (enemy == null || !enemy.IsAlive || enemy == target) continue;
+                        FireBullet(f, enemy, splitDmg);
+                        GameLogger.Log("Skill", $"铀235强化光环分裂→弹射 target={enemy.Name} dmg={splitDmg}");
+                        break;
+                    }
+                }
             }
             if (IsEnhanced(f) && _rng.NextDouble() < 0.3f)
             {
@@ -610,11 +621,31 @@ namespace Combat
                             if (bounceOnHit)
                             {
                                 FireBounceBullet(attacker, hitTarget, hitPos, enemiesRef, dmg / 2);
+                                if (HasEnhancedYou235Alive(attacker) && _rng.NextDouble() < 0.5f)
+                                {
+                                    foreach (var enemy in enemiesRef)
+                                    {
+                                        if (enemy == null || !enemy.IsAlive || enemy == hitTarget) continue;
+                                        FireBullet(attacker, enemy, Mathf.Max(1, dmg / 2));
+                                        GameLogger.Log("Skill", $"铀235强化光环弹射→分裂 target={enemy.Name} dmg={Mathf.Max(1, dmg / 2)}");
+                                        break;
+                                    }
+                                }
                             }
                             // 强化版击杀弹射50%
                             if (killBounce && hitTarget.CurrentHp <= 0)
                             {
                                 FireBounceBullet(attacker, hitTarget, hitPos, enemiesRef, dmg / 2);
+                                if (HasEnhancedYou235Alive(attacker) && _rng.NextDouble() < 0.5f)
+                                {
+                                    foreach (var enemy in enemiesRef)
+                                    {
+                                        if (enemy == null || !enemy.IsAlive || enemy == hitTarget) continue;
+                                        FireBullet(attacker, enemy, Mathf.Max(1, dmg / 2));
+                                        GameLogger.Log("Skill", $"铀235强化光环弹射→分裂 target={enemy.Name} dmg={Mathf.Max(1, dmg / 2)}");
+                                        break;
+                                    }
+                                }
                             }
                         });
                     GameLogger.Log("Skill", $"火球猫火球→发射子弹 target={fireballTarget.Name} dmg={dmg} bounceOnHit={bounceOnHit}");
@@ -823,24 +854,6 @@ namespace Combat
                 _simulation?.SummonManager?.SummonClone(f, 2);
                 GameLogger.Log("Skill", $"铀235猫裂变 hp={f.StaticAttributes.MaxHp}");
             }
-            if (trigger == SkillTrigger.OnAttackHit && IsEnhanced(f))
-            {
-                // 强化版光环：场上存活时，其他友方触发分裂→50%弹射，弹射→50%分裂
-                // 简化：给攻击方额外添加分裂和弹射buff
-                if (target != null && _rng.NextDouble() < 0.5f)
-                {
-                    // 分裂→弹射
-                    int extraDmg = Mathf.Max(1, f.RuntimeAttributes.Attack / 2);
-                    var enemies = GetEnemies(f);
-                    foreach (var enemy in enemies)
-                    {
-                        if (enemy == null || !enemy.IsAlive || enemy == target) continue;
-                        FireBullet(f, enemy, extraDmg);
-                        GameLogger.Log("Skill", $"铀235猫光环分裂弹射→发射子弹 target={enemy.Name} dmg={extraDmg}");
-                        break; // 只弹射一次
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -901,6 +914,18 @@ namespace Combat
         {
             if (f.Camp == BattleCamp.Player) return _playerFighters ?? new BattleFighter[0];
             return _enemyFighters ?? new BattleFighter[0];
+        }
+
+        private bool HasEnhancedYou235Alive(BattleFighter f)
+        {
+            var allies = GetAllies(f);
+            foreach (var ally in allies)
+            {
+                if (ally == null || !ally.IsAlive) continue;
+                if (ally.SkillId == "you235mao_enhanced")
+                    return true;
+            }
+            return false;
         }
     }
 }

@@ -376,7 +376,7 @@ namespace Camp
         // ====== Phase E: Assign Enemies ======
 
         /// <summary>
-        /// 为每个战斗类节点分配敌方单位，保证同层节点兵种组合不同
+        /// 为每个战斗类节点分配敌方单位，根据节点类型生成不同的敌人组合
         /// </summary>
         private void AssignEnemies(List<List<MapNode>> layers, int regionIndex)
         {
@@ -388,57 +388,191 @@ namespace Camp
                 var layerNodes = layers[layerIdx];
                 int battleNum = regionIndex * _layersPerRegion + (layerIdx + 1);
 
-                // 获取该 battleNumber 的基础敌人列表
-                int[] baseIds = campaign.GetEnemyUnitIdsForBattle(battleNum);
-                if (baseIds == null || baseIds.Length == 0) continue;
-
-                // 收集本层战斗类节点
-                var battleNodes = new List<MapNode>();
+                // 按节点类型分组
+                var normalNodes = new List<MapNode>();
+                var eliteNodes = new List<MapNode>();
+                var bossNodes = new List<MapNode>();
                 foreach (var n in layerNodes)
                 {
-                    if (n.nodeType == MapNodeType.Battle || n.nodeType == MapNodeType.EliteBattle || n.nodeType == MapNodeType.Boss)
-                        battleNodes.Add(n);
-                }
-                if (battleNodes.Count == 0) continue;
-
-                // 统计每种敌人的数量
-                var typeCounts = new Dictionary<int, int>();
-                foreach (int id in baseIds)
-                {
-                    if (!typeCounts.ContainsKey(id)) typeCounts[id] = 0;
-                    typeCounts[id]++;
-                }
-
-                var uniqueTypes = new List<int>(typeCounts.Keys);
-                int totalBase = baseIds.Length;
-
-                // 只有一种兵种 → 无法差异化，都一样
-                if (uniqueTypes.Count <= 1)
-                {
-                    foreach (var n in battleNodes)
-                        n.enemyUnitIds = baseIds;
-                    continue;
-                }
-
-                // 为每个节点生成不同的兵种组合
-                // 策略：从 totalBase 里随机抽取，每种兵种数量在 [0, totalBase] 之间随机，
-                // 总数保持和 baseIds 一样，但比例不同
-                var usedSignatures = new HashSet<string>();
-                for (int i = 0; i < battleNodes.Count; i++)
-                {
-                    int[] composition;
-                    int attempts = 0;
-                    do
+                    switch (n.nodeType)
                     {
-                        composition = RollComposition(uniqueTypes, totalBase);
-                        attempts++;
+                        case MapNodeType.Battle: normalNodes.Add(n); break;
+                        case MapNodeType.EliteBattle: eliteNodes.Add(n); break;
+                        case MapNodeType.Boss: bossNodes.Add(n); break;
                     }
-                    while (usedSignatures.Contains(Signature(composition)) && attempts < 20);
+                }
 
-                    usedSignatures.Add(Signature(composition));
-                    battleNodes[i].enemyUnitIds = composition;
+                // 根据节点类型生成对应的敌人组合
+                if (normalNodes.Count > 0)
+                    AssignEnemiesForNodes(campaign, normalNodes, battleNum, MapNodeType.Battle);
+                if (eliteNodes.Count > 0)
+                    AssignEnemiesForNodes(campaign, eliteNodes, battleNum, MapNodeType.EliteBattle);
+                if (bossNodes.Count > 0)
+                    AssignEnemiesForNodes(campaign, bossNodes, battleNum, MapNodeType.Boss);
+            }
+        }
+
+        /// <summary>
+        /// 为指定类型的节点生成敌人组合
+        /// </summary>
+        private void AssignEnemiesForNodes(Combat.BattleCampaignRuntime campaign, List<MapNode> nodes, int battleNum, MapNodeType nodeType)
+        {
+            // 根据节点类型获取对应的人口上限
+            int cap = campaign.GetEnemyPopulationCap(battleNum);
+
+            // 根据节点类型生成敌人组合（复用 BattleCampaignRuntime 的生成逻辑）
+            int[] baseIds;
+            switch (nodeType)
+            {
+                case MapNodeType.Boss:
+                    baseIds = GenerateBossCompositionForMap(campaign, cap);
+                    break;
+                case MapNodeType.EliteBattle:
+                    baseIds = GenerateEliteCompositionForMap(campaign, cap);
+                    break;
+                default:
+                    baseIds = GenerateNormalCompositionForMap(cap);
+                    break;
+            }
+            if (baseIds == null || baseIds.Length == 0) return;
+
+            // 统计每种敌人的数量
+            var typeCounts = new Dictionary<int, int>();
+            foreach (int id in baseIds)
+            {
+                if (!typeCounts.ContainsKey(id)) typeCounts[id] = 0;
+                typeCounts[id]++;
+            }
+
+            var uniqueTypes = new List<int>(typeCounts.Keys);
+            int totalBase = baseIds.Length;
+
+            // 只有一种兵种 → 无法差异化，都一样
+            if (uniqueTypes.Count <= 1)
+            {
+                foreach (var n in nodes)
+                    n.enemyUnitIds = baseIds;
+                return;
+            }
+
+            // 为每个节点生成不同的兵种组合
+            var usedSignatures = new HashSet<string>();
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                int[] composition;
+                int attempts = 0;
+                do
+                {
+                    composition = RollComposition(uniqueTypes, totalBase);
+                    attempts++;
+                }
+                while (usedSignatures.Contains(Signature(composition)) && attempts < 20);
+
+                usedSignatures.Add(Signature(composition));
+                nodes[i].enemyUnitIds = composition;
+            }
+        }
+
+        /// <summary>
+        /// 普通关卡敌人组合：鼠辈(5000) + 敌方矛猫(5010) 任意比例
+        /// </summary>
+        private int[] GenerateNormalCompositionForMap(int cap)
+        {
+            var result = new List<int>();
+            int remaining = cap;
+            while (remaining > 0)
+            {
+                result.Add(_rng.Next(2) == 0 ? 5000 : 5010);
+                remaining--;
+            }
+            return result.ToArray();
+        }
+
+        /// <summary>
+        /// 精英关卡敌人组合：至少一只游侠或猫骑士
+        /// </summary>
+        private int[] GenerateEliteCompositionForMap(Combat.BattleCampaignRuntime campaign, int cap)
+        {
+            var result = new List<int>();
+            int remaining = cap;
+
+            // 先确保至少有一只游侠(5040)或猫骑士(5020)
+            if (remaining >= 3 && _rng.Next(2) == 0)
+            {
+                result.Add(5020);
+                remaining -= 3;
+            }
+            else if (remaining >= 2)
+            {
+                result.Add(5040);
+                remaining -= 2;
+            }
+            else if (remaining >= 1)
+            {
+                result.Add(5000);
+                remaining -= 1;
+            }
+
+            // 填充剩余人口
+            while (remaining > 0)
+            {
+                int roll = _rng.Next(100);
+                if (remaining >= 3 && roll < 15)
+                {
+                    result.Add(5020);
+                    remaining -= 3;
+                }
+                else if (remaining >= 2 && roll < 40)
+                {
+                    result.Add(5040);
+                    remaining -= 2;
+                }
+                else
+                {
+                    result.Add(_rng.Next(2) == 0 ? 5000 : 5010);
+                    remaining -= 1;
                 }
             }
+            return result.ToArray();
+        }
+
+        /// <summary>
+        /// Boss关卡敌人组合：必定至少一只奶牛猫族长(5030)
+        /// </summary>
+        private int[] GenerateBossCompositionForMap(Combat.BattleCampaignRuntime campaign, int cap)
+        {
+            var result = new List<int>();
+            int remaining = cap;
+
+            // 必定放一只奶牛猫族长
+            result.Add(5030);
+            remaining -= 4;
+
+            // 填充剩余人口
+            while (remaining > 0)
+            {
+                if (remaining >= 4 && _rng.Next(100) < 20)
+                {
+                    result.Add(5030);
+                    remaining -= 4;
+                }
+                else if (remaining >= 3 && _rng.Next(100) < 25)
+                {
+                    result.Add(5020);
+                    remaining -= 3;
+                }
+                else if (remaining >= 2 && _rng.Next(100) < 35)
+                {
+                    result.Add(5040);
+                    remaining -= 2;
+                }
+                else
+                {
+                    result.Add(_rng.Next(2) == 0 ? 5000 : 5010);
+                    remaining -= 1;
+                }
+            }
+            return result.ToArray();
         }
 
         /// <summary>

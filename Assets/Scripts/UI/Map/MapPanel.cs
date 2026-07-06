@@ -450,12 +450,21 @@ public class MapPanel : UIPanel
     {
         MapNode targetNode = null;
         if (currentNodeId >= 0)
+        {
             targetNode = mapData.GetNode(currentNodeId);
+            if (targetNode != null && targetNode.state != MapNodeState.Available)
+                targetNode = null;
+        }
+
         if (targetNode == null)
         {
             foreach (var n in mapData.nodes)
             {
-                if (n.state == MapNodeState.Available) { targetNode = n; break; }
+                if (n.state == MapNodeState.Available)
+                {
+                    targetNode = n;
+                    break;
+                }
             }
         }
         if (targetNode == null) return;
