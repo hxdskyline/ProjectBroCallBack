@@ -316,6 +316,7 @@ namespace Combat
                 {
                     target.RuntimeAttributes.ApplyBuff(freezeBuff);
                     target.FreezeTimer = Mathf.Max(target.FreezeTimer, combo.config.effectDuration);
+                    GameLogger.LogFileOnly("Combat", $"FreezeApplied source=Combo combo={combo.config.skillName} target={target.Name} targetCamp={target.Camp} duration={combo.config.effectDuration:F2}");
                 }
             }
 

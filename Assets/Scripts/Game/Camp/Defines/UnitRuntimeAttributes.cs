@@ -195,6 +195,11 @@ namespace Camp
         {
             if (buff == null) return;
             buff = buff.Clone();
+            if (buff.gameEffect == GameEffect.Freeze)
+            {
+                GameLogger.LogFileOnly("Buff",
+                    $"ApplyFreeze buffId={buff.buffId} source={buff.source} sourceId={buff.sourceId} duration={buff.remainingDuration:F2} breakDamage={buff.effectParam2:F2} currentHp={CurrentHp}");
+            }
 
             // 霸体免疫控制效果
             if (HasSuperArmor && Combat.Effects.StatusEffectFactory.IsControlEffect(buff.gameEffect))
@@ -338,8 +343,8 @@ namespace Camp
                 }
 
                 // 过期检测
-                bool expired = buff.remainingDuration == 0f ||
-                               (buff.remainingDuration > 0f && buff.remainingDuration < 0.001f);
+                bool expired = buff.remainingDuration <= 0f ||
+                               buff.remainingDuration < 0.001f;
 
                 if (expired)
                 {

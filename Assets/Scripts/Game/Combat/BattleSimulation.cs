@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Camp;
 using System;
 using System.Collections.Generic;
@@ -34,12 +34,12 @@ namespace Combat
         private static bool _frozenEffectSpriteLoaded;
 
         /// <summary>
-        /// 当前战斗模拟实例（供子弹等外部逻辑访问）
+        /// 褰撳墠鎴樻枟妯℃嫙瀹炰緥锛堜緵瀛愬脊绛夊閮ㄩ€昏緫璁块棶锛?
         /// </summary>
         public static BattleSimulation CurrentSimulation => _currentSimulation;
 
         /// <summary>
-        /// 外部调用：发射子弹（供 PassiveSkillSystem 等使用）
+        /// 澶栭儴璋冪敤锛氬彂灏勫瓙寮癸紙渚?PassiveSkillSystem 绛変娇鐢級
         /// </summary>
         public static void FireBullet(BulletData data)
         {
@@ -47,15 +47,15 @@ namespace Combat
         }
 
         /// <summary>
-        /// 外部调用：发射带弹射回调的子弹（供 PassiveSkillSystem 使用）
-        /// 弹射子弹命中后从命中位置发射新子弹打另一个敌人
+        /// 澶栭儴璋冪敤锛氬彂灏勫甫寮瑰皠鍥炶皟鐨勫瓙寮癸紙渚?PassiveSkillSystem 浣跨敤锛?
+        /// 寮瑰皠瀛愬脊鍛戒腑鍚庝粠鍛戒腑浣嶇疆鍙戝皠鏂板瓙寮规墦鍙︿竴涓晫浜?
         /// </summary>
         public static void FireBulletWithBounce(BattleFighter attacker, BattleFighter target, int damage,
             System.Action<BattleFighter, BattleFighter, Vector3> onHitBounce)
         {
-            // 先通过正常流程创建子弹，但这里需要直接创建 BattleBullet
-            // 由于 OnBulletFired 事件由 BattleManager.SpawnBullet 处理，不支持回调
-            // 所以这里直接创建 GameObject
+            // 鍏堥€氳繃姝ｅ父娴佺▼鍒涘缓瀛愬脊锛屼絾杩欓噷闇€瑕佺洿鎺ュ垱寤?BattleBullet
+            // 鐢变簬 OnBulletFired 浜嬩欢鐢?BattleManager.SpawnBullet 澶勭悊锛屼笉鏀寔鍥炶皟
+            // 鎵€浠ヨ繖閲岀洿鎺ュ垱寤?GameObject
             if (attacker?.Transform == null || target == null) return;
 
             var go = new GameObject("BounceBullet");
@@ -76,6 +76,7 @@ namespace Combat
         private ComboSkillSystem _comboSkillSystem;
         private float _comboCheckTimer;
         private static readonly Dictionary<BattleFighter, float> _hitEffectTimers = new Dictionary<BattleFighter, float>();
+        private static readonly Dictionary<BattleFighter, bool> _freezeVisualStates = new Dictionary<BattleFighter, bool>();
 
         public bool IsReady =>
             _playerFighters != null && _enemyFighters != null &&
@@ -98,22 +99,22 @@ namespace Combat
         }
 
         /// <summary>
-        /// 获取连携技系统
+        /// 鑾峰彇杩炴惡鎶€绯荤粺
         /// </summary>
         public ComboSkillSystem ComboSkillSystem => _comboSkillSystem;
 
         /// <summary>
-        /// 获取尸体管理器
+        /// 鑾峰彇灏镐綋绠＄悊鍣?
         /// </summary>
         public CorpseManager CorpseManager => _corpseManager;
 
         /// <summary>
-        /// 获取召唤物管理器
+        /// 鑾峰彇鍙敜鐗╃鐞嗗櫒
         /// </summary>
         public SummonManager SummonManager => _summonManager;
 
         /// <summary>
-        /// 施放消耗品效果（对全体目标生效，无需选位）
+        /// 鏂芥斁娑堣€楀搧鏁堟灉锛堝鍏ㄤ綋鐩爣鐢熸晥锛屾棤闇€閫変綅锛?
         /// </summary>
         public void ApplyConsumable(ConsumableEffectType effectType)
         {
@@ -148,21 +149,34 @@ namespace Combat
                 RefreshFighterHud(f, true, 200);
                 if (f.RuntimeAttributes.CurrentHp <= 0) StartDeath(f);
             }
-            GameLogger.Log("Combat", "使用消耗品：炸弹，对所有敌人造成200点伤害");
+            GameLogger.Log("Combat", "Consumable Bomb used: deal 200 damage to all enemies");
         }
 
         private void ApplyFreezeTrap()
         {
             if (_enemyFighters == null) return;
-            var freezeBuff = StatusEffectFactory.CreateFreeze(3f);
+            GameLogger.LogFileOnly("Combat", $"FreezeTrap begin enemyCount={_enemyFighters.Length} playerCount={(_playerFighters == null ? 0 : _playerFighters.Length)}");
             for (int i = 0; i < _enemyFighters.Length; i++)
             {
                 var f = _enemyFighters[i];
                 if (f == null || !f.IsAlive) continue;
-                f.RuntimeAttributes?.ApplyBuff(freezeBuff);
+                GameLogger.LogFileOnly("Combat", $"FreezeTrap target enemy[{i}] name={f.Name} camp={f.Camp} fighterId={f.FighterId}");
+                f.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateFreeze(3f));
                 f.FreezeTimer = Mathf.Max(f.FreezeTimer, 3f);
             }
-            GameLogger.Log("Combat", "使用消耗品：冰冻陷阱，所有敌人停止攻击3秒");
+            if (_playerFighters != null)
+            {
+                for (int i = 0; i < _playerFighters.Length; i++)
+                {
+                    var f = _playerFighters[i];
+                    if (f == null || !f.IsAlive || f.RuntimeAttributes == null) continue;
+                    if (f.RuntimeAttributes.HasActiveEffect(GameEffect.Freeze))
+                    {
+                        GameLogger.LogWarningFileOnly("Combat", $"FreezeTrap aftercast playerFrozen name={f.Name} camp={f.Camp} fighterId={f.FighterId} freezeTimer={f.FreezeTimer:F2}");
+                    }
+                }
+            }
+            GameLogger.Log("Combat", "Consumable FreezeTrap used: freeze all enemies for 3s");
         }
 
         private void ApplyHealPotion()
@@ -178,14 +192,14 @@ namespace Combat
                 f.TotalHealingDone += actualHeal;
                 RefreshFighterHud(f, false, 0);
             }
-            GameLogger.Log("Combat", "使用消耗品：回复药水，所有己方单位回复50%生命值");
+            GameLogger.Log("Combat", "Consumable HealPotion used: heal all allies for 50% max HP");
         }
 
         private void ApplyAttackBuff()
         {
             if (_playerFighters == null) return;
             var buff = UnifiedBuff.CreateTimedBuff(
-                "consumable_attack_buff", "攻击强化",
+                "consumable_attack_buff", "鏀诲嚮寮哄寲",
                 BuffSource.Consumable, "AttackBuff",
                 StatType.Attack, true, 0.3f,
                 15f, BuffStackRule.None, 1);
@@ -204,7 +218,7 @@ namespace Combat
         {
             if (_playerFighters == null) return;
             var buff = UnifiedBuff.CreateTimedBuff(
-                "consumable_defense_buff", "防御强化",
+                "consumable_defense_buff", "闃插尽寮哄寲",
                 BuffSource.Consumable, "DefenseBuff",
                 StatType.Defense, true, 0.3f,
                 15f, BuffStackRule.None, 1);
@@ -221,13 +235,13 @@ namespace Combat
 
         private void UpdateTimers(float deltaTime)
         {
-            // Freeze timers（保留，用于非 buff 系统的冻结）
+            // Freeze timers锛堜繚鐣欙紝鐢ㄤ簬闈?buff 绯荤粺鐨勫喕缁擄級
             UpdateFreezeTimers(_playerFighters, deltaTime);
             UpdateFreezeTimers(_enemyFighters, deltaTime);
         }
 
         /// <summary>
-        /// Tick 所有 fighter 的 UnifiedBuff：递减 duration、执行 DoT、移除过期 buff
+        /// Tick 鎵€鏈?fighter 鐨?UnifiedBuff锛氶€掑噺 duration銆佹墽琛?DoT銆佺Щ闄よ繃鏈?buff
         /// </summary>
         private void TickAllBuffs(float deltaTime)
         {
@@ -245,12 +259,12 @@ namespace Combat
 
                 var result = f.RuntimeAttributes.TickBuffs(deltaTime);
 
-                // 应用 DoT 伤害
+                // 搴旂敤 DoT 浼ゅ
                 if (result.dotDamage > 0)
                 {
                     f.RuntimeAttributes.CurrentHp = Mathf.Max(0, f.RuntimeAttributes.CurrentHp - result.dotDamage);
                     f.TotalDamageTaken += result.dotDamage;
-                    // 显示伤害数字
+                    // 鏄剧ず浼ゅ鏁板瓧
                     if (f.Transform != null)
                     {
                         var hud = f.Transform.GetComponent<FighterHUD>();
@@ -264,15 +278,22 @@ namespace Combat
                         StartDeath(f);
                 }
 
-                // 应用冻结
+                // 搴旂敤鍐荤粨
                 if (result.freezeDuration > 0f)
+                {
                     f.FreezeTimer = Mathf.Max(f.FreezeTimer, result.freezeDuration);
+                }
+                else if (!f.RuntimeAttributes.HasActiveEffect(GameEffect.Freeze))
+                {
+                    f.FreezeTimer = 0f;
+                    ClearFrozenVisual(f);
+                }
 
-                // 需要重新计算属性（减速过期等）
+                // 闇€瑕侀噸鏂拌绠楀睘鎬э紙鍑忛€熻繃鏈熺瓑锛?
                 if (result.needsRecalculate)
                     f.RuntimeAttributes.Recalculate();
 
-                // 检查相位转移/隐匿 buff 是否过期，清除状态标记
+                // 妫€鏌ョ浉浣嶈浆绉?闅愬尶 buff 鏄惁杩囨湡锛屾竻闄ょ姸鎬佹爣璁?
                 if (f.IsInvulnerable && !HasBuff(f, "phase_shift_ally") && !HasBuff(f, "phase_shift_enemy"))
                     f.IsInvulnerable = false;
                 if (f.IsStealthed && !HasBuff(f, "stealth_atk") && !HasBuff(f, "stealth"))
@@ -281,7 +302,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 检查 fighter 是否拥有指定 buffId 的 buff
+        /// 妫€鏌?fighter 鏄惁鎷ユ湁鎸囧畾 buffId 鐨?buff
         /// </summary>
         private bool HasBuff(BattleFighter f, string buffId)
         {
@@ -301,7 +322,7 @@ namespace Combat
             {
                 var f = fighters[i];
                 if (f != null && f.FreezeTimer > 0f)
-                    f.FreezeTimer -= deltaTime;
+                    f.FreezeTimer = Mathf.Max(0f, f.FreezeTimer - deltaTime);
             }
         }
 
@@ -313,15 +334,53 @@ namespace Combat
                 var f = fighters[i];
                 if (f == null || !f.IsAlive || f.Transform == null) continue;
 
-                bool frozen = f.FreezeTimer > 0f;
-                bool slowed = frozen
-                    || (f.RuntimeAttributes != null && f.RuntimeAttributes.SpeedPercentDebuff > 0f);
+                bool frozen = f.RuntimeAttributes != null
+                    && f.RuntimeAttributes.HasActiveEffect(GameEffect.Freeze);
+
+                bool previousFrozen;
+                if (!_freezeVisualStates.TryGetValue(f, out previousFrozen) || previousFrozen != frozen)
+                {
+                    _freezeVisualStates[f] = frozen;
+                    GameLogger.LogFileOnly("Combat",
+                        $"FreezeState name={f.Name} camp={f.Camp} fighterId={f.FighterId} frozen={frozen} freezeTimer={f.FreezeTimer:F2} speedDebuff={(f.RuntimeAttributes == null ? 0f : f.RuntimeAttributes.SpeedPercentDebuff):F2}");
+                }
 
                 var sr = f.Transform.GetComponent<SpriteRenderer>();
                 if (sr != null)
-                    sr.color = slowed ? SlowTint : Color.white;
+                    sr.color = frozen ? SlowTint : Color.white;
 
                 UpdateFrozenEffect(f, frozen);
+            }
+        }
+
+        private static bool IsFrozen(BattleFighter fighter)
+        {
+            return fighter != null
+                && fighter.RuntimeAttributes != null
+                && fighter.RuntimeAttributes.HasActiveEffect(GameEffect.Freeze);
+        }
+
+        private static void ClearFrozenVisual(BattleFighter fighter)
+        {
+            if (fighter == null)
+            {
+                return;
+            }
+
+            _freezeVisualStates[fighter] = false;
+
+            if (fighter.Transform != null)
+            {
+                var sr = fighter.Transform.GetComponent<SpriteRenderer>();
+                if (sr != null)
+                {
+                    sr.color = Color.white;
+                }
+            }
+
+            if (fighter.FrozenEffect != null)
+            {
+                fighter.FrozenEffect.SetActive(false);
             }
         }
 
@@ -371,6 +430,10 @@ namespace Combat
 
             sr.sprite = _frozenEffectSprite;
             sr.flipX = fighter.Transform.localScale.x < 0f;
+            if (!fighter.FrozenEffect.activeSelf)
+            {
+                GameLogger.LogFileOnly("Combat", $"FrozenEffectActive name={fighter.Name} camp={fighter.Camp} fighterId={fighter.FighterId}");
+            }
             fighter.FrozenEffect.SetActive(true);
         }
 
@@ -467,14 +530,16 @@ namespace Combat
                     continue;
                 }
 
-                // 倒地状态：无法行动
+                // 鍊掑湴鐘舵€侊細鏃犳硶琛屽姩
                 if (self.KnockdownTimer > 0f)
                 {
                     self.PendingTarget = null;
                     continue;
                 }
 
-                BattleFighter target = FindNearestTarget(self, targets);
+                BattleFighter target = IsAllyTargetSupport(self)
+                    ? FindNearestAllyTarget(self, group)
+                    : FindNearestTarget(self, targets);
                 if (target != null)
                 {
                     UpdateFighterAI(self, target, deltaTime);
@@ -501,8 +566,34 @@ namespace Combat
                     continue;
                 }
 
-                // 隐匿状态：不可被选为目标
+                // 闅愬尶鐘舵€侊細涓嶅彲琚€変负鐩爣
                 if (candidate.IsStealthed)
+                {
+                    continue;
+                }
+
+                Vector3 delta = candidate.Transform.position - self.Transform.position;
+                float sqr = delta.sqrMagnitude;
+                if (sqr < nearestSqr)
+                {
+                    nearestSqr = sqr;
+                    nearest = candidate;
+                }
+            }
+
+            return nearest;
+        }
+
+        private BattleFighter FindNearestAllyTarget(BattleFighter self, BattleFighter[] allies)
+        {
+            BattleFighter nearest = null;
+            float nearestSqr = float.MaxValue;
+
+            for (int i = 0; i < allies.Length; i++)
+            {
+                BattleFighter candidate = allies[i];
+                if (candidate == null || candidate == self || !candidate.IsAlive ||
+                    candidate.Transform == null || self.Transform == null)
                 {
                     continue;
                 }
@@ -532,7 +623,7 @@ namespace Combat
             }
 
             // Frozen: cannot move or attack
-            if (self.FreezeTimer > 0f)
+            if (IsFrozen(self))
             {
                 self.Avatar?.PlayIdle();
                 return;
@@ -565,16 +656,23 @@ namespace Combat
 
             if (self.AttackCooldownTimer <= 0f)
             {
-                // 攻击冷却: 直接使用 CorrectedAttackSpeed 作为冷却时间(秒)
+                // 鏀诲嚮鍐峰嵈: 鐩存帴浣跨敤 CorrectedAttackSpeed 浣滀负鍐峰嵈鏃堕棿(绉?
                 float attackCooldown = self.RuntimeAttributes?.CorrectedAttackSpeed ?? 1f;
                 self.AttackCooldownTimer = Mathf.Max(0.1f, attackCooldown);
                 self.Avatar?.PlayAttackAndReturnIdle();
 
-                // 出手时触发被动技能（分裂等在出手时判定概率的效果）
+                // 鍑烘墜鏃惰Е鍙戣鍔ㄦ妧鑳斤紙鍒嗚绛夊湪鍑烘墜鏃跺垽瀹氭鐜囩殑鏁堟灉锛?
                 _passiveSkillSystem?.OnAttackLaunch(self, target);
 
-                // 远程单位：发射子弹，不走 PendingHit
-                // 判断标准：攻击距离 > 3.5m 视为远程
+                if (IsAllyTargetSupport(self))
+                {
+                    self.PendingHitTimer = _config.AttackResolveDelay;
+                    self.PendingTarget = target;
+                    return;
+                }
+
+                // 杩滅▼鍗曚綅锛氬彂灏勫瓙寮癸紝涓嶈蛋 PendingHit
+                // 鍒ゆ柇鏍囧噯锛氭敾鍑昏窛绂?> 3.5m 瑙嗕负杩滅▼
                 bool isRanged = GetAttackRange(self) > 3.5f;
                 if (isRanged)
                 {
@@ -589,7 +687,7 @@ namespace Combat
                     return;
                 }
 
-                // 近战：走 PendingHit
+                // 杩戞垬锛氳蛋 PendingHit
                 self.PendingHitTimer = _config.AttackResolveDelay;
                 self.PendingTarget = target;
                 return;
@@ -650,7 +748,13 @@ namespace Combat
                 return;
             }
 
-            // 相位转移/无敌状态：跳过伤害
+            if (IsAllyTargetSupport(attacker) && IsSameCamp(attacker, defender))
+            {
+                _passiveSkillSystem?.OnAttackHit(attacker, defender);
+                return;
+            }
+
+            // 鐩镐綅杞Щ/鏃犳晫鐘舵€侊細璺宠繃浼ゅ
             if (defender.IsInvulnerable)
             {
                 attacker.PendingTarget = null;
@@ -664,14 +768,14 @@ namespace Combat
                 return;
             }
 
-            // 狸花连击：攻击2次
+            // 鐙歌姳杩炲嚮锛氭敾鍑?娆?
             int hitCount = attacker.HasDoubleHit ? 2 : 1;
 
             for (int hit = 0; hit < hitCount; hit++)
             {
                 if (!defender.IsAlive) break;
 
-                // 需求公式: FDMG = MAX[DMG * DR * SKILLMULT * PBUFF + ABUFF, 1] + TD
+                // 闇€姹傚叕寮? FDMG = MAX[DMG * DR * SKILLMULT * PBUFF + ABUFF, 1] + TD
                 // DMG = MAX(CATK - CDEF, 0)
                 // DR = MAX(1 - CDEF/(CDEF+100), 0.2)
                 int rawDmg = Mathf.Max(0, attackerRuntime.Attack - defenderRuntime.Defense);
@@ -684,7 +788,7 @@ namespace Combat
                 int newHp = Mathf.Max(0, defenderRuntime.CurrentHp - damage);
                 defenderRuntime.CurrentHp = newHp;
 
-                // 战斗统计
+                // 鎴樻枟缁熻
                 attacker.TotalDamageDealt += damage;
                 defender.TotalDamageTaken += damage;
 
@@ -707,18 +811,18 @@ namespace Combat
                 StartDeath(defender);
             }
 
-            // 攻击触发状态效果
+            // 鏀诲嚮瑙﹀彂鐘舵€佹晥鏋?
             ApplyAttackTriggeredEffects(attacker, defender);
 
-            // 击退判定（近战范围内）
+            // 鍑婚€€鍒ゅ畾锛堣繎鎴樿寖鍥村唴锛?
             ApplyMeleeKnockback(attacker, defender);
 
-            // IBuffEffect.OnAttackHit 回调（穿刺箭、毒箭等）
+            // IBuffEffect.OnAttackHit 鍥炶皟锛堢┛鍒虹銆佹瘨绠瓑锛?
             attackerRuntime.TriggerAttackEffects(defender);
         }
 
         /// <summary>
-        /// 每帧检查连携技
+        /// 姣忓抚妫€鏌ヨ繛鎼烘妧
         /// </summary>
         private void TickComboSkills(float deltaTime)
         {
@@ -726,10 +830,10 @@ namespace Combat
             _comboSkillSystem.Update(deltaTime);
 
             _comboCheckTimer += deltaTime;
-            if (_comboCheckTimer < 2f) return; // 每2秒检查一次
+            if (_comboCheckTimer < 2f) return; // 姣?绉掓鏌ヤ竴娆?
             _comboCheckTimer = 0f;
 
-            // 收集存活玩家单位
+            // 鏀堕泦瀛樻椿鐜╁鍗曚綅
             var alivePlayers = new List<BattleFighter>();
             if (_playerFighters != null)
             {
@@ -753,13 +857,13 @@ namespace Combat
                         }
                     }
                     _comboSkillSystem.TriggerCombo(combo, alivePlayers, aliveEnemies);
-                    GameLogger.Log("Combo", $"连携技触发: {combo.config.skillName}");
+                    GameLogger.Log("Combo", $"杩炴惡鎶€瑙﹀彂: {combo.config.skillName}");
                 }
             }
         }
 
         /// <summary>
-        /// 每帧触发被动技能
+        /// 姣忓抚瑙﹀彂琚姩鎶€鑳?
         /// </summary>
         private void TickPassiveSkills(float deltaTime)
         {
@@ -780,7 +884,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 攻击命中时触发被动技能
+        /// 鏀诲嚮鍛戒腑鏃惰Е鍙戣鍔ㄦ妧鑳?
         /// </summary>
         public static void ApplyAttackTriggeredEffects(BattleFighter attacker, BattleFighter defender)
         {
@@ -789,14 +893,14 @@ namespace Combat
             var defenderRuntime = defender.RuntimeAttributes;
             if (attackerRuntime == null || defenderRuntime == null) return;
 
-            // 触发被动技能系统：攻击命中
+            // 瑙﹀彂琚姩鎶€鑳界郴缁燂細鏀诲嚮鍛戒腑
             var sim = _currentSimulation;
             if (sim?._passiveSkillSystem != null)
             {
                 sim._passiveSkillSystem.OnAttackHit(attacker, defender);
             }
 
-            // 橘猫被攻击触发
+            // 姗樼尗琚敾鍑昏Е鍙?
             if (!string.IsNullOrEmpty(defender.SkillId) && defender.SkillId.StartsWith("jumao"))
             {
                 sim?._passiveSkillSystem?.OnJuMaoHit(defender);
@@ -808,15 +912,15 @@ namespace Combat
             {
                 var buff = attackerRuntime.ActiveBuffs[i];
                 if (buff.IsExpired) continue;
-                // 只处理战斗内限时 buff 的状态效果触发，跳过永久属性 buff
+                // 鍙鐞嗘垬鏂楀唴闄愭椂 buff 鐨勭姸鎬佹晥鏋滆Е鍙戯紝璺宠繃姘镐箙灞炴€?buff
                 if (buff.persistence != Camp.BuffPersistence.BattleOnly) continue;
 
                 switch (buff.gameEffect)
                 {
                     case GameEffect.Poison:
-                        // 攻击附加毒：effectParam1 = 每秒伤害, effectParam2 = 持续时间
+                        // 鏀诲嚮闄勫姞姣掞細effectParam1 = 姣忕浼ゅ, effectParam2 = 鎸佺画鏃堕棿
                         var poisonBuff = StatusEffectFactory.CreatePoison(buff.effectParam1, buff.effectParam2);
-                        // 检查荆棘王冠圣物：中毒无限叠加
+                        // 妫€鏌ヨ崋妫樼帇鍐犲湥鐗╋細涓瘨鏃犻檺鍙犲姞
                         if (HasRelic("Relic_ThornCrown", attacker))
                         {
                             poisonBuff.maxStacks = 999;
@@ -824,51 +928,32 @@ namespace Combat
                         defenderRuntime.ApplyBuff(poisonBuff);
                         break;
                     case GameEffect.Bleed:
-                        // 攻击附加流血
+                        // 鏀诲嚮闄勫姞娴佽
                         defenderRuntime.ApplyBuff(StatusEffectFactory.CreateBleed(buff.effectParam1, buff.effectParam2));
                         break;
                     case GameEffect.Burn:
-                        // 攻击附加燃烧
-                        // 冰火联动：对冰冻单位施加灼烧 → 破冰双倍伤害20点，冰冻解除
+                        // 鏀诲嚮闄勫姞鐕冪儳
+                        // 鍐扮伀鑱斿姩锛氬鍐板喕鍗曚綅鏂藉姞鐏肩儳 鈫?鐮村啺鍙屽€嶄激瀹?0鐐癸紝鍐板喕瑙ｉ櫎
                         if (defenderRuntime.HasActiveEffect(GameEffect.Freeze))
                         {
                             int breakDamage = 20;
-                            // 检查霜之哀伤圣物：破冰伤害翻倍
+                            // 妫€鏌ラ湝涔嬪搥浼ゅ湥鐗╋細鐮村啺浼ゅ缈诲€?
                             if (HasRelic("Relic_FrostSorrow", attacker))
                                 breakDamage *= 2;
                             defenderRuntime.CurrentHp = Mathf.Max(0, defenderRuntime.CurrentHp - breakDamage);
                             defenderRuntime.RemoveEffect(GameEffect.Freeze);
-                            GameLogger.Log("Link", $"冰火联动: 灼烧→破冰 {breakDamage}伤害");
-                            // 仍然施加灼烧
+                            defender.FreezeTimer = 0f;
+                            GameLogger.Log("Link", $"鍐扮伀鑱斿姩: 鐏肩儳鈫掔牬鍐?{breakDamage}浼ゅ");
+                            // 浠嶇劧鏂藉姞鐏肩儳
                         }
                         defenderRuntime.ApplyBuff(StatusEffectFactory.CreateBurn(buff.effectParam1, buff.effectParam2));
                         break;
-                    case GameEffect.Freeze:
-                        // 攻击附加冰冻
-                        // 冰火联动：对灼烧单位施加冰冻 → 0.1秒后解除+20点伤害
-                        if (defenderRuntime.HasActiveEffect(GameEffect.Burn))
-                        {
-                            int breakDamage = 20;
-                            if (HasRelic("Relic_FrostSorrow", attacker))
-                                breakDamage *= 2;
-                            defenderRuntime.CurrentHp = Mathf.Max(0, defenderRuntime.CurrentHp - breakDamage);
-                            defenderRuntime.RemoveEffect(GameEffect.Burn);
-                            GameLogger.Log("Link", $"冰火联动: 冰冻→破灼 {breakDamage}伤害");
-                            // 冰冻仅持续0.1秒
-                            var shortFreeze = StatusEffectFactory.CreateFreeze(0.1f, 0);
-                            defenderRuntime.ApplyBuff(shortFreeze);
-                        }
-                        else
-                        {
-                            defenderRuntime.ApplyBuff(StatusEffectFactory.CreateFreeze(buff.effectParam1));
-                        }
-                        break;
                     case GameEffect.Slow:
-                        // 攻击附加减速
+                        // 鏀诲嚮闄勫姞鍑忛€?
                         defenderRuntime.ApplyBuff(StatusEffectFactory.CreateSlow(buff.effectParam1, buff.effectParam2));
                         break;
                     case GameEffect.HuntMark:
-                        // 攻击标记目标
+                        // 鏀诲嚮鏍囪鐩爣
                         defenderRuntime.ApplyBuff(StatusEffectFactory.CreateHuntMark(buff.effectParam1, buff.effectParam2));
                         break;
                 }
@@ -876,7 +961,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 计算单次攻击伤害
+        /// 璁＄畻鍗曟鏀诲嚮浼ゅ
         /// </summary>
         private int CalculateDamage(BattleFighter attacker, BattleFighter defender)
         {
@@ -890,11 +975,11 @@ namespace Combat
             float dmgPercentMod = 1f + defenderRuntime.DamageReceivePercentBuff;
             int dmgFlatMod = defenderRuntime.DamageReceiveFlatBuff;
 
-            // 缠绕+位移联动：被缠绕的敌人受到击退/击倒/击飞时+50%伤害（拉断伤害）
+            // 缂犵粫+浣嶇Щ鑱斿姩锛氳缂犵粫鐨勬晫浜哄彈鍒板嚮閫€/鍑诲€?鍑婚鏃?50%浼ゅ锛堟媺鏂激瀹筹級
             if (defenderRuntime.IsRooted && IsDisplacementAttack(attackerRuntime))
             {
                 dmgPercentMod *= 1.5f;
-                GameLogger.Log("Link", "缠绕+位移联动: +50%拉断伤害");
+                GameLogger.Log("Link", "缂犵粫+浣嶇Щ鑱斿姩: +50%鎷夋柇浼ゅ");
             }
 
             float finalF = rawDmg * dr * skillMult * dmgPercentMod + dmgFlatMod;
@@ -902,7 +987,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 判断攻击者是否携带位移型控制效果
+        /// 鍒ゆ柇鏀诲嚮鑰呮槸鍚︽惡甯︿綅绉诲瀷鎺у埗鏁堟灉
         /// </summary>
         private bool IsDisplacementAttack(UnitRuntimeAttributes attackerRuntime)
         {
@@ -918,81 +1003,81 @@ namespace Combat
             return false;
         }
 
-        // ── 击退系统 ──
+        // 鈹€鈹€ 鍑婚€€绯荤粺 鈹€鈹€
 
-        private const float KnockbackDistance = 1.5f;   // 击退距离（米）
-        private const float KnockbackChance = 0.05f;    // 击退概率 15%
-        private const float MeleeRangeMax = 3.5f;        // 近战范围上限
+        private const float KnockbackDistance = 1.5f;   // 鍑婚€€璺濈锛堢背锛?
+        private const float KnockbackChance = 0.05f;    // 鍑婚€€姒傜巼 15%
+        private const float MeleeRangeMax = 3.5f;        // 杩戞垬鑼冨洿涓婇檺
 
-        private const float KnockbackSpeed = 12f;          // 初始击退速度（米/秒）
-        private const float KnockbackDeceleration = 20f;    // 减速度（米/秒²）
-        private const float KnockdownDuration = 1.0f;       // 倒地持续时间（秒）
+        private const float KnockbackSpeed = 12f;          // 鍒濆鍑婚€€閫熷害锛堢背/绉掞級
+        private const float KnockbackDeceleration = 20f;    // 鍑忛€熷害锛堢背/绉捖诧級
+        private const float KnockdownDuration = 1.0f;       // 鍊掑湴鎸佺画鏃堕棿锛堢锛?
 
         /// <summary>
-        /// 击退规则：在近战范围内每次命中都有15%概率施加一个带减速的推力
-        /// 远程单位进入近战范围（距离 ≤ 3.5m）同样遵循此规则
+        /// 鍑婚€€瑙勫垯锛氬湪杩戞垬鑼冨洿鍐呮瘡娆″懡涓兘鏈?5%姒傜巼鏂藉姞涓€涓甫鍑忛€熺殑鎺ㄥ姏
+        /// 杩滅▼鍗曚綅杩涘叆杩戞垬鑼冨洿锛堣窛绂?鈮?3.5m锛夊悓鏍烽伒寰瑙勫垯
         /// </summary>
         public static void ApplyMeleeKnockback(BattleFighter attacker, BattleFighter defender)
         {
             if (attacker == null || defender == null || !defender.IsAlive) return;
             if (attacker.Transform == null || defender.Transform == null) return;
-            // 正在倒地时不重复击退
+            // 姝ｅ湪鍊掑湴鏃朵笉閲嶅鍑婚€€
             if (defender.KnockdownTimer > 0f || defender.KnockbackRemaining > 0f) return;
 
-            // 确认在近战范围内
+            // 纭鍦ㄨ繎鎴樿寖鍥村唴
             float distance = Vector3.Distance(attacker.Transform.position, defender.Transform.position);
             if (distance > MeleeRangeMax) return;
 
-            // 15% 概率击退
+            // 15% 姒傜巼鍑婚€€
             if (UnityEngine.Random.value >= KnockbackChance) return;
 
-            // 击退方向：从攻击者指向防御者（远离攻击者）
+            // 鍑婚€€鏂瑰悜锛氫粠鏀诲嚮鑰呮寚鍚戦槻寰¤€咃紙杩滅鏀诲嚮鑰咃級
             Vector3 knockDir = (defender.Transform.position - attacker.Transform.position).normalized;
             if (knockDir.sqrMagnitude < 0.001f) knockDir = new Vector3(attacker.Transform.localScale.x > 0 ? 1 : -1, 0, 0);
-            knockDir.y = 0; // 只在水平方向击退
+            knockDir.y = 0; // 鍙湪姘村钩鏂瑰悜鍑婚€€
 
-            // 给一个初速度，由 TickKnockback 处理减速运动
+            // 缁欎竴涓垵閫熷害锛岀敱 TickKnockback 澶勭悊鍑忛€熻繍鍔?
             defender.KnockbackVelocity = knockDir * KnockbackSpeed;
             defender.KnockbackRemaining = KnockbackDistance;
 
-            GameLogger.Log("Combat", $"击退: {attacker.Name} 击退 {defender.Name}");
+            GameLogger.Log("Combat", $"鍑婚€€: {attacker.Name} 鍑婚€€ {defender.Name}");
         }
 
         /// <summary>
-        /// 处理击退位移：匀减速运动直到停下
+        /// 澶勭悊鍑婚€€浣嶇Щ锛氬寑鍑忛€熻繍鍔ㄧ洿鍒板仠涓?
         /// </summary>
         private void TickKnockback(BattleFighter fighter, float deltaTime)
         {
             if (fighter == null || fighter.Transform == null) return;
             if (fighter.KnockbackRemaining <= 0f) return;
 
-            // 记录击退方向（用于倒地）
+            // 璁板綍鍑婚€€鏂瑰悜锛堢敤浜庡€掑湴锛?
             Vector3 knockDir = fighter.KnockbackVelocity.normalized;
 
-            // 当前帧移动距离 = v₀t - ½at²，但不能超过剩余距离
+            // 褰撳墠甯хЩ鍔ㄨ窛绂?= v鈧€t - 陆at虏锛屼絾涓嶈兘瓒呰繃鍓╀綑璺濈
             float v0 = fighter.KnockbackVelocity.magnitude;
             float moveDist = v0 * deltaTime - 0.5f * KnockbackDeceleration * deltaTime * deltaTime;
             moveDist = Mathf.Max(0f, moveDist);
 
             if (moveDist >= fighter.KnockbackRemaining || v0 <= 0f)
             {
-                // 到达终点，清除击退状态
+                // 鍒拌揪缁堢偣锛屾竻闄ゅ嚮閫€鐘舵€?
                 fighter.Transform.position += knockDir * fighter.KnockbackRemaining;
                 fighter.KnockbackVelocity = Vector3.zero;
                 fighter.KnockbackRemaining = 0f;
 
-                // 触发倒地
+                // 瑙﹀彂鍊掑湴
                 fighter.KnockdownTimer = KnockdownDuration;
                 fighter.KnockdownDir = knockDir;
                 return;
             }
 
-            // 移动
+            // 绉诲姩
             Vector3 delta = knockDir * moveDist;
             fighter.Transform.position += delta;
             fighter.KnockbackRemaining -= moveDist;
 
-            // 更新速度：v = v₀ - at
+            // 鏇存柊閫熷害锛歷 = v鈧€ - at
             float newSpeed = Mathf.Max(0f, v0 - KnockbackDeceleration * deltaTime);
             fighter.KnockbackVelocity = knockDir * newSpeed;
         }
@@ -1007,42 +1092,47 @@ namespace Combat
             }
         }
 
-        // ── 倒地系统 ──
+        // 鈹€鈹€ 鍊掑湴绯荤粺 鈹€鈹€
 
         /// <summary>
-        /// 处理倒地：角色向后倒下（X轴旋转），1秒后恢复站立
+        /// 澶勭悊鍊掑湴锛氳鑹插悜鍚庡€掍笅锛圶杞存棆杞級锛?绉掑悗鎭㈠绔欑珛
         /// </summary>
         private void TickKnockdown(BattleFighter fighter, float deltaTime)
         {
             if (fighter == null || fighter.Transform == null) return;
 
+            if (!IsFrozen(fighter))
+            {
+                ClearFrozenVisual(fighter);
+            }
+
             fighter.KnockdownTimer -= deltaTime;
 
             if (fighter.KnockdownTimer <= 0f)
             {
-                // 恢复站立：旋转回直立
+                // 鎭㈠绔欑珛锛氭棆杞洖鐩寸珛
                 fighter.Transform.localEulerAngles = Vector3.zero;
                 fighter.KnockdownDir = Vector3.zero;
                 return;
             }
 
-            // 倒地动画：向后倒下（绕X轴旋转），用 easing 模拟倒下→贴地
-            float progress = 1f - (fighter.KnockdownTimer / KnockdownDuration); // 0→1
-            // 前30%时间快速倒下，后70%保持贴地
+            // 鍊掑湴鍔ㄧ敾锛氬悜鍚庡€掍笅锛堢粫X杞存棆杞級锛岀敤 easing 妯℃嫙鍊掍笅鈫掕创鍦?
+            float progress = 1f - (fighter.KnockdownTimer / KnockdownDuration); // 0鈫?
+            // 鍓?0%鏃堕棿蹇€熷€掍笅锛屽悗70%淇濇寔璐村湴
             float leanAngle;
             if (progress < 0.3f)
             {
-                // 倒下阶段：加速后仰
+                // 鍊掍笅闃舵锛氬姞閫熷悗浠?
                 float t = progress / 0.3f;
-                leanAngle = -90f * (t * t); // 二次缓出，向后倒90度
+                leanAngle = -90f * (t * t); // 浜屾缂撳嚭锛屽悜鍚庡€?0搴?
             }
             else
             {
-                // 贴地阶段：保持平躺
+                // 璐村湴闃舵锛氫繚鎸佸钩韬?
                 leanAngle = -90f;
             }
 
-            // 倒地方向：沿击退方向向后倒
+            // 鍊掑湴鏂瑰悜锛氭部鍑婚€€鏂瑰悜鍚戝悗鍊?
             float sign = fighter.KnockdownDir.x >= 0 ? 1f : -1f;
             fighter.Transform.localEulerAngles = new Vector3(0f, 0f, leanAngle * sign);
         }
@@ -1058,7 +1148,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 检查玩家是否拥有指定圣物
+        /// 妫€鏌ョ帺瀹舵槸鍚︽嫢鏈夋寚瀹氬湥鐗?
         /// </summary>
         private static bool HasRelic(string relicId, BattleFighter fighter)
         {
@@ -1076,7 +1166,7 @@ namespace Combat
         private float GetMoveSpeed(BattleFighter fighter)
         {
             if (fighter?.RuntimeAttributes == null) return 2.2f;
-            // 缠绕/眩晕/冰冻/击倒/击飞 时无法移动
+            // 缂犵粫/鐪╂檿/鍐板喕/鍑诲€?鍑婚 鏃舵棤娉曠Щ鍔?
             if (fighter.RuntimeAttributes.IsRooted || fighter.RuntimeAttributes.IsStunned)
                 return 0f;
             return Mathf.Max(0.001f, fighter.RuntimeAttributes.CorrectedMoveSpeed);
@@ -1087,6 +1177,22 @@ namespace Combat
             return fighter?.RuntimeAttributes != null
                 ? Mathf.Max(0.1f, fighter.RuntimeAttributes.AttackRange)
                 : 1.0f;
+        }
+
+        private bool IsAllyTargetSupport(BattleFighter fighter)
+        {
+            if (fighter == null || fighter.FighterId <= 0)
+            {
+                return false;
+            }
+
+            FighterConfig config = TribeConfigLoader.Instance?.GetFighterConfig(fighter.FighterId);
+            return config != null && config.targetPriority == "nearest_ally";
+        }
+
+        private static bool IsSameCamp(BattleFighter a, BattleFighter b)
+        {
+            return a != null && b != null && a.Camp == b.Camp;
         }
 
         public void StartDeath(BattleFighter fighter)
@@ -1104,13 +1210,13 @@ namespace Combat
             fighter.PendingTarget = null;
             fighter.DeathTimer = Mathf.Max(0.1f, _config.DeathDuration);
 
-            // 触发被动技能：死亡
+            // 瑙﹀彂琚姩鎶€鑳斤細姝讳骸
             _passiveSkillSystem?.OnDeath(fighter);
 
-            // 触发死亡者的 OnDeath 回调
+            // 瑙﹀彂姝讳骸鑰呯殑 OnDeath 鍥炶皟
             fighter.RuntimeAttributes?.TriggerDeathEffects();
 
-            // 触发击杀回调 + 被动技能：击杀
+            // 瑙﹀彂鍑绘潃鍥炶皟 + 琚姩鎶€鑳斤細鍑绘潃
             if (!IsPlayerFighter(fighter))
             {
                 for (int i = 0; i < _playerFighters.Length; i++)
@@ -1124,7 +1230,7 @@ namespace Combat
                 }
             }
 
-            // 记录尸体
+            // 璁板綍灏镐綋
             bool isPlayerUnit = IsPlayerFighter(fighter);
             Vector3 deathPos = fighter.Transform != null ? fighter.Transform.position : Vector3.zero;
             _corpseManager?.AddCorpse(fighter, deathPos, isPlayerUnit);
@@ -1139,12 +1245,12 @@ namespace Combat
 
             fighter.Avatar?.PlayDeath();
 
-            // 触发特效奇物（击杀方为玩家时）
+            // 瑙﹀彂鐗规晥濂囩墿锛堝嚮鏉€鏂逛负鐜╁鏃讹級
             TriggerArtifactOnDeath(fighter);
         }
 
         /// <summary>
-        /// 触发特效奇物：击杀时效果
+        /// 瑙﹀彂鐗规晥濂囩墿锛氬嚮鏉€鏃舵晥鏋?
         /// </summary>
         private void TriggerArtifactOnDeath(BattleFighter deadFighter)
         {
@@ -1156,7 +1262,7 @@ namespace Combat
             bool isEnemyDead = !IsPlayerFighter(deadFighter);
             if (!isEnemyDead) return;
 
-            // 读取 artifact_config 的 subType 信息
+            // 璇诲彇 artifact_config 鐨?subType 淇℃伅
             var artifactSubTypes = GetArtifactSubTypes(equipments);
 
             foreach (var (subType, value) in artifactSubTypes)
@@ -1171,21 +1277,21 @@ namespace Combat
                                 int heal = Mathf.RoundToInt(killer.RuntimeAttributes.MaxHp * value);
                                 killer.RuntimeAttributes.CurrentHp = Mathf.Min(
                                     killer.RuntimeAttributes.MaxHp, killer.CurrentHp + heal);
-                                GameLogger.Log("Artifact", $"猫九命触发: 击杀回血{heal}");
+                                GameLogger.Log("Artifact", $"鐚節鍛借Е鍙? 鍑绘潃鍥炶{heal}");
                             }
                             break;
                         }
                     case "KillShield":
                         {
-                            // 为全体队友添加护盾（简化：增加减伤百分比）
+                            // 涓哄叏浣撻槦鍙嬫坊鍔犳姢鐩撅紙绠€鍖栵細澧炲姞鍑忎激鐧惧垎姣旓級
                             if (_playerFighters != null)
                             {
                                 foreach (var ally in _playerFighters)
                                 {
                                     if (ally != null && ally.IsAlive && ally.RuntimeAttributes != null)
                                     {
-                                        ally.RuntimeAttributes.DamageReceivePercentBuff -= value / 1000f; // value=200→减伤20%
-                                        GameLogger.Log("Artifact", $"猫守护触发: 全体护盾");
+                                        ally.RuntimeAttributes.DamageReceivePercentBuff -= value / 1000f; // value=200鈫掑噺浼?0%
+                                        GameLogger.Log("Artifact", $"鐚畧鎶よЕ鍙? 鍏ㄤ綋鎶ょ浘");
                                     }
                                 }
                             }
@@ -1196,7 +1302,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 每帧检查特效奇物：DamageReduce 和 LowHpBonus
+        /// 姣忓抚妫€鏌ョ壒鏁堝鐗╋細DamageReduce 鍜?LowHpBonus
         /// </summary>
         private void TickArtifactEffects()
         {
@@ -1221,14 +1327,14 @@ namespace Combat
             {
                 if (f == null || !f.IsAlive || f.RuntimeAttributes == null) continue;
 
-                // DamageReduce: 受到伤害降低
+                // DamageReduce: 鍙楀埌浼ゅ闄嶄綆
                 if (damageReducePercent > 0)
                 {
                     f.RuntimeAttributes.DamageReceivePercentBuff = Mathf.Min(
                         f.RuntimeAttributes.DamageReceivePercentBuff, -damageReducePercent);
                 }
 
-                // LowHpBonus: HP<30%时攻击力+
+                // LowHpBonus: HP<30%鏃舵敾鍑诲姏+
                 float hpPercent = f.RuntimeAttributes.MaxHp > 0 ?
                     (float)f.CurrentHp / f.RuntimeAttributes.MaxHp : 1f;
                 if (lowHpBonusPercent > 0 && hpPercent < 0.3f)
@@ -1240,7 +1346,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 从装备列表中提取特效奇物的 subType 和 value
+        /// 浠庤澶囧垪琛ㄤ腑鎻愬彇鐗规晥濂囩墿鐨?subType 鍜?value
         /// </summary>
         private List<(string subType, float value)> GetArtifactSubTypes(List<Camp.EquipmentRecord> equipments)
         {
@@ -1263,7 +1369,7 @@ namespace Combat
 
         private BattleFighter FindKiller(BattleFighter deadFighter)
         {
-            // 简化：返回存活的第一个玩家单位
+            // 绠€鍖栵細杩斿洖瀛樻椿鐨勭涓€涓帺瀹跺崟浣?
             if (_playerFighters == null) return null;
             foreach (var f in _playerFighters)
             {
@@ -1340,7 +1446,7 @@ namespace Combat
         private static bool _hitEffectSpriteLoaded;
 
         /// <summary>
-        /// 更新受击火花定时器
+        /// 鏇存柊鍙楀嚮鐏姳瀹氭椂鍣?
         /// </summary>
         private static void UpdateHitEffects(float deltaTime)
         {
@@ -1349,7 +1455,7 @@ namespace Combat
             List<BattleFighter> toRemove = null;
             foreach (var kv in _hitEffectTimers)
             {
-                // fighter 已销毁，直接清理
+                // fighter 宸查攢姣侊紝鐩存帴娓呯悊
                 if (kv.Key.Transform == null)
                 {
                     if (toRemove == null) toRemove = new List<BattleFighter>();
@@ -1373,7 +1479,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 清理所有受击火花效果（战斗结束时调用）
+        /// 娓呯悊鎵€鏈夊彈鍑荤伀鑺辨晥鏋滐紙鎴樻枟缁撴潫鏃惰皟鐢級
         /// </summary>
         public static void ClearAllHitEffects()
         {
@@ -1386,13 +1492,13 @@ namespace Combat
         }
 
         /// <summary>
-        /// 在目标位置显示受击火花效果
+        /// 鍦ㄧ洰鏍囦綅缃樉绀哄彈鍑荤伀鑺辨晥鏋?
         /// </summary>
         public static void ShowHitEffect(BattleFighter target)
         {
             if (target?.Transform == null || target.HitEffect == null) return;
 
-            // 加载火花图片（只加载一次）
+            // 鍔犺浇鐏姳鍥剧墖锛堝彧鍔犺浇涓€娆★級
             if (!_hitEffectSpriteLoaded)
             {
                 _hitEffectSpriteLoaded = true;
@@ -1403,7 +1509,7 @@ namespace Combat
 
             if (_hitEffectSprite == null) return;
 
-            // 设置图片并显示
+            // 璁剧疆鍥剧墖骞舵樉绀?
             var sr = target.HitEffect.GetComponent<SpriteRenderer>();
             if (sr != null) sr.sprite = _hitEffectSprite;
 

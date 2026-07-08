@@ -109,8 +109,20 @@ public class DataManager : MonoBehaviour
         _playerData.catFood = 1000; // Initial cat food
         _playerData.shopRefreshCount = 0;
         _playerData.lastShopRound = 0;
+        _playerData.consumables = new System.Collections.Generic.List<ConsumableItem>();
         _playerData.runChoices = new System.Collections.Generic.List<GameChoice>();
         _playerData.runEquipments = new System.Collections.Generic.List<EquipmentRecord>();
+
+        for (int i = 0; i < 10; i++)
+        {
+            _playerData.consumables.Add(new ConsumableItem
+            {
+                id = 100000 + i,
+                name = "冰冻陷阱",
+                effectType = (int)ConsumableEffectType.FreezeTrap,
+                value = 3f
+            });
+        }
 
         SavePlayerData();
         Debug.Log("[DataManager] New player data created");

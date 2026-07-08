@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using Camp;
 using Combat.Effects;
@@ -7,9 +7,9 @@ using Combat.Fighter;
 namespace Combat
 {
     /// <summary>
-    /// 被动技能系统 — 管理17个兵种的原版/强化版被动技能
-    /// 设计参考：正式文档/401_单位_兵种设计.md §6
-    /// 技能触发时机：OnBattleStart / OnTick / OnAttackHit / OnKill / OnDeath
+    /// 琚姩鎶€鑳界郴缁?鈥?绠＄悊17涓叺绉嶇殑鍘熺増/寮哄寲鐗堣鍔ㄦ妧鑳?
+    /// 璁捐鍙傝€冿細姝ｅ紡鏂囨。/401_鍗曚綅_鍏电璁捐.md 搂6
+    /// 鎶€鑳借Е鍙戞椂鏈猴細OnBattleStart / OnTick / OnAttackHit / OnKill / OnDeath
     /// </summary>
     public class PassiveSkillSystem
     {
@@ -26,7 +26,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 初始化所有单位的被动技能
+        /// 鍒濆鍖栨墍鏈夊崟浣嶇殑琚姩鎶€鑳?
         /// </summary>
         public void InitializeSkills()
         {
@@ -52,10 +52,10 @@ namespace Combat
             }
         }
 
-        // ── 触发入口 ──
+        // 鈹€鈹€ 瑙﹀彂鍏ュ彛 鈹€鈹€
 
         /// <summary>
-        /// 战斗开始时触发
+        /// 鎴樻枟寮€濮嬫椂瑙﹀彂
         /// </summary>
         public void OnBattleStart(BattleFighter fighter)
         {
@@ -64,7 +64,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 每帧触发
+        /// 姣忓抚瑙﹀彂
         /// </summary>
         public void OnTick(BattleFighter fighter, float deltaTime)
         {
@@ -74,7 +74,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 攻击出手时触发（分裂等在出手时判定概率的效果）
+        /// 鏀诲嚮鍑烘墜鏃惰Е鍙戯紙鍒嗚绛夊湪鍑烘墜鏃跺垽瀹氭鐜囩殑鏁堟灉锛?
         /// </summary>
         public void OnAttackLaunch(BattleFighter attacker, BattleFighter target)
         {
@@ -83,7 +83,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 攻击命中时触发（弹射、状态效果等在命中时触发）
+        /// 鏀诲嚮鍛戒腑鏃惰Е鍙戯紙寮瑰皠銆佺姸鎬佹晥鏋滅瓑鍦ㄥ懡涓椂瑙﹀彂锛?
         /// </summary>
         public void OnAttackHit(BattleFighter attacker, BattleFighter target)
         {
@@ -93,7 +93,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 击杀敌人时触发
+        /// 鍑绘潃鏁屼汉鏃惰Е鍙?
         /// </summary>
         public void OnKill(BattleFighter killer, BattleFighter victim)
         {
@@ -102,7 +102,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 自身死亡时触发
+        /// 鑷韩姝讳骸鏃惰Е鍙?
         /// </summary>
         public void OnDeath(BattleFighter dying)
         {
@@ -110,14 +110,14 @@ namespace Combat
             ProcessSkill(dying, SkillTrigger.OnDeath, null, 0f);
         }
 
-        // ── 技能分发 ──
+        // 鈹€鈹€ 鎶€鑳藉垎鍙?鈹€鈹€
 
         private enum SkillTrigger
         {
             OnBattleStart,
             OnTick,
-            OnAttackLaunch,   // 出手时（分裂等）
-            OnAttackHit,      // 命中时（弹射、状态效果等）
+            OnAttackLaunch,   // 鍑烘墜鏃讹紙鍒嗚绛夛級
+            OnAttackHit,      // 鍛戒腑鏃讹紙寮瑰皠銆佺姸鎬佹晥鏋滅瓑锛?
             OnKill,
             OnDeath
         }
@@ -128,7 +128,7 @@ namespace Combat
 
             switch (fighter.SkillId)
             {
-                // ── 普通品质 ──
+                // 鈹€鈹€ 鏅€氬搧璐?鈹€鈹€
                 case "jumao_original":
                 case "jumao_enhanced":
                     Skill_JuMao(fighter, trigger, target);
@@ -150,7 +150,7 @@ namespace Combat
                     Skill_NaiLuoMao(fighter, trigger, target);
                     break;
 
-                // ── 高级品质 ──
+                // 鈹€鈹€ 楂樼骇鍝佽川 鈹€鈹€
                 case "wudumao_original":
                 case "wudumao_enhanced":
                     Skill_WuDuMao(fighter, trigger, target);
@@ -180,7 +180,7 @@ namespace Combat
                     Skill_QiuBiTeMao(fighter, trigger, target, deltaTime);
                     break;
 
-                // ── 稀有品质 ──
+                // 鈹€鈹€ 绋€鏈夊搧璐?鈹€鈹€
                 case "qishimao_original":
                 case "qishimao_enhanced":
                     Skill_QiShiMao(fighter, trigger, target, deltaTime);
@@ -206,27 +206,27 @@ namespace Combat
 
         private bool IsEnhanced(BattleFighter f) => f.EnhanceLevel >= 1;
 
-        // ════════════════════════════════════════════
-        // 普通品质技能
-        // ════════════════════════════════════════════
+        // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+        // 鏅€氬搧璐ㄦ妧鑳?
+        // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
 
         /// <summary>
-        /// 橘猫：受到攻击时30%概率触发3秒霸体；强化版追加嘲讽3秒
+        /// 姗樼尗锛氬彈鍒版敾鍑绘椂30%姒傜巼瑙﹀彂3绉掗湼浣擄紱寮哄寲鐗堣拷鍔犲槻璁?绉?
         /// </summary>
         private void Skill_JuMao(BattleFighter f, SkillTrigger trigger, BattleFighter target)
         {
             if (trigger != SkillTrigger.OnAttackHit) return;
-            // 橘猫是被攻击方时触发，OnAttackHit是攻击方触发
-            // 需要在被攻击时调用——这里作为被攻击方的被动
-            // 实际应在BattleSimulation攻击命中防守方时调用
-            if (target == f) return; // 橘猫是target时不在此触发
+            // 姗樼尗鏄鏀诲嚮鏂规椂瑙﹀彂锛孫nAttackHit鏄敾鍑绘柟瑙﹀彂
+            // 闇€瑕佸湪琚敾鍑绘椂璋冪敤鈥斺€旇繖閲屼綔涓鸿鏀诲嚮鏂圭殑琚姩
+            // 瀹為檯搴斿湪BattleSimulation鏀诲嚮鍛戒腑闃插畧鏂规椂璋冪敤
+            if (target == f) return; // 姗樼尗鏄痶arget鏃朵笉鍦ㄦ瑙﹀彂
 
-            // 作为攻击方：无特殊效果
-            // 作为被攻击方：由BattleSimulation调用OnHit处理
+            // 浣滀负鏀诲嚮鏂癸細鏃犵壒娈婃晥鏋?
+            // 浣滀负琚敾鍑绘柟锛氱敱BattleSimulation璋冪敤OnHit澶勭悊
         }
 
         /// <summary>
-        /// 橘猫被攻击时触发（由BattleSimulation调用）
+        /// 姗樼尗琚敾鍑绘椂瑙﹀彂锛堢敱BattleSimulation璋冪敤锛?
         /// </summary>
         public void OnJuMaoHit(BattleFighter defender)
         {
@@ -236,15 +236,15 @@ namespace Combat
                 defender.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateSuperArmor(3f));
                 if (IsEnhanced(defender))
                 {
-                    // 强化版：嘲讽最近敌人3秒
+                    // 寮哄寲鐗堬細鍢茶鏈€杩戞晫浜?绉?
                     defender.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateTaunt(3f));
                 }
-                GameLogger.Log("Skill", $"橘猫触发霸体 enhanced={IsEnhanced(defender)}");
+                GameLogger.Log("Skill", $"姗樼尗瑙﹀彂闇镐綋 enhanced={IsEnhanced(defender)}");
             }
         }
 
         /// <summary>
-        /// 苍蝇猫：攻击时20%/40%概率施加1层中毒
+        /// 鑻嶈潎鐚細鏀诲嚮鏃?0%/40%姒傜巼鏂藉姞1灞備腑姣?
         /// </summary>
         private void Skill_CangYingMao(BattleFighter f, SkillTrigger trigger, BattleFighter target)
         {
@@ -253,12 +253,12 @@ namespace Combat
             if (_rng.NextDouble() < chance)
             {
                 target.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreatePoison(1f, 2f, 3));
-                GameLogger.Log("Skill", $"苍蝇猫施毒 chance={chance}");
+                GameLogger.Log("Skill", $"鑻嶈潎鐚柦姣?chance={chance}");
             }
         }
 
         /// <summary>
-        /// 炸弹猫：死亡时爆炸，范围5m/10m，造成20点伤害+灼烧
+        /// 鐐稿脊鐚細姝讳骸鏃剁垎鐐革紝鑼冨洿5m/10m锛岄€犳垚20鐐逛激瀹?鐏肩儳
         /// </summary>
         private void Skill_ZhanDanMao(BattleFighter f, SkillTrigger trigger, BattleFighter target)
         {
@@ -275,7 +275,7 @@ namespace Combat
                     {
                         enemy.RuntimeAttributes.CurrentHp = Mathf.Max(0, enemy.CurrentHp - 20);
                         enemy.RuntimeAttributes.ApplyBuff(StatusEffectFactory.CreateBurn(5f, 3f));
-                        GameLogger.Log("Skill", $"炸弹猫爆炸命中 {enemy.Name} dist={dist:F1} hp={enemy.CurrentHp}");
+                        GameLogger.Log("Skill", $"鐐稿脊鐚垎鐐稿懡涓?{enemy.Name} dist={dist:F1} hp={enemy.CurrentHp}");
                         TryKill(enemy);
                     }
                 }
@@ -283,7 +283,7 @@ namespace Combat
         }
 
         /// <summary>
-        /// 长矛猫：攻击出手时30%概率分裂（向主目标旁边的其他敌人发射额外子弹）；强化版追加30%概率3秒100%攻速提升
+        /// 闀跨煕鐚細鏀诲嚮鍑烘墜鏃?0%姒傜巼鍒嗚锛堝悜涓荤洰鏍囨梺杈圭殑鍏朵粬鏁屼汉鍙戝皠棰濆瀛愬脊锛夛紱寮哄寲鐗堣拷鍔?0%姒傜巼3绉?00%鏀婚€熸彁鍗?
         /// </summary>
         private void Skill_ChangMaoMao(BattleFighter f, SkillTrigger trigger, BattleFighter target)
         {
@@ -291,7 +291,7 @@ namespace Combat
             float chance = 0.3f;
             if (_rng.NextDouble() < chance)
             {
-                // 分裂：找主目标旁边的其他敌人，每个发射一发额外子弹
+                // 鍒嗚锛氭壘涓荤洰鏍囨梺杈圭殑鍏朵粬鏁屼汉锛屾瘡涓彂灏勪竴鍙戦澶栧瓙寮?
                 var enemies = GetEnemies(f);
                 int splitDmg = Mathf.Max(1, f.RuntimeAttributes.Attack - target.RuntimeAttributes.Defense / 2);
                 int splitCount = 0;
@@ -299,74 +299,60 @@ namespace Combat
                 foreach (var enemy in enemies)
                 {
                     if (enemy == null || !enemy.IsAlive || enemy == target) continue;
-                    // 发射额外子弹打旁边的敌人
+                    // 鍙戝皠棰濆瀛愬脊鎵撴梺杈圭殑鏁屼汉
                     FireBullet(f, enemy, splitDmg);
                     splitCount++;
-                    GameLogger.Log("Skill", $"长矛猫分裂→发射子弹 target={enemy.Name} dmg={splitDmg}");
+                    GameLogger.Log("Skill", $"闀跨煕鐚垎瑁傗啋鍙戝皠瀛愬脊 target={enemy.Name} dmg={splitDmg}");
                 }
 
                 if (splitCount == 0)
                 {
-                    GameLogger.Log("Skill", $"长矛猫分裂触发但旁边无其他敌人");
+                    GameLogger.Log("Skill", "ChangMaoMao split triggered but no extra enemy");
                 }
                 else if (HasEnhancedYou235Alive(f) && _rng.NextDouble() < 0.5f)
                 {
-                    // 铀235强化版光环：其他猫触发分裂时，有概率额外弹射一次
+                    // 閾€235寮哄寲鐗堝厜鐜細鍏朵粬鐚Е鍙戝垎瑁傛椂锛屾湁姒傜巼棰濆寮瑰皠涓€娆?
                     foreach (var enemy in enemies)
                     {
                         if (enemy == null || !enemy.IsAlive || enemy == target) continue;
                         FireBullet(f, enemy, splitDmg);
-                        GameLogger.Log("Skill", $"铀235强化光环分裂→弹射 target={enemy.Name} dmg={splitDmg}");
+                        GameLogger.Log("Skill", $"閾€235寮哄寲鍏夌幆鍒嗚鈫掑脊灏?target={enemy.Name} dmg={splitDmg}");
                         break;
                     }
                 }
             }
             if (IsEnhanced(f) && _rng.NextDouble() < 0.3f)
             {
-                // 强化版：3秒100%攻速提升
+                // 寮哄寲鐗堬細3绉?00%鏀婚€熸彁鍗?
                 f.RuntimeAttributes.AttackSpeedPercentBuff += 1.0f;
                 f.RuntimeAttributes.Recalculate();
-                GameLogger.Log("Skill", "长矛猫强化版攻速提升");
+                GameLogger.Log("Skill", "ChangMaoMao enhanced attack speed up");
             }
         }
 
         /// <summary>
-        /// 奶爸猫：不攻击敌方，攻击为友方回复攻击力(6点)血量；强化版追加20%概率弹射
+        /// 濂剁埜鐚細涓嶆敾鍑绘晫鏂癸紝鏀诲嚮涓哄弸鏂瑰洖澶嶆敾鍑诲姏(6鐐?琛€閲忥紱寮哄寲鐗堣拷鍔?0%姒傜巼寮瑰皠
         /// </summary>
         private void Skill_NaiLuoMao(BattleFighter f, SkillTrigger trigger, BattleFighter target)
         {
             if (trigger != SkillTrigger.OnAttackHit) return;
-            // 奶爸猫的"攻击"实际是治疗——需要找到最需要治疗的友方
+            if (target == null || target == f || !target.IsAlive || target.Camp != f.Camp || target.RuntimeAttributes == null) return;
+
             var allies = GetAllies(f);
-            BattleFighter healTarget = null;
-            int lowestHpPercent = int.MaxValue;
-            foreach (var ally in allies)
-            {
-                if (ally == null || !ally.IsAlive || ally == f) continue;
-                int hpPercent = ally.RuntimeAttributes.MaxHp > 0 ?
-                    ally.CurrentHp * 100 / ally.RuntimeAttributes.MaxHp : 100;
-                if (hpPercent < lowestHpPercent)
-                {
-                    lowestHpPercent = hpPercent;
-                    healTarget = ally;
-                }
-            }
-            if (healTarget == null) return;
-
-            int healAmount = f.RuntimeAttributes.Attack;
-            healTarget.RuntimeAttributes.CurrentHp = Mathf.Min(
-                healTarget.RuntimeAttributes.MaxHp, healTarget.CurrentHp + healAmount);
+            int healAmount = Mathf.Max(1, f.RuntimeAttributes.Attack);
+            target.RuntimeAttributes.CurrentHp = Mathf.Min(
+                target.RuntimeAttributes.MaxHp, target.CurrentHp + healAmount);
             f.TotalHealingDone += healAmount;
-            GameLogger.Log("Skill", $"奶爸猫治疗 {healTarget.Name} +{healAmount}HP");
+            RefreshHud(target);
+            GameLogger.Log("Skill", $"????????{target.Name} +{healAmount}HP");
 
-            // 强化版：20%概率弹射至血量最低的另一个友方
             if (IsEnhanced(f) && _rng.NextDouble() < 0.2f)
             {
                 BattleFighter bounceTarget = null;
-                lowestHpPercent = int.MaxValue;
+                int lowestHpPercent = int.MaxValue;
                 foreach (var ally in allies)
                 {
-                    if (ally == null || !ally.IsAlive || ally == f || ally == healTarget) continue;
+                    if (ally == null || !ally.IsAlive || ally == f || ally == target || ally.RuntimeAttributes == null) continue;
                     int hpPercent = ally.RuntimeAttributes.MaxHp > 0 ?
                         ally.CurrentHp * 100 / ally.RuntimeAttributes.MaxHp : 100;
                     if (hpPercent < lowestHpPercent)
@@ -375,32 +361,33 @@ namespace Combat
                         bounceTarget = ally;
                     }
                 }
+
                 if (bounceTarget != null)
                 {
                     bounceTarget.RuntimeAttributes.CurrentHp = Mathf.Min(
                         bounceTarget.RuntimeAttributes.MaxHp, bounceTarget.CurrentHp + healAmount);
                     f.TotalHealingDone += healAmount;
-                    GameLogger.Log("Skill", $"奶爸猫弹射治疗 {bounceTarget.Name} +{healAmount}HP");
+                    RefreshHud(bounceTarget);
+                    GameLogger.Log("Skill", $"???????????{bounceTarget.Name} +{healAmount}HP");
                 }
             }
         }
 
-        // ════════════════════════════════════════════
-        // 高级品质技能
-        // ════════════════════════════════════════════
+        // ??????????????????????????????????????????????????????????????????
+        // ??????????
+        // ??????????????????????????????????????????????????????????????????
 
         /// <summary>
-        /// 巫毒猫：攻击10%概率施毒；存在其他中毒敌方时50%/100%概率弹射1/2次
+        /// ?????????10%?????????????????????50%/100%??????1/2??
         /// </summary>
         private void Skill_WuDuMao(BattleFighter f, SkillTrigger trigger, BattleFighter target)
         {
             if (trigger != SkillTrigger.OnAttackHit || target == null) return;
-            // 10%概率施毒
             if (_rng.NextDouble() < 0.1f)
             {
                 target.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreatePoison(1f, 2f, 3));
             }
-            // 弹射：检查场上其他中毒敌方
+
             var enemies = GetEnemies(f);
             var poisonedEnemies = new List<BattleFighter>();
             foreach (var enemy in enemies)
@@ -409,7 +396,7 @@ namespace Combat
                 if (enemy.RuntimeAttributes?.HasActiveEffect(GameEffect.Poison) == true)
                     poisonedEnemies.Add(enemy);
             }
-            // 弹射：从当前目标位置发射新子弹打其他中毒敌人
+
             if (poisonedEnemies.Count > 0 && target.Transform != null)
             {
                 int bounceCount = IsEnhanced(f) ? 2 : 1;
@@ -424,24 +411,19 @@ namespace Combat
                         var bounceTarget = poisonedEnemies[idx];
                         poisonedEnemies.RemoveAt(idx);
 
-                        // 从命中位置发射弹射子弹
-                        int dmg = Mathf.Max(1, f.RuntimeAttributes.Attack / 2);
-                        var go = new GameObject("BounceBullet");
-                        go.transform.position = hitPos;
-                        var bullet = go.AddComponent<Combat.Fighter.BattleBullet>();
-                        bullet.Setup(f, bounceTarget, dmg, false, null);
+                        int dmg = CalculateSkillDamage(f, bounceTarget);
+                        FireBulletFromPosition(f, bounceTarget, dmg, hitPos);
 
-                        // 弹射有概率施毒
                         if (_rng.NextDouble() < 0.1f)
                             bounceTarget.RuntimeAttributes.ApplyBuff(StatusEffectFactory.CreatePoison(1f, 2f, 3));
-                        GameLogger.Log("Skill", $"巫毒猫弹射→从命中点发射子弹 target={bounceTarget.Name} dmg={dmg}");
+                        GameLogger.Log("Skill", $"????????????????????? target={bounceTarget.Name} dmg={dmg}");
                     }
                 }
             }
         }
 
         /// <summary>
-        /// 森林猫：每10秒缠绕当前目标/强化版追加1名随机敌人，2秒
+        /// 妫灄鐚細姣?0绉掔紶缁曞綋鍓嶇洰鏍?寮哄寲鐗堣拷鍔?鍚嶉殢鏈烘晫浜猴紝2绉?
         /// </summary>
         private void Skill_SenLinMao(BattleFighter f, SkillTrigger trigger, BattleFighter target, float dt)
         {
@@ -453,8 +435,9 @@ namespace Combat
                 if (currentTarget != null && currentTarget.IsAlive)
                 {
                     currentTarget.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateRoot(2f));
-                    GameLogger.Log("Skill", $"森林猫缠绕→{currentTarget.Name}");
+                    GameLogger.Log("Skill", $"SenLinMao root -> {currentTarget.Name}");
                 }
+
                 if (IsEnhanced(f))
                 {
                     var enemies = GetEnemies(f);
@@ -464,15 +447,16 @@ namespace Combat
                         if (randomEnemy != null && randomEnemy.IsAlive && randomEnemy != currentTarget)
                         {
                             randomEnemy.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateRoot(2f));
-                            GameLogger.Log("Skill", $"森林猫强化缠绕→{randomEnemy.Name}");
+                            GameLogger.Log("Skill", $"SenLinMao enhanced root -> {randomEnemy.Name}");
                         }
                     }
                 }
             }
         }
 
+
         /// <summary>
-        /// 便便猫：攻击时随机触发减速/沉默/嘲讽/增伤
+        /// 渚夸究鐚細鏀诲嚮鏃堕殢鏈鸿Е鍙戝噺閫?娌夐粯/鍢茶/澧炰激
         /// </summary>
         private void Skill_BianBianMao(BattleFighter f, SkillTrigger trigger, BattleFighter target)
         {
@@ -486,25 +470,25 @@ namespace Combat
             {
                 switch (effect)
                 {
-                    case 0: // 减速
+                    case 0: // 鍑忛€?
                         target.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateSlow(0.1f, duration));
                         break;
-                    case 1: // 沉默
+                    case 1: // 娌夐粯
                         target.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateSilence(duration));
                         break;
-                    case 2: // 嘲讽
+                    case 2: // 鍢茶
                         target.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateTaunt(duration));
                         break;
-                    case 3: // 敌方增伤（不利效果）
+                    case 3: // 鏁屾柟澧炰激锛堜笉鍒╂晥鏋滐級
                         target.RuntimeAttributes.DamageReceivePercentBuff += enhanced ? 0.2f : 0.1f;
                         break;
                 }
-                GameLogger.Log("Skill", $"便便猫触发效果{effect} chance={chance}");
+                GameLogger.Log("Skill", $"BianBianMao effect={effect} chance={chance}");
             }
         }
 
         /// <summary>
-        /// 震震猫：每第5次攻击击退/强化版击飞5m+倒地2秒
+        /// 闇囬渿鐚細姣忕5娆℃敾鍑诲嚮閫€/寮哄寲鐗堝嚮椋?m+鍊掑湴2绉?
         /// </summary>
         private void Skill_ZhenZhenMao(BattleFighter f, SkillTrigger trigger, BattleFighter target)
         {
@@ -514,17 +498,17 @@ namespace Combat
             if (IsEnhanced(f))
             {
                 target.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateKnockUp(2f));
-                GameLogger.Log("Skill", $"震震猫击飞→{target.Name}");
+                GameLogger.Log("Skill", $"闇囬渿鐚嚮椋炩啋{target.Name}");
             }
             else
             {
                 target.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateKnockBack(5f));
-                GameLogger.Log("Skill", $"震震猫击退→{target.Name}");
+                GameLogger.Log("Skill", $"ZhenZhenMao knockback -> {target.Name}");
             }
         }
 
         /// <summary>
-        /// 冰冰猫：每10秒冰冻当前目标/强化版追加攻击力最高敌人，2秒
+        /// 鍐板啺鐚細姣?0绉掑啺鍐诲綋鍓嶇洰鏍?寮哄寲鐗堣拷鍔犳敾鍑诲姏鏈€楂樻晫浜猴紝2绉?
         /// </summary>
         private void Skill_BingBingMao(BattleFighter f, SkillTrigger trigger, BattleFighter target, float dt)
         {
@@ -536,11 +520,11 @@ namespace Combat
                 if (currentTarget != null && currentTarget.IsAlive)
                 {
                     currentTarget.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateFreeze(2f, 10f));
-                    GameLogger.Log("Skill", $"冰冰猫冰冻→{currentTarget.Name}");
+                    GameLogger.Log("Skill", $"鍐板啺鐚啺鍐烩啋{currentTarget.Name}");
                 }
                 if (IsEnhanced(f))
                 {
-                    // 找攻击力最高的敌人
+                    // 鎵炬敾鍑诲姏鏈€楂樼殑鏁屼汉
                     var enemies = GetEnemies(f);
                     BattleFighter highestAtk = null;
                     int highestAttack = 0;
@@ -556,15 +540,15 @@ namespace Combat
                     if (highestAtk != null)
                     {
                         highestAtk.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateFreeze(2f, 10f));
-                        GameLogger.Log("Skill", $"冰冰猫强化冰冻→{highestAtk.Name}");
+                        GameLogger.Log("Skill", $"鍐板啺鐚己鍖栧啺鍐烩啋{highestAtk.Name}");
                     }
                 }
             }
         }
 
         /// <summary>
-        /// 火球猫：每10秒召唤火球攻击随机/血量最低敌人，50%弹射，施加灼烧
-        /// 强化版：智能索敌+击杀弹射
+        /// 鐏悆鐚細姣?0绉掑彫鍞ょ伀鐞冩敾鍑婚殢鏈?琛€閲忔渶浣庢晫浜猴紝50%寮瑰皠锛屾柦鍔犵伡鐑?
+        /// 寮哄寲鐗堬細鏅鸿兘绱㈡晫+鍑绘潃寮瑰皠
         /// </summary>
         private void Skill_HuoQiuMao(BattleFighter f, SkillTrigger trigger, BattleFighter target, float dt)
         {
@@ -578,7 +562,7 @@ namespace Combat
                 BattleFighter fireballTarget;
                 if (IsEnhanced(f))
                 {
-                    // 强化版：选血量最低
+                    // 寮哄寲鐗堬細閫夎閲忔渶浣?
                     fireballTarget = null;
                     int lowestHp = int.MaxValue;
                     foreach (var enemy in enemies)
@@ -593,7 +577,7 @@ namespace Combat
                 }
                 else
                 {
-                    // 原版：随机
+                    // 鍘熺増锛氶殢鏈?
                     var aliveEnemies = new List<BattleFighter>();
                     foreach (var enemy in enemies)
                     {
@@ -605,19 +589,19 @@ namespace Combat
 
                 if (fireballTarget != null)
                 {
-                    // 火球：发射子弹，附带灼烧，命中后50%概率弹射
+                    // 鐏悆锛氬彂灏勫瓙寮癸紝闄勫甫鐏肩儳锛屽懡涓悗50%姒傜巼寮瑰皠
                     int dmg = f.RuntimeAttributes.Attack;
                     bool bounceOnHit = _rng.NextDouble() < 0.5f;
                     bool killBounce = IsEnhanced(f) && _rng.NextDouble() < 0.5f;
                     var enemiesRef = enemies;
 
-                    // 先施加灼烧（子弹命中前预挂）
+                    // 鍏堟柦鍔犵伡鐑э紙瀛愬脊鍛戒腑鍓嶉鎸傦級
                     fireballTarget.RuntimeAttributes.ApplyBuff(StatusEffectFactory.CreateBurn(5f, 3f));
 
                     BattleSimulation.FireBulletWithBounce(f, fireballTarget, dmg,
                         (attacker, hitTarget, hitPos) =>
                         {
-                            // 命中弹射50%
+                            // 鍛戒腑寮瑰皠50%
                             if (bounceOnHit)
                             {
                                 FireBounceBullet(attacker, hitTarget, hitPos, enemiesRef, dmg / 2);
@@ -627,12 +611,12 @@ namespace Combat
                                     {
                                         if (enemy == null || !enemy.IsAlive || enemy == hitTarget) continue;
                                         FireBullet(attacker, enemy, Mathf.Max(1, dmg / 2));
-                                        GameLogger.Log("Skill", $"铀235强化光环弹射→分裂 target={enemy.Name} dmg={Mathf.Max(1, dmg / 2)}");
+                                        GameLogger.Log("Skill", $"閾€235寮哄寲鍏夌幆寮瑰皠鈫掑垎瑁?target={enemy.Name} dmg={Mathf.Max(1, dmg / 2)}");
                                         break;
                                     }
                                 }
                             }
-                            // 强化版击杀弹射50%
+                            // 寮哄寲鐗堝嚮鏉€寮瑰皠50%
                             if (killBounce && hitTarget.CurrentHp <= 0)
                             {
                                 FireBounceBullet(attacker, hitTarget, hitPos, enemiesRef, dmg / 2);
@@ -642,23 +626,23 @@ namespace Combat
                                     {
                                         if (enemy == null || !enemy.IsAlive || enemy == hitTarget) continue;
                                         FireBullet(attacker, enemy, Mathf.Max(1, dmg / 2));
-                                        GameLogger.Log("Skill", $"铀235强化光环弹射→分裂 target={enemy.Name} dmg={Mathf.Max(1, dmg / 2)}");
+                                        GameLogger.Log("Skill", $"閾€235寮哄寲鍏夌幆寮瑰皠鈫掑垎瑁?target={enemy.Name} dmg={Mathf.Max(1, dmg / 2)}");
                                         break;
                                     }
                                 }
                             }
                         });
-                    GameLogger.Log("Skill", $"火球猫火球→发射子弹 target={fireballTarget.Name} dmg={dmg} bounceOnHit={bounceOnHit}");
+                    GameLogger.Log("Skill", $"鐏悆鐚伀鐞冣啋鍙戝皠瀛愬脊 target={fireballTarget.Name} dmg={dmg} bounceOnHit={bounceOnHit}");
                 }
             }
         }
 
         /// <summary>
-        /// 弹射：从命中位置发射新子弹打另一个敌人
+        /// 寮瑰皠锛氫粠鍛戒腑浣嶇疆鍙戝皠鏂板瓙寮规墦鍙︿竴涓晫浜?
         /// </summary>
         private void FireBounceBullet(BattleFighter attacker, BattleFighter currentTarget, Vector3 hitPos, BattleFighter[] enemies, int bounceDmg)
         {
-            // 找另一个敌人
+            // 鎵惧彟涓€涓晫浜?
             BattleFighter bounceTarget = null;
             foreach (var enemy in enemies)
             {
@@ -668,19 +652,19 @@ namespace Combat
             }
             if (bounceTarget != null)
             {
-                // 弹射附带灼烧
+                // 寮瑰皠闄勫甫鐏肩儳
                 bounceTarget.RuntimeAttributes.ApplyBuff(StatusEffectFactory.CreateBurn(5f, 3f));
-                // 从命中位置创建子弹
+                // 浠庡懡涓綅缃垱寤哄瓙寮?
                 var go = new GameObject("BounceBullet");
                 go.transform.position = hitPos;
                 var bullet = go.AddComponent<Combat.Fighter.BattleBullet>();
                 bullet.Setup(attacker, bounceTarget, bounceDmg, false, null);
-                GameLogger.Log("Skill", $"弹射→从命中点发射子弹 target={bounceTarget.Name} dmg={bounceDmg}");
+                GameLogger.Log("Skill", $"寮瑰皠鈫掍粠鍛戒腑鐐瑰彂灏勫瓙寮?target={bounceTarget.Name} dmg={bounceDmg}");
             }
         }
 
         /// <summary>
-        /// 丘比特猫：每8秒连接血量最高和最低友方，平摊伤害和治疗，3秒/强化版5秒+治疗加成减伤
+        /// 涓樻瘮鐗圭尗锛氭瘡8绉掕繛鎺ヨ閲忔渶楂樺拰鏈€浣庡弸鏂癸紝骞虫憡浼ゅ鍜屾不鐤楋紝3绉?寮哄寲鐗?绉?娌荤枟鍔犳垚鍑忎激
         /// </summary>
         private void Skill_QiuBiTeMao(BattleFighter f, SkillTrigger trigger, BattleFighter target, float dt)
         {
@@ -704,22 +688,22 @@ namespace Combat
                     lowestHp.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateShareDamage(duration));
                     if (IsEnhanced(f))
                     {
-                        // 强化版：治疗+10%，伤害-10%
+                        // 寮哄寲鐗堬細娌荤枟+10%锛屼激瀹?10%
                         highestHp.RuntimeAttributes.DamageReceivePercentBuff -= 0.1f;
                         lowestHp.RuntimeAttributes.DamageReceivePercentBuff -= 0.1f;
                     }
-                    GameLogger.Log("Skill", $"丘比特猫连接 {highestHp.Name}↔{lowestHp.Name} dur={duration}");
+                    GameLogger.Log("Skill", $"QiuBiTeMao link {highestHp.Name} <-> {lowestHp.Name} dur={duration}");
                 }
             }
         }
 
-        // ════════════════════════════════════════════
-        // 稀有品质技能
-        // ════════════════════════════════════════════
+        // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+        // 绋€鏈夊搧璐ㄦ妧鑳?
+        // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
 
         /// <summary>
-        /// 骑士猫：每10秒获得3秒霸体；有霸体友方时减伤20%
-        /// 强化版：所有霸体友军减伤20%
+        /// 楠戝＋鐚細姣?0绉掕幏寰?绉掗湼浣擄紱鏈夐湼浣撳弸鏂规椂鍑忎激20%
+        /// 寮哄寲鐗堬細鎵€鏈夐湼浣撳弸鍐涘噺浼?0%
         /// </summary>
         private void Skill_QiShiMao(BattleFighter f, SkillTrigger trigger, BattleFighter target, float dt)
         {
@@ -727,11 +711,11 @@ namespace Combat
             {
                 f.SkillTimer = 0f;
                 f.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateSuperArmor(3f));
-                GameLogger.Log("Skill", "骑士猫获得霸体3秒");
+                GameLogger.Log("Skill", "QiShiMao gained super armor");
             }
             if (trigger == SkillTrigger.OnTick)
             {
-                // 检查场上是否有霸体友方（含自己）
+                // 妫€鏌ュ満涓婃槸鍚︽湁闇镐綋鍙嬫柟锛堝惈鑷繁锛?
                 var allies = GetAllies(f);
                 bool hasArmoredAlly = false;
                 foreach (var ally in allies)
@@ -741,22 +725,22 @@ namespace Combat
                         hasArmoredAlly = true;
                         if (IsEnhanced(f))
                         {
-                            // 强化版：所有霸体友军减伤20%
+                            // 寮哄寲鐗堬細鎵€鏈夐湼浣撳弸鍐涘噺浼?0%
                             ally.RuntimeAttributes.DamageReceivePercentBuff = Mathf.Max(ally.RuntimeAttributes.DamageReceivePercentBuff, -0.2f);
                         }
                     }
                 }
                 if (hasArmoredAlly && !IsEnhanced(f))
                 {
-                    // 原版：仅自身减伤20%
+                    // 鍘熺増锛氫粎鑷韩鍑忎激20%
                     f.RuntimeAttributes.DamageReceivePercentBuff = Mathf.Max(f.RuntimeAttributes.DamageReceivePercentBuff, -0.2f);
                 }
             }
         }
 
         /// <summary>
-        /// 精灵猫：场上存在被缠绕的敌人时攻速+10%伤害+10%
-        /// 强化版：每存在1名被缠绕敌人叠1层，无限叠加
+        /// 绮剧伒鐚細鍦轰笂瀛樺湪琚紶缁曠殑鏁屼汉鏃舵敾閫?10%浼ゅ+10%
+        /// 寮哄寲鐗堬細姣忓瓨鍦?鍚嶈缂犵粫鏁屼汉鍙?灞傦紝鏃犻檺鍙犲姞
         /// </summary>
         private void Skill_JingLingMao(BattleFighter f, SkillTrigger trigger, BattleFighter target)
         {
@@ -773,17 +757,17 @@ namespace Combat
                 float atkBonus, spdBonus;
                 if (IsEnhanced(f))
                 {
-                    // 强化版：每名被缠绕敌人 +10%，无限叠加
+                    // 寮哄寲鐗堬細姣忓悕琚紶缁曟晫浜?+10%锛屾棤闄愬彔鍔?
                     atkBonus = rootedCount * 0.1f;
                     spdBonus = rootedCount * 0.1f;
                 }
                 else
                 {
-                    // 原版：固定 +10%
+                    // 鍘熺増锛氬浐瀹?+10%
                     atkBonus = 0.1f;
                     spdBonus = 0.1f;
                 }
-                // 直接加到百分比buff（每帧重设，不会累积）
+                // 鐩存帴鍔犲埌鐧惧垎姣攂uff锛堟瘡甯ч噸璁撅紝涓嶄細绱Н锛?
                 f.RuntimeAttributes.AttackPercentBuff = atkBonus;
                 f.RuntimeAttributes.AttackSpeedPercentBuff = spdBonus;
                 f.RuntimeAttributes.Recalculate();
@@ -791,8 +775,8 @@ namespace Combat
         }
 
         /// <summary>
-        /// 炫光猫：HP<50%时眩晕周围3m敌人2秒（10秒CD）
-        /// 强化版：全场被减速/嘲讽/缠绕的敌人眩晕2秒
+        /// 鐐厜鐚細HP<50%鏃剁湬鏅曞懆鍥?m鏁屼汉2绉掞紙10绉扖D锛?
+        /// 寮哄寲鐗堬細鍏ㄥ満琚噺閫?鍢茶/缂犵粫鐨勬晫浜虹湬鏅?绉?
         /// </summary>
         private void Skill_XuanGuangMao(BattleFighter f, SkillTrigger trigger, BattleFighter target)
         {
@@ -800,13 +784,13 @@ namespace Combat
             float hpPercent = f.RuntimeAttributes.MaxHp > 0 ?
                 (float)f.CurrentHp / f.RuntimeAttributes.MaxHp : 1f;
             if (hpPercent >= 0.5f) return;
-            if (f.SkillTimer < 10f) return; // 10秒CD
+            if (f.SkillTimer < 10f) return; // 10绉扖D
             f.SkillTimer = 0f;
 
             var enemies = GetEnemies(f);
             if (IsEnhanced(f))
             {
-                // 强化版：全场被减速/嘲讽/缠绕的敌人眩晕
+                // 寮哄寲鐗堬細鍏ㄥ満琚噺閫?鍢茶/缂犵粫鐨勬晫浜虹湬鏅?
                 foreach (var enemy in enemies)
                 {
                     if (enemy == null || !enemy.IsAlive) continue;
@@ -817,13 +801,13 @@ namespace Combat
                         attrs.HasActiveEffect(GameEffect.Root))
                     {
                         attrs.ApplyBuff(StatusEffectFactory.CreateStun(2f));
-                        GameLogger.Log("Skill", $"炫光猫强化眩晕→{enemy.Name}");
+                        GameLogger.Log("Skill", $"鐐厜鐚己鍖栫湬鏅曗啋{enemy.Name}");
                     }
                 }
             }
             else
             {
-                // 原版：周围3m眩晕
+                // 鍘熺増锛氬懆鍥?m鐪╂檿
                 foreach (var enemy in enemies)
                 {
                     if (enemy == null || !enemy.IsAlive) continue;
@@ -833,7 +817,7 @@ namespace Combat
                         if (dist <= 3f)
                         {
                             enemy.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateStun(2f));
-                            GameLogger.Log("Skill", $"炫光猫眩晕→{enemy.Name} dist={dist:F1}");
+                            GameLogger.Log("Skill", $"鐐厜鐚湬鏅曗啋{enemy.Name} dist={dist:F1}");
                         }
                     }
                 }
@@ -841,24 +825,24 @@ namespace Combat
         }
 
         /// <summary>
-        /// 铀235猫：死亡时裂变为2个属性减半的分身（HP=1不再裂变）
-        /// 强化版：场上有铀235猫时，分裂↔弹射交叉触发50%
+        /// 閾€235鐚細姝讳骸鏃惰鍙樹负2涓睘鎬у噺鍗婄殑鍒嗚韩锛圚P=1涓嶅啀瑁傚彉锛?
+        /// 寮哄寲鐗堬細鍦轰笂鏈夐搥235鐚椂锛屽垎瑁傗啍寮瑰皠浜ゅ弶瑙﹀彂50%
         /// </summary>
         private void Skill_You235Mao(BattleFighter f, SkillTrigger trigger, BattleFighter target)
         {
             if (trigger == SkillTrigger.OnDeath)
             {
-                // 裂变：HP<=1时不裂变
+                // 瑁傚彉锛欻P<=1鏃朵笉瑁傚彉
                 if (f.StaticAttributes.MaxHp <= 1) return;
-                // 简化：召唤2个分身（由SummonManager处理）
+                // 绠€鍖栵細鍙敜2涓垎韬紙鐢盨ummonManager澶勭悊锛?
                 _simulation?.SummonManager?.SummonClone(f, 2);
-                GameLogger.Log("Skill", $"铀235猫裂变 hp={f.StaticAttributes.MaxHp}");
+                GameLogger.Log("Skill", $"閾€235鐚鍙?hp={f.StaticAttributes.MaxHp}");
             }
         }
 
         /// <summary>
-        /// 缝合猫：每5秒召唤1个骷髅猫；每有1只己方猫死亡召唤1个骷髅猫
-        /// 强化版：骷髅猫复制场上随机1个存活友方猫的技能
+        /// 缂濆悎鐚細姣?绉掑彫鍞?涓楂呯尗锛涙瘡鏈?鍙繁鏂圭尗姝讳骸鍙敜1涓楂呯尗
+        /// 寮哄寲鐗堬細楠烽珔鐚鍒跺満涓婇殢鏈?涓瓨娲诲弸鏂圭尗鐨勬妧鑳?
         /// </summary>
         private void Skill_FengHeTao(BattleFighter f, SkillTrigger trigger, BattleFighter target, float dt)
         {
@@ -866,32 +850,77 @@ namespace Combat
             {
                 f.SkillTimer = 0f;
                 _simulation?.SummonManager?.SummonSkeleton(f);
-                GameLogger.Log("Skill", "缝合猫定时召唤骷髅猫");
+                GameLogger.Log("Skill", "缂濆悎鐚畾鏃跺彫鍞ら楂呯尗");
             }
             if (trigger == SkillTrigger.OnKill)
             {
-                // 击杀时也召唤（简化：用OnKill代替死亡检测）
+                // 鍑绘潃鏃朵篃鍙敜锛堢畝鍖栵細鐢∣nKill浠ｆ浛姝讳骸妫€娴嬶級
                 _simulation?.SummonManager?.SummonSkeleton(f);
-                GameLogger.Log("Skill", "缝合猫击杀触发召唤骷髅猫");
+                GameLogger.Log("Skill", "FengHeTao summon skeleton on kill");
             }
         }
 
-        // ── 辅助方法 ──
+        // 鈹€鈹€ 杈呭姪鏂规硶 鈹€鈹€
 
         /// <summary>
-        /// 检查目标是否死亡，如果是则走统一死亡流程
+        /// 妫€鏌ョ洰鏍囨槸鍚︽浜★紝濡傛灉鏄垯璧扮粺涓€姝讳骸娴佺▼
         /// </summary>
         private void TryKill(BattleFighter target)
         {
             if (target == null || target.IsDying || target.IsRemoved) return;
             if (target.CurrentHp > 0) return;
-            GameLogger.Log("Skill", $"TryKill: {target.Name} hp=0，调用StartDeath");
+            GameLogger.Log("Skill", $"TryKill: {target.Name} hp=0锛岃皟鐢⊿tartDeath");
             _simulation.StartDeath(target);
         }
 
         /// <summary>
-        /// 发射子弹（通过 BattleSimulation.OnBulletFired 事件触发，由 BattleManager.SpawnBullet 处理表现）
+        /// ??????????? BattleSimulation.OnBulletFired ????????? BattleManager.SpawnBullet ????????
         /// </summary>
+        private void RefreshHud(BattleFighter fighter)
+        {
+            if (fighter?.Transform == null || fighter.RuntimeAttributes == null)
+            {
+                return;
+            }
+
+            FighterHUD hud = fighter.Transform.GetComponent<FighterHUD>();
+            if (hud == null)
+            {
+                return;
+            }
+
+            hud.UpdateHp(fighter.RuntimeAttributes.CurrentHp);
+        }
+
+        private int CalculateSkillDamage(BattleFighter attacker, BattleFighter defender)
+        {
+            if (attacker == null || defender == null || attacker.RuntimeAttributes == null || defender.RuntimeAttributes == null)
+            {
+                return 1;
+            }
+
+            int atk = attacker.RuntimeAttributes.Attack;
+            int def = defender.RuntimeAttributes.Defense;
+            int raw = Mathf.Max(0, atk - def);
+            float damageReduction = Mathf.Max(0.2f, 1f - (def / (def + 100f)));
+            float finalDamage = raw * damageReduction;
+            finalDamage *= attacker.RuntimeAttributes.SkillMultiplier;
+            finalDamage *= 1f + defender.RuntimeAttributes.DamageReceivePercentBuff;
+            finalDamage += defender.RuntimeAttributes.DamageReceiveFlatBuff;
+            int damage = Mathf.Max(1, Mathf.RoundToInt(finalDamage));
+            damage += attacker.RuntimeAttributes.TrueDamage;
+            return Mathf.Max(1, damage);
+        }
+
+        private void FireBulletFromPosition(BattleFighter attacker, BattleFighter target, int damage, Vector3 origin)
+        {
+            if (attacker == null || target == null || !target.IsAlive) return;
+            var go = new GameObject("BounceBullet");
+            go.transform.position = origin;
+            var bullet = go.AddComponent<Combat.Fighter.BattleBullet>();
+            bullet.Setup(attacker, target, damage, false, null);
+        }
+
         private void FireBullet(BattleFighter attacker, BattleFighter target, int damage)
         {
             if (attacker == null || target == null || !target.IsAlive) return;
