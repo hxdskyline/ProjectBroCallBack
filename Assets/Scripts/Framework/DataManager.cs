@@ -656,8 +656,17 @@ public class DataManager : MonoBehaviour
     {
         if (_playerData == null) return;
         EnsurePlayerDataDefaults();
-        _playerData.consumables.RemoveAll(c => c.id == id);
-        SavePlayerData();
+        for (int i = 0; i < _playerData.consumables.Count; i++)
+        {
+            if (_playerData.consumables[i] == null || _playerData.consumables[i].id != id)
+            {
+                continue;
+            }
+
+            _playerData.consumables.RemoveAt(i);
+            SavePlayerData();
+            return;
+        }
     }
 
     public int GetConsumableCount()

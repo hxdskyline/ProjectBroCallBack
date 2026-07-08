@@ -194,6 +194,7 @@ namespace Camp
         public void ApplyBuff(UnifiedBuff buff)
         {
             if (buff == null) return;
+            buff = buff.Clone();
 
             // 霸体免疫控制效果
             if (HasSuperArmor && Combat.Effects.StatusEffectFactory.IsControlEffect(buff.gameEffect))

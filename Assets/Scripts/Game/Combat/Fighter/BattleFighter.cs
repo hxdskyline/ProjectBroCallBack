@@ -37,6 +37,7 @@ namespace Combat.Fighter
         public float KnockdownTimer;        // 倒地剩余时间（秒），>0表示正在倒地
         public Vector3 KnockdownDir;       // 倒地方向
         public GameObject HitEffect;
+        public GameObject FrozenEffect;
         public float HitEffectTimer;
 
         // ── 被动技能状态 ──

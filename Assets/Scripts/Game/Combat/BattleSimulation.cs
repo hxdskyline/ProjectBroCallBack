@@ -29,6 +29,9 @@ namespace Combat
 
         private static readonly Color SlowTint = new Color(0.6f, 0.9f, 1f, 1f); // #99E6FF
         private static BattleSimulation _currentSimulation;
+        private const string FrozenEffectAddress = "2deffect/frozen";
+        private static Sprite _frozenEffectSprite;
+        private static bool _frozenEffectSpriteLoaded;
 
         /// <summary>
         /// 当前战斗模拟实例（供子弹等外部逻辑访问）
@@ -142,9 +145,10 @@ namespace Combat
                 var f = _enemyFighters[i];
                 if (f == null || !f.IsAlive || f.RuntimeAttributes == null) continue;
                 f.RuntimeAttributes.CurrentHp = Mathf.Max(0, f.RuntimeAttributes.CurrentHp - 200);
+                RefreshFighterHud(f, true, 200);
                 if (f.RuntimeAttributes.CurrentHp <= 0) StartDeath(f);
             }
-            Debug.Log("[Consumable] Bomb: 200 damage to all enemies");
+            GameLogger.Log("Combat", "使用消耗品：炸弹，对所有敌人造成200点伤害");
         }
 
         private void ApplyFreezeTrap()
@@ -158,7 +162,7 @@ namespace Combat
                 f.RuntimeAttributes?.ApplyBuff(freezeBuff);
                 f.FreezeTimer = Mathf.Max(f.FreezeTimer, 3f);
             }
-            Debug.Log("[Consumable] FreezeTrap: all enemies frozen for 3s");
+            GameLogger.Log("Combat", "使用消耗品：冰冻陷阱，所有敌人停止攻击3秒");
         }
 
         private void ApplyHealPotion()
@@ -172,8 +176,9 @@ namespace Combat
                 int actualHeal = Mathf.Min(heal, f.RuntimeAttributes.MaxHp - f.RuntimeAttributes.CurrentHp);
                 f.RuntimeAttributes.CurrentHp += actualHeal;
                 f.TotalHealingDone += actualHeal;
+                RefreshFighterHud(f, false, 0);
             }
-            Debug.Log("[Consumable] HealPotion: healed all allies for 50% MaxHp");
+            GameLogger.Log("Combat", "使用消耗品：回复药水，所有己方单位回复50%生命值");
         }
 
         private void ApplyAttackBuff()
@@ -308,13 +313,86 @@ namespace Combat
                 var f = fighters[i];
                 if (f == null || !f.IsAlive || f.Transform == null) continue;
 
-                bool slowed = f.FreezeTimer > 0f
+                bool frozen = f.FreezeTimer > 0f;
+                bool slowed = frozen
                     || (f.RuntimeAttributes != null && f.RuntimeAttributes.SpeedPercentDebuff > 0f);
 
                 var sr = f.Transform.GetComponent<SpriteRenderer>();
                 if (sr != null)
                     sr.color = slowed ? SlowTint : Color.white;
+
+                UpdateFrozenEffect(f, frozen);
             }
+        }
+
+        private static void UpdateFrozenEffect(BattleFighter fighter, bool isFrozen)
+        {
+            if (fighter?.FrozenEffect == null)
+            {
+                return;
+            }
+
+            if (!isFrozen || fighter.Transform == null || fighter.IsRemoved || fighter.IsDying)
+            {
+                fighter.FrozenEffect.SetActive(false);
+                return;
+            }
+
+            if (!_frozenEffectSpriteLoaded)
+            {
+                _frozenEffectSpriteLoaded = true;
+                var resourceManager = GameManager.Instance?.ResourceManager;
+                if (resourceManager != null)
+                {
+                    _frozenEffectSprite = resourceManager.LoadSprite(FrozenEffectAddress);
+                    GameLogger.LogFileOnly("Combat", _frozenEffectSprite != null
+                        ? $"Frozen effect sprite loaded: {FrozenEffectAddress}"
+                        : $"Frozen effect sprite load failed: {FrozenEffectAddress}");
+                }
+            }
+
+            if (_frozenEffectSprite == null)
+            {
+                GameLogger.LogWarningFileOnly("Combat", $"Frozen effect sprite is null for fighter={fighter.Name}");
+                return;
+            }
+
+            var sr = fighter.FrozenEffect.GetComponent<SpriteRenderer>();
+            if (sr == null)
+            {
+                return;
+            }
+
+            var fighterSr = fighter.Transform.GetComponent<SpriteRenderer>();
+            if (fighterSr != null)
+            {
+                sr.sortingOrder = fighterSr.sortingOrder + 1;
+            }
+
+            sr.sprite = _frozenEffectSprite;
+            sr.flipX = fighter.Transform.localScale.x < 0f;
+            fighter.FrozenEffect.SetActive(true);
+        }
+
+        private static void RefreshFighterHud(BattleFighter fighter, bool showDamage, int damageAmount)
+        {
+            if (fighter?.Transform == null || fighter.RuntimeAttributes == null)
+            {
+                return;
+            }
+
+            var hud = fighter.Transform.GetComponent<FighterHUD>();
+            if (hud == null)
+            {
+                return;
+            }
+
+            if (showDamage && damageAmount > 0)
+            {
+                hud.ShowDamage(damageAmount);
+            }
+
+            hud.UpdateHp(fighter.RuntimeAttributes.CurrentHp);
         }
 
         public bool Tick(float deltaTime, out bool playerVictory)

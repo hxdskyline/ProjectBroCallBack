@@ -82,7 +82,7 @@ namespace Combat
                 maxHp = playerCfg?.hp ?? 1000f,
                 currentHp = playerCfg?.hp ?? 1000f,
                 attack = playerCfg?.attack ?? 50f,
-                attackRange = playerCfg?.attackRange ?? 10f,
+                attackRange = 99999f,
                 attackSpeed = playerCfg?.attackSpeed ?? 1f
             };
 

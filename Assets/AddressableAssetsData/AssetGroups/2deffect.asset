@@ -15,8 +15,13 @@ MonoBehaviour:
   m_GroupName: 2deffect
   m_Data:
     m_SerializedData: []
-  m_GUID: 0cc9b96c1d1af284192aa33d528a0464
+  m_GUID: 8e6b504965a97314e861dcdf7bb4c0a9
   m_SerializeEntries:
+  - m_GUID: 4fb4ee2eee701e74ab1ee1522f55562a
+    m_Address: 2deffect/frozen
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5a8b150e99ce6d54585a75bd0571d66a
     m_Address: 2deffect/daji
     m_ReadOnly: 0

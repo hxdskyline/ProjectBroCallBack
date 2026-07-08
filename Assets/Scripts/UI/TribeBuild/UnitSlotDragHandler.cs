@@ -27,6 +27,16 @@ namespace UI.TribeBuild
             _config = config;
             _panel = panel;
             _slotRect = GetComponent<RectTransform>();
+
+            var nameTxt = transform.Find("Name")?.GetComponent<Text>();
+            if (nameTxt != null && _unitData != null && _config != null)
+            {
+                int displayLevel = _unitData.tier > 0 ? _unitData.tier : _config.tier;
+                int maxHp = _config.GetEffectiveMaxHp(_unitData.enhanceLevel);
+                int currentHp = Mathf.Clamp(Mathf.RoundToInt(_unitData.currentHp), 0, maxHp);
+                nameTxt.fontSize = 15;
+                nameTxt.text = $"{_config.fighterName}\nLv:{displayLevel}  HP:{currentHp}/{maxHp}";
+            }
         }
 
         public FighterData UnitData => _unitData;

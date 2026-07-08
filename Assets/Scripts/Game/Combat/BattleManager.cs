@@ -72,6 +72,11 @@ namespace Combat
         // 重新布阵按钮
         private GameObject _retryButtonGo;
         private GameObject _instantWinButtonGo;
+        private GameObject _consumableBarGo;
+        private readonly List<ConsumableSlotUi> _consumableSlotUis = new List<ConsumableSlotUi>();
+        private float _consumableSharedCooldownRemaining;
+        private const float ConsumableSharedCooldown = 5f;
+        private const string BattleUiFontAddress = "assets/bundle/font/fzy3k_gbk";
 
         // 区域遮罩系统
         private GameObject _overlay1Neutral, _overlay1Green, _overlay1Red;   // Layer 1, sortingOrder -999, 外圈
@@ -89,6 +94,14 @@ namespace Combat
         public int LevelId => _levelId;
         public BattleFighter[] PlayerFighters => _playerFighters;
         public BattleFighter[] EnemyFighters => _enemyFighters;
+
+        private sealed class ConsumableSlotUi
+        {
+            public ConsumableItem Item;
+            public Button Button;
+            public Image Background;
+            public Text StateText;
+        }
 
         public void Initialize(int levelId)
         {
@@ -181,6 +194,7 @@ namespace Combat
                     DeathDuration = _deathDuration
                 });
 
+            CreateConsumableBar();
             BattleSimulation.OnBulletFired += SpawnBullet;
             _battleCoroutine = StartCoroutine(DemoBattleLoop());
         }
@@ -323,6 +337,7 @@ namespace Combat
                     DeathDuration = _deathDuration
                 });
 
+            CreateConsumableBar();
             BattleSimulation.OnBulletFired += SpawnBullet;
             _battleCoroutine = StartCoroutine(DemoBattleLoop());
 
@@ -472,6 +487,7 @@ namespace Combat
                 StopCoroutine(_battleCoroutine);
                 _battleCoroutine = null;
             }
+            DestroyConsumableBar();
         }
 
         /// <summary>
@@ -721,6 +737,7 @@ namespace Combat
             while (_isInBattle)
             {
                 float dt = Time.deltaTime;
+                UpdateConsumableCooldown(dt);
 
                 // 动态更新奇物：每死一只小猫+攻击
                 UpdateArtifactLeaderBuff();
@@ -1274,8 +1291,351 @@ namespace Combat
             _victoryPending = false;
             _victoryTimer = 0f;
             _victoryHealApplied = false;
+            _consumableSharedCooldownRemaining = 0f;
             DestroyRetryButton();
+            DestroyConsumableBar();
             ClearOldAvatars();
+        }
+
+        private void CreateConsumableBar()
+        {
+            DestroyConsumableBar();
+
+            DataManager dataManager = GameManager.Instance?.DataManager;
+            if (dataManager == null)
+            {
+                return;
+            }
+
+            List<ConsumableItem> consumables = dataManager.GetConsumables();
+            if (consumables == null || consumables.Count == 0)
+            {
+                return;
+            }
+
+            Canvas canvas = FindObjectOfType<Canvas>();
+            if (canvas == null)
+            {
+                return;
+            }
+
+            Transform topLayer = GetOrCreateTopLayer(canvas.transform);
+            Font font = GameManager.Instance?.ResourceManager?.LoadResource<Font>(BattleUiFontAddress);
+
+            _consumableBarGo = new GameObject("ConsumableBar", typeof(RectTransform), typeof(Image));
+            _consumableBarGo.transform.SetParent(topLayer, false);
+
+            RectTransform barRect = _consumableBarGo.GetComponent<RectTransform>();
+            int itemCount = consumables.Count;
+            float slotWidth = 150f;
+            float spacing = 12f;
+            float barWidth = 24f + itemCount * slotWidth + Mathf.Max(0, itemCount - 1) * spacing;
+            barRect.anchorMin = new Vector2(0.5f, 0f);
+            barRect.anchorMax = new Vector2(0.5f, 0f);
+            barRect.pivot = new Vector2(0.5f, 0f);
+            barRect.anchoredPosition = new Vector2(0f, 24f);
+            barRect.sizeDelta = new Vector2(Mathf.Max(220f, barWidth), 96f);
+
+            Image barBg = _consumableBarGo.GetComponent<Image>();
+            barBg.color = new Color(0.08f, 0.08f, 0.08f, 0.82f);
+
+            _consumableSlotUis.Clear();
+            float startX = -((itemCount - 1) * (slotWidth + spacing)) * 0.5f;
+            for (int i = 0; i < consumables.Count; i++)
+            {
+                ConsumableItem item = consumables[i];
+                GameObject slotGo = new GameObject(
+                    $"Consumable_{i}",
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(Button));
+                slotGo.transform.SetParent(_consumableBarGo.transform, false);
+
+                RectTransform slotRect = slotGo.GetComponent<RectTransform>();
+                slotRect.anchorMin = new Vector2(0.5f, 0.5f);
+                slotRect.anchorMax = new Vector2(0.5f, 0.5f);
+                slotRect.pivot = new Vector2(0.5f, 0.5f);
+                slotRect.anchoredPosition = new Vector2(startX + i * (slotWidth + spacing), 0f);
+                slotRect.sizeDelta = new Vector2(slotWidth, 68f);
+
+                Image slotBg = slotGo.GetComponent<Image>();
+                slotBg.color = new Color(0.22f, 0.22f, 0.22f, 0.95f);
+
+                Button button = slotGo.GetComponent<Button>();
+                button.targetGraphic = slotBg;
+                ConsumableItem clickItem = item;
+                button.onClick.AddListener(() => TryUseConsumableItem(clickItem));
+
+                CreateConsumableText(
+                    slotGo.transform,
+                    "Name",
+                    font,
+                    GetConsumableDisplayName(item),
+                    20,
+                    new Color(1f, 0.92f, 0.68f),
+                    new Vector2(0f, 12f));
+
+                Text stateText = CreateConsumableText(
+                    slotGo.transform,
+                    "State",
+                    font,
+                    "\u70B9\u51FB\u4F7F\u7528",
+                    15,
+                    new Color(0.82f, 0.82f, 0.82f),
+                    new Vector2(0f, -16f));
+
+                _consumableSlotUis.Add(new ConsumableSlotUi
+                {
+                    Item = item,
+                    Button = button,
+                    Background = slotBg,
+                    StateText = stateText
+                });
+            }
+
+            RefreshConsumableBarState();
+        }
+
+        private Text CreateConsumableText(
+            Transform parent,
+            string name,
+            Font font,
+            string text,
+            int fontSize,
+            Color color,
+            Vector2 anchoredPosition)
+        {
+            GameObject textGo = new GameObject(name, typeof(RectTransform), typeof(Text));
+            textGo.transform.SetParent(parent, false);
+
+            RectTransform rect = textGo.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = anchoredPosition;
+            rect.sizeDelta = new Vector2(130f, 28f);
+
+            Text txt = textGo.GetComponent<Text>();
+            txt.font = font;
+            txt.text = text;
+            txt.fontSize = fontSize;
+            txt.color = color;
+            txt.alignment = TextAnchor.MiddleCenter;
+            txt.raycastTarget = false;
+            return txt;
+        }
+
+        private void TryUseConsumableItem(ConsumableItem item)
+        {
+            if (item == null)
+            {
+                return;
+            }
+
+            if (_consumableSharedCooldownRemaining > 0f)
+            {
+                GameLogger.Log("Combat", $"Consumable shared cooldown: {_consumableSharedCooldownRemaining:F1}s remaining");
+                return;
+            }
+
+            if (!TryResolveConsumableEffectType(item, out ConsumableEffectType effectType))
+            {
+                GameLogger.LogError("Combat", $"Unknown consumable effect: id={item.id}, name={item.name}, effectType={item.effectType}, value={item.value}");
+                return;
+            }
+
+            if (!TryUseConsumable(effectType))
+            {
+                return;
+            }
+
+            GameManager.Instance.DataManager.RemoveConsumable(item.id);
+            _consumableSharedCooldownRemaining = ConsumableSharedCooldown;
+            GameLogger.Log("Combat", $"Consumable used: {GetConsumableDisplayName(item)} id={item.id} effect={effectType}");
+            CreateConsumableBar();
+        }
+
+        private void UpdateConsumableCooldown(float deltaTime)
+        {
+            if (_consumableSharedCooldownRemaining <= 0f)
+            {
+                return;
+            }
+
+            _consumableSharedCooldownRemaining = Mathf.Max(0f, _consumableSharedCooldownRemaining - deltaTime);
+            RefreshConsumableBarState();
+        }
+
+        private void RefreshConsumableBarState()
+        {
+            bool isCoolingDown = _consumableSharedCooldownRemaining > 0f;
+            for (int i = 0; i < _consumableSlotUis.Count; i++)
+            {
+                ConsumableSlotUi slot = _consumableSlotUis[i];
+                if (slot == null || slot.Button == null || slot.Background == null)
+                {
+                    continue;
+                }
+
+                slot.Button.interactable = !isCoolingDown;
+                slot.Background.color = isCoolingDown
+                    ? new Color(0.16f, 0.16f, 0.16f, 0.92f)
+                    : new Color(0.22f, 0.22f, 0.22f, 0.95f);
+
+                if (slot.StateText != null)
+                {
+                    slot.StateText.text = isCoolingDown
+                        ? $"CD {_consumableSharedCooldownRemaining:F1}s"
+                        : "\u70B9\u51FB\u4F7F\u7528";
+                    slot.StateText.color = isCoolingDown
+                        ? new Color(0.58f, 0.84f, 1f)
+                        : new Color(0.82f, 0.82f, 0.82f);
+                }
+            }
+        }
+
+        private void DestroyConsumableBar()
+        {
+            _consumableSlotUis.Clear();
+            if (_consumableBarGo != null)
+            {
+                Destroy(_consumableBarGo);
+                _consumableBarGo = null;
+            }
+        }
+
+        private Transform GetOrCreateTopLayer(Transform canvasTransform)
+        {
+            Transform topLayer = canvasTransform.Find("Top");
+            if (topLayer != null)
+            {
+                return topLayer;
+            }
+
+            GameObject topGo = new GameObject("Top", typeof(RectTransform));
+            topGo.transform.SetParent(canvasTransform, false);
+            RectTransform rectT = topGo.GetComponent<RectTransform>();
+            rectT.anchorMin = Vector2.zero;
+            rectT.anchorMax = Vector2.one;
+            rectT.offsetMin = Vector2.zero;
+            rectT.offsetMax = Vector2.zero;
+            return topGo.transform;
+        }
+
+        private bool TryResolveConsumableEffectType(ConsumableItem item, out ConsumableEffectType effectType)
+        {
+            string name = item == null || string.IsNullOrEmpty(item.name)
+                ? string.Empty
+                : item.name.Trim().ToLowerInvariant();
+
+            switch (name)
+            {
+                case "bomb":
+                case "\u70B8\u5F39":
+                    effectType = ConsumableEffectType.Bomb;
+                    return true;
+                case "freezetrap":
+                case "\u51B0\u51BB\u9677\u9631":
+                    effectType = ConsumableEffectType.FreezeTrap;
+                    return true;
+                case "healpotion":
+                case "\u56DE\u590D\u836F\u6C34":
+                case "\u6062\u590D\u836F\u6C34":
+                    effectType = ConsumableEffectType.HealPotion;
+                    return true;
+                case "attackbuff":
+                case "\u653B\u51FB\u5F3A\u5316":
+                    effectType = ConsumableEffectType.AttackBuff;
+                    return true;
+                case "defensebuff":
+                case "\u9632\u5FA1\u5F3A\u5316":
+                    effectType = ConsumableEffectType.DefenseBuff;
+                    return true;
+            }
+
+            if (item != null)
+            {
+                if (item.value >= 150f)
+                {
+                    effectType = ConsumableEffectType.Bomb;
+                    return true;
+                }
+
+                if (item.value >= 40f)
+                {
+                    effectType = ConsumableEffectType.HealPotion;
+                    return true;
+                }
+
+                if (item.value >= 2.5f)
+                {
+                    effectType = ConsumableEffectType.FreezeTrap;
+                    return true;
+                }
+
+                switch (item.effectType)
+                {
+                    case 0:
+                        effectType = item.value > 0f ? ConsumableEffectType.HealPotion : ConsumableEffectType.Bomb;
+                        return true;
+                    case 1:
+                        effectType = item.value > 0f ? ConsumableEffectType.AttackBuff : ConsumableEffectType.FreezeTrap;
+                        return true;
+                    case 2:
+                        effectType = item.value > 0f && item.value < 1f ? ConsumableEffectType.DefenseBuff : ConsumableEffectType.HealPotion;
+                        return true;
+                    case 3:
+                        effectType = item.value >= 100f ? ConsumableEffectType.Bomb : ConsumableEffectType.AttackBuff;
+                        return true;
+                    case 4:
+                        effectType = item.value >= 1f ? ConsumableEffectType.FreezeTrap : ConsumableEffectType.DefenseBuff;
+                        return true;
+                }
+            }
+
+            effectType = ConsumableEffectType.Bomb;
+            return false;
+        }
+
+        private string GetConsumableDisplayName(ConsumableItem item)
+        {
+            if (item != null && !string.IsNullOrEmpty(item.name))
+            {
+                switch (item.name.Trim().ToLowerInvariant())
+                {
+                    case "bomb":
+                        return "\u70B8\u5F39";
+                    case "freezetrap":
+                        return "\u51B0\u51BB\u9677\u9631";
+                    case "healpotion":
+                        return "\u56DE\u590D\u836F\u6C34";
+                    case "attackbuff":
+                        return "\u653B\u51FB\u5F3A\u5316";
+                    case "defensebuff":
+                        return "\u9632\u5FA1\u5F3A\u5316";
+                    default:
+                        return item.name;
+                }
+            }
+
+            if (TryResolveConsumableEffectType(item, out ConsumableEffectType effectType))
+            {
+                switch (effectType)
+                {
+                    case ConsumableEffectType.Bomb:
+                        return "\u70B8\u5F39";
+                    case ConsumableEffectType.FreezeTrap:
+                        return "\u51B0\u51BB\u9677\u9631";
+                    case ConsumableEffectType.HealPotion:
+                        return "\u56DE\u590D\u836F\u6C34";
+                    case ConsumableEffectType.AttackBuff:
+                        return "\u653B\u51FB\u5F3A\u5316";
+                    case ConsumableEffectType.DefenseBuff:
+                        return "\u9632\u5FA1\u5F3A\u5316";
+                }
+            }
+
+            return "Consumable";
         }
 
         /// <summary>
@@ -1290,18 +1650,7 @@ namespace Combat
             if (canvas == null) return;
 
             // 找到或创建 Top 层
-            var topLayer = canvas.transform.Find("Top");
-            if (topLayer == null)
-            {
-                var topGo = new GameObject("Top", typeof(RectTransform));
-                topGo.transform.SetParent(canvas.transform, false);
-                var rectT = topGo.GetComponent<RectTransform>();
-                rectT.anchorMin = Vector2.zero;
-                rectT.anchorMax = Vector2.one;
-                rectT.offsetMin = Vector2.zero;
-                rectT.offsetMax = Vector2.zero;
-                topLayer = topGo.transform;
-            }
+            var topLayer = GetOrCreateTopLayer(canvas.transform);
 
             _retryButtonGo = new GameObject("RetryButton", typeof(RectTransform), typeof(Image), typeof(Button));
             _retryButtonGo.transform.SetParent(topLayer, false);

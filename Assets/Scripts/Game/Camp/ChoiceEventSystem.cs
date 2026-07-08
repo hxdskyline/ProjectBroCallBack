@@ -54,6 +54,8 @@ namespace Camp
         public void Initialize()
         {
             _allEvents = CreateAllEvents();
+            GameLogger.LogFileOnly("ChoiceDiag", $"ChoiceEventSystem.Initialize count={(_allEvents != null ? _allEvents.Count : -1)}");
+            GameLogger.Flush();
             GameLogger.Log("Choice", $"初始化完成，共 {_allEvents.Count} 个事件");
         }
 
@@ -62,8 +64,17 @@ namespace Camp
         /// </summary>
         public ChoiceEvent GetEventForLevel(int battleNumber)
         {
+            if (_allEvents == null)
+            {
+                GameLogger.LogErrorFileOnly("ChoiceDiag", $"ChoiceEventSystem.GetEventForLevel called before initialize battleNumber={battleNumber}");
+                GameLogger.Flush();
+                return null;
+            }
+
             int levelGroup = GetLevelGroup(battleNumber);
             var pool = _allEvents.FindAll(e => e.levelGroup == levelGroup);
+            GameLogger.LogFileOnly("ChoiceDiag", $"ChoiceEventSystem.GetEventForLevel battleNumber={battleNumber} levelGroup={levelGroup} poolCount={pool.Count}");
+            GameLogger.Flush();
             if (pool.Count == 0) return null;
             return pool[_rng.Next(pool.Count)];
         }

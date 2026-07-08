@@ -49,6 +49,7 @@ public class GameFlowController : MonoBehaviour
     private MapData _currentRegionMap;
     private int _currentRegion = 1;
     private int _currentNodeId = -1;
+    private readonly List<FighterData> _lastBattleDeployedUnits = new List<FighterData>();
 
     private int _currentRound = 1;
     private bool _isGameStarted = false;
@@ -759,6 +760,7 @@ public class GameFlowController : MonoBehaviour
         // 构建玩家单位定义
         var playerDefs = new List<Combat.Fighter.BattleFighterSpawnDefinition>();
         var playerPositions = new List<Vector3>();
+        _lastBattleDeployedUnits.Clear();
 
         foreach (var (unit, worldPos) in deployedPositions)
         {
@@ -776,6 +778,7 @@ public class GameFlowController : MonoBehaviour
             def.CurrentHp = (int)unit.currentHp;
             playerDefs.Add(def);
             playerPositions.Add(worldPos);
+            _lastBattleDeployedUnits.Add(unit);
         }
 
         // 加载默认玩家 avatar（用于 ConfigureDemoAvatars）
@@ -872,6 +875,7 @@ public class GameFlowController : MonoBehaviour
         int catFoodReward = 0;
         if (victory)
         {
+            RecoverRestingUnitsAfterVictory();
             expReward = 50 + _currentRound * 10;
             bool isBossBattle = _currentRegionMap != null &&
                                _currentNodeId >= 0 &&
@@ -990,6 +994,7 @@ public class GameFlowController : MonoBehaviour
         }
         else
         {
+            _lastBattleDeployedUnits.Clear();
             bool isBossBattle = _currentRegionMap != null &&
                                _currentNodeId >= 0 &&
                                _currentRegionMap.GetNode(_currentNodeId)?.nodeType == MapNodeType.Boss;
@@ -1023,6 +1028,42 @@ public class GameFlowController : MonoBehaviour
                     unit.SetZone(UnitZone.Standby);
             }
         }
+    }
+
+    private void RecoverRestingUnitsAfterVictory()
+    {
+        if (_dataManager == null) return;
+
+        var tribes = _dataManager.GetTribes();
+        if (tribes == null) return;
+
+        var healedUnits = 0;
+        foreach (var tribe in tribes)
+        {
+            if (tribe?.units == null) continue;
+
+            foreach (var unit in tribe.units)
+            {
+                if (unit == null || _lastBattleDeployedUnits.Contains(unit)) continue;
+                if (unit.GetZone() == UnitZone.Production) continue;
+
+                var cfg = TribeConfigLoader.Instance?.GetFighterConfig(unit.fighterId);
+                if (cfg == null) continue;
+
+                int maxHp = cfg.GetEffectiveMaxHp(unit.enhanceLevel);
+                int healAmount = Mathf.RoundToInt(maxHp * 0.5f);
+                unit.currentHp = Mathf.Min(unit.currentHp + healAmount, maxHp);
+                healedUnits++;
+            }
+        }
+
+        if (healedUnits > 0)
+        {
+            _dataManager.SavePlayerData();
+            GameLogger.Log("GFC", $"RecoverRestingUnitsAfterVictory healed={healedUnits}");
+        }
+
+        _lastBattleDeployedUnits.Clear();
     }
 
     /// <summary>
@@ -1200,8 +1241,20 @@ public class GameFlowController : MonoBehaviour
     private void ShowChoicePanel(Action onComplete)
     {
         GameLogger.Log("GFC", "ShowChoicePanel");
+        GameLogger.LogFileOnly("ChoiceDiag", $"ShowChoicePanel enter round={_currentRound} choiceSystemNull={_choiceEventSystem == null} uiNull={_uiManager == null}");
+        GameLogger.Flush();
+
+        if (_choiceEventSystem == null)
+        {
+            GameLogger.LogFileOnly("ChoiceDiag", "ChoiceEventSystem is null, creating and initializing now");
+            _choiceEventSystem = new ChoiceEventSystem();
+            _choiceEventSystem.Initialize();
+            GameLogger.Flush();
+        }
 
         var evt = _choiceEventSystem.GetEventForLevel(_currentRound);
+        GameLogger.LogFileOnly("ChoiceDiag", $"GetEventForLevel done round={_currentRound} eventNull={evt == null} eventId={(evt != null ? evt.eventId : "null")}");
+        GameLogger.Flush();
         if (evt == null)
         {
             GameLogger.Log("GFC", "无抉择事件，跳过");
@@ -1210,6 +1263,8 @@ public class GameFlowController : MonoBehaviour
         }
 
         var panel = _uiManager?.ShowPanel<RandomEventPanel>(UIManager.UILayer.PopUp);
+        GameLogger.LogFileOnly("ChoiceDiag", $"ShowPanel RandomEventPanel done panelNull={panel == null}");
+        GameLogger.Flush();
         if (panel == null)
         {
             GameLogger.LogWarning("GFC", "RandomEventPanel 创建失败，跳过");
@@ -1217,6 +1272,8 @@ public class GameFlowController : MonoBehaviour
             return;
         }
 
+        GameLogger.LogFileOnly("ChoiceDiag", $"ShowChoiceEvent eventId={evt.eventId} optionCount={(evt.options != null ? evt.options.Count : -1)}");
+        GameLogger.Flush();
         panel.ShowChoiceEvent(evt, _choiceEventSystem, onComplete);
     }
 

@@ -379,6 +379,15 @@ namespace Combat.Fighter
             hitSr.sortingOrder = 200;
             hitEffect.SetActive(false);
 
+            GameObject frozenEffect = new GameObject("FrozenEffect");
+            frozenEffect.transform.SetParent(go.transform, false);
+            frozenEffect.transform.localPosition = new Vector3(0f, -1.2f, 0f);
+            frozenEffect.transform.localScale = new Vector3(0.35f, 0.35f, 1f);
+            SpriteRenderer frozenSr = frozenEffect.AddComponent<SpriteRenderer>();
+            frozenSr.sortingOrder = 190;
+            frozenSr.color = new Color(1f, 1f, 1f, 0.95f);
+            frozenEffect.SetActive(false);
+
             return new BattleFighter
             {
                 Name = objectName,
@@ -393,6 +402,7 @@ namespace Combat.Fighter
                 FighterId = definition.FighterId,
                 InnateBuffIds = innateBuffIds,
                 HitEffect = hitEffect,
+                FrozenEffect = frozenEffect,
                 EnhanceLevel = definition.EnhanceLevel,
                 SkillId = Camp.TribeConfigLoader.Instance?.GetFighterConfig(definition.FighterId)?.GetSkillId(definition.EnhanceLevel) ?? ""
             };
@@ -532,6 +542,15 @@ namespace Combat.Fighter
             hitSr.sortingOrder = 200;
             hitEffect.SetActive(false);
 
+            GameObject frozenEffect = new GameObject("FrozenEffect");
+            frozenEffect.transform.SetParent(go.transform, false);
+            frozenEffect.transform.localPosition = new Vector3(0f, -1.2f, 0f);
+            frozenEffect.transform.localScale = new Vector3(0.35f, 0.35f, 1f);
+            SpriteRenderer frozenSr = frozenEffect.AddComponent<SpriteRenderer>();
+            frozenSr.sortingOrder = 190;
+            frozenSr.color = new Color(1f, 1f, 1f, 0.95f);
+            frozenEffect.SetActive(false);
+
             // === 诊断日志：CreateFighter 完成后 ===
             Debug.Log($"[CreateFighter] {objectName} final stats: ATK={runtimeAttributes.Attack}, DEF={runtimeAttributes.Defense}, HP={runtimeAttributes.MaxHp}, SPD={runtimeAttributes.MoveSpeed}, totalBuffs={runtimeAttributes.ActiveBuffs.Count}");
             for (int bi = 0; bi < runtimeAttributes.ActiveBuffs.Count; bi++)
@@ -554,6 +573,7 @@ namespace Combat.Fighter
                 FighterId = fighterId,
                 InnateBuffIds = innateBuffIds,
                 HitEffect = hitEffect,
+                FrozenEffect = frozenEffect,
                 SkillId = fighterId > 0 ? (Camp.TribeConfigLoader.Instance?.GetFighterConfig(fighterId)?.GetSkillId(0) ?? "") : ""
             };
         }

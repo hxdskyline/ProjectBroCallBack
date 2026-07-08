@@ -106,6 +106,27 @@ public class GameLogger
         WriteToFile("[E]" + line);
     }
 
+    public static void LogFileOnly(string tag, string msg)
+    {
+        if (!Enabled) return;
+        string line = FormatLine(tag, msg);
+        WriteToFile(line);
+    }
+
+    public static void LogWarningFileOnly(string tag, string msg)
+    {
+        if (!Enabled) return;
+        string line = FormatLine(tag, msg);
+        WriteToFile("[W]" + line);
+    }
+
+    public static void LogErrorFileOnly(string tag, string msg)
+    {
+        if (!Enabled) return;
+        string line = FormatLine(tag, msg);
+        WriteToFile("[E]" + line);
+    }
+
     private static string FormatLine(string tag, string msg)
     {
         return $"[{DateTime.Now:HH:mm:ss.fff}][{tag}] {msg}";
