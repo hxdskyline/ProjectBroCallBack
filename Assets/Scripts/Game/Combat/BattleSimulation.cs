@@ -141,15 +141,30 @@ namespace Combat
         private void ApplyBomb()
         {
             if (_enemyFighters == null) return;
+
+            // 统计存活敌人数量
+            int aliveCount = 0;
+            for (int i = 0; i < _enemyFighters.Length; i++)
+            {
+                var f = _enemyFighters[i];
+                if (f != null && f.IsAlive && f.RuntimeAttributes != null)
+                    aliveCount++;
+            }
+            if (aliveCount == 0) return;
+
+            // 总伤害500，由所有存活敌人平摊
+            int totalDamage = 500;
+            int damagePerEnemy = totalDamage / aliveCount;
+
             for (int i = 0; i < _enemyFighters.Length; i++)
             {
                 var f = _enemyFighters[i];
                 if (f == null || !f.IsAlive || f.RuntimeAttributes == null) continue;
-                f.RuntimeAttributes.CurrentHp = Mathf.Max(0, f.RuntimeAttributes.CurrentHp - 200);
-                RefreshFighterHud(f, true, 200);
+                f.RuntimeAttributes.CurrentHp = Mathf.Max(0, f.RuntimeAttributes.CurrentHp - damagePerEnemy);
+                RefreshFighterHud(f, true, damagePerEnemy);
                 if (f.RuntimeAttributes.CurrentHp <= 0) StartDeath(f);
             }
-            GameLogger.Log("Combat", "Consumable Bomb used: deal 200 damage to all enemies");
+            GameLogger.Log("Combat", $"Consumable Bomb used: {totalDamage} total damage, {damagePerEnemy} per enemy ({aliveCount} enemies)");
         }
 
         private void ApplyFreezeTrap()
@@ -656,8 +671,9 @@ namespace Combat
 
             if (self.AttackCooldownTimer <= 0f)
             {
-                // 鏀诲嚮鍐峰嵈: 鐩存帴浣跨敤 CorrectedAttackSpeed 浣滀负鍐峰嵈鏃堕棿(绉?
-                float attackCooldown = self.RuntimeAttributes?.CorrectedAttackSpeed ?? 1f;
+                // 攻击冷却: attackSpeed为次/秒，冷却=1/attackSpeed
+                float atkSpd = self.RuntimeAttributes?.CorrectedAttackSpeed ?? 1f;
+                float attackCooldown = atkSpd > 0f ? 1f / atkSpd : 1f;
                 self.AttackCooldownTimer = Mathf.Max(0.1f, attackCooldown);
                 self.Avatar?.PlayAttackAndReturnIdle();
 

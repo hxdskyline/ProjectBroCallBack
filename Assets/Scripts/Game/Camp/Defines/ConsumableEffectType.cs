@@ -5,7 +5,7 @@ namespace Camp
     /// </summary>
     public enum ConsumableEffectType
     {
-        Bomb = 0,          // 炸弹：全体 200 伤害
+        Bomb = 0,          // 炸弹：总500伤害，由全体敌人平摊
         FreezeTrap = 1,    // 冰冻陷阱：冻结全体 3 秒
         HealPotion = 2,    // 治疗药水：全体回复 50% HP
         AttackBuff = 3,    // 攻击增益：全体攻击 +30%（本场战斗）

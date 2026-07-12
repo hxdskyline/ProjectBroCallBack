@@ -926,9 +926,9 @@ namespace Combat
                         continue;
                     }
 
-                    // 攻击冷却
-                    float attackSpeed = Mathf.Max(0.1f, f.RuntimeAttributes.CorrectedAttackSpeed);
-                    f.AttackCooldownTimer = attackSpeed;
+                    // 攻击冷却: attackSpeed为次/秒，冷却=1/attackSpeed
+                    float atkSpd = Mathf.Max(0.1f, f.RuntimeAttributes.CorrectedAttackSpeed);
+                    f.AttackCooldownTimer = 1f / atkSpd;
                     f.Avatar?.PlayAttackAndReturnIdle();
 
                     float damage = f.RuntimeAttributes.Attack;
@@ -1384,6 +1384,12 @@ namespace Combat
                     new Color(0.82f, 0.82f, 0.82f),
                     new Vector2(0f, -16f));
 
+                // \u9053\u5177\u6570\u91CF\u663E\u793A\uFF08\u53F3\u4E0B\u89D2\uFF09
+                if (item.count > 1)
+                {
+                    CreateConsumableCountText(slotGo.transform, font, item.count);
+                }
+
                 _consumableSlotUis.Add(new ConsumableSlotUi
                 {
                     Item = item,
@@ -1423,6 +1429,40 @@ namespace Combat
             txt.alignment = TextAnchor.MiddleCenter;
             txt.raycastTarget = false;
             return txt;
+        }
+
+        /// <summary>
+        /// 创建道具数量角标（右下角）
+        /// </summary>
+        private void CreateConsumableCountText(Transform parent, Font font, int count)
+        {
+            // 背景圆角
+            GameObject bgGo = new GameObject("CountBg", typeof(RectTransform), typeof(Image));
+            bgGo.transform.SetParent(parent, false);
+            RectTransform bgRect = bgGo.GetComponent<RectTransform>();
+            bgRect.anchorMin = new Vector2(1f, 0f);
+            bgRect.anchorMax = new Vector2(1f, 0f);
+            bgRect.pivot = new Vector2(1f, 0f);
+            bgRect.anchoredPosition = new Vector2(-2f, 2f);
+            bgRect.sizeDelta = new Vector2(32f, 24f);
+            Image bgImg = bgGo.GetComponent<Image>();
+            bgImg.color = new Color(0.9f, 0.2f, 0.2f, 0.95f);
+
+            // 数量文字
+            GameObject textGo = new GameObject("CountText", typeof(RectTransform), typeof(Text));
+            textGo.transform.SetParent(bgGo.transform, false);
+            RectTransform textRect = textGo.GetComponent<RectTransform>();
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.sizeDelta = Vector2.zero;
+            Text txt = textGo.GetComponent<Text>();
+            txt.font = font;
+            txt.text = count.ToString();
+            txt.fontSize = 16;
+            txt.fontStyle = FontStyle.Bold;
+            txt.color = Color.white;
+            txt.alignment = TextAnchor.MiddleCenter;
+            txt.raycastTarget = false;
         }
 
         private void TryUseConsumableItem(ConsumableItem item)

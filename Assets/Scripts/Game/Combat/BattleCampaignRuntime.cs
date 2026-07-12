@@ -74,11 +74,11 @@ namespace Combat
         private static readonly int[] _enemyPopulationCap = new int[]
         {
             // 第一层 1-15
-            2, 2, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8,
+            2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 12, 12, 14, 14, 16,
             // 第二层 16-30
-            4, 4, 5, 5, 6, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10,
+            12, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20,
             // 第三层 31-45
-            6, 6, 7, 7, 8, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12
+            18, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26
         };
 
         // Popup priorities
@@ -183,18 +183,18 @@ namespace Combat
         }
 
         /// <summary>
-        /// 普通关卡：鼠辈(5000) + 敌方矛猫(5010) 任意比例，填满人口上限
+        /// 普通关卡：鼠辈(5000) + 长矛猫(5010) + 苍蝇猫(1002) 任意比例，填满人口上限
         /// </summary>
         private int[] GenerateNormalComposition(int cap)
         {
-            // 5000(鼠辈) cost=1, 5010(敌方矛猫) cost=1
+            // 5000(鼠辈) cost=1, 5010(长矛猫) cost=1, 1002(苍蝇猫) cost=1
             var result = new List<int>();
             int remaining = cap;
 
             while (remaining > 0)
             {
-                // 随机选择鼠辈或矛猫
-                result.Add(_rng.Next(2) == 0 ? 5000 : 5010);
+                int roll = _rng.Next(3);
+                result.Add(roll == 0 ? 5000 : roll == 1 ? 5010 : 1002);
                 remaining--;
             }
 
@@ -202,51 +202,52 @@ namespace Combat
         }
 
         /// <summary>
-        /// 精英关卡：鼠辈(5000) + 敌方矛猫(5010) + 敌方游侠(5040) + 敌方猫骑士(5020)
+        /// 精英关卡：鼠辈(5000) + 长矛猫(5010) + 苍蝇猫(1002) + 敌方游侠(5040) + 敌方猫骑士(5020) + 奶爸猫(1005) + 巫毒猫(1101)
         /// 至少包含一只游侠或猫骑士，填满人口上限
         /// </summary>
         private int[] GenerateEliteComposition(int cap)
         {
-            // 5000 cost=1, 5010 cost=1, 5040 cost=2, 5020 cost=3
+            // 5000 cost=1, 5010 cost=1, 1002 cost=1, 5040 cost=5, 1005 cost=2, 1101 cost=2, 5020 cost=5
             var result = new List<int>();
             int remaining = cap;
 
             // 先确保至少有一只游侠(5040)或猫骑士(5020)
-            if (remaining >= 3 && _rng.Next(2) == 0)
+            if (remaining >= 5 && _rng.Next(2) == 0)
             {
-                result.Add(5020); // 猫骑士 cost=3
-                remaining -= 3;
+                result.Add(5020); // 猫骑士 cost=5
+                remaining -= 5;
             }
-            else if (remaining >= 2)
+            else if (remaining >= 5)
             {
-                result.Add(5040); // 游侠 cost=2
-                remaining -= 2;
+                result.Add(5040); // 游侠 cost=5
+                remaining -= 5;
             }
             else if (remaining >= 1)
             {
-                // 人口太少，放一只鼠辈保证至少有敌人
-                result.Add(5000);
+                // 人口太少，放一只cost=1的保证至少有敌人
+                result.Add(PickRandomCost1Enemy());
                 remaining -= 1;
             }
 
             // 填充剩余人口
             while (remaining > 0)
             {
-                // 按概率选择单位：鼠辈/矛猫(1) 60%, 游侠(2) 25%, 猫骑士(3) 15%
+                // 按概率选择单位：cost=1 45%, cost=2 35%, cost=5 20%
                 int roll = _rng.Next(100);
-                if (remaining >= 3 && roll < 15)
+                if (remaining >= 5 && roll < 20)
                 {
-                    result.Add(5020); // 猫骑士 cost=3
-                    remaining -= 3;
+                    result.Add(5020); // 猫骑士 cost=5
+                    remaining -= 5;
                 }
-                else if (remaining >= 2 && roll < 40)
+                else if (remaining >= 2 && roll < 55)
                 {
-                    result.Add(5040); // 游侠 cost=2
+                    // cost=2: 奶爸猫/巫毒猫
+                    result.Add(PickRandomCost2Enemy());
                     remaining -= 2;
                 }
                 else
                 {
-                    result.Add(_rng.Next(2) == 0 ? 5000 : 5010); // 鼠辈/矛猫 cost=1
+                    result.Add(PickRandomCost1Enemy()); // cost=1: 鼠辈/矛猫/苍蝇猫
                     remaining -= 1;
                 }
             }
@@ -259,40 +260,58 @@ namespace Combat
         /// </summary>
         private int[] GenerateBossComposition(int cap)
         {
-            // 5030 cost=4
+            // 5030 cost=8
             var result = new List<int>();
             int remaining = cap;
 
             // 必定放一只奶牛猫族长
             result.Add(5030);
-            remaining -= 4;
+            remaining -= 8;
 
             // 填充剩余人口（可用所有敌方单位）
             while (remaining > 0)
             {
-                if (remaining >= 4 && _rng.Next(100) < 20)
+                if (remaining >= 8 && _rng.Next(100) < 20)
                 {
-                    result.Add(5030); // 再来一只族长 cost=4
-                    remaining -= 4;
+                    result.Add(5030); // 再来一只族长 cost=8
+                    remaining -= 8;
                 }
-                else if (remaining >= 3 && _rng.Next(100) < 25)
+                else if (remaining >= 5 && _rng.Next(100) < 25)
                 {
-                    result.Add(5020); // 猫骑士 cost=3
-                    remaining -= 3;
+                    result.Add(5020); // 猫骑士 cost=5
+                    remaining -= 5;
                 }
                 else if (remaining >= 2 && _rng.Next(100) < 35)
                 {
-                    result.Add(5040); // 游侠 cost=2
+                    // cost=2: 游侠/奶爸猫/巫毒猫
+                    result.Add(PickRandomCost2Enemy());
                     remaining -= 2;
                 }
                 else
                 {
-                    result.Add(_rng.Next(2) == 0 ? 5000 : 5010); // 鼠辈/矛猫 cost=1
+                    result.Add(PickRandomCost1Enemy()); // cost=1: 鼠辈/矛猫/苍蝇猫
                     remaining -= 1;
                 }
             }
 
             return result.ToArray();
+        }
+
+        /// <summary>
+        /// 随机选择一个 cost=1 的敌方单位：鼠辈(5000) / 长矛猫(5010) / 苍蝇猫(1002)
+        /// </summary>
+        private int PickRandomCost1Enemy()
+        {
+            int roll = _rng.Next(3);
+            return roll == 0 ? 5000 : roll == 1 ? 5010 : 1002;
+        }
+
+        /// <summary>
+        /// 随机选择一个 cost=2 的敌方单位：奶爸猫(1005) / 巫毒猫(1101)
+        /// </summary>
+        private int PickRandomCost2Enemy()
+        {
+            return _rng.Next(2) == 0 ? 1005 : 1101;
         }
 
         /// <summary>
@@ -435,8 +454,7 @@ namespace Combat
 
             if (HasNewTribeEventForBattle(battleNumber))
                 events.Add(new System.Tuple<string, int>("newTribeEvent", GetPopupPriority("newTribeEvent")));
-            if (HasRecruitmentForBattle(battleNumber))
-                events.Add(new System.Tuple<string, int>("recruitment", GetPopupPriority("recruitment")));
+            // 招募已由 ShowBattleResultRecruitment 单独处理，不加入构筑阶段事件
             if (HasRitualForBattle(battleNumber))
                 events.Add(new System.Tuple<string, int>("ritual", GetPopupPriority("ritual")));
             if (HasRandomEventForBattle(battleNumber))

@@ -24,8 +24,8 @@ namespace Camp
         private int _quotaEvent = 3;
         private int _quotaFate = 3;
 
-        private float _columnSpacing = 500f;
-        private float _rowSpacing = 160f;
+        private float _columnSpacing = 333f;
+        private float _rowSpacing = 107f;
 
         private static readonly System.Random _rng = new System.Random();
 
@@ -247,13 +247,13 @@ namespace Camp
 
         private void GenerateEdges(List<List<MapNode>> layers)
         {
-            // 第1层 → 第2层：起点连全部
+            // 第1层 → 第2层：起点连全部（不受出度限制）
             var startNodes = layers[_startLayer - 1];  // layer index 0
             var secondLayer = layers[_startLayer];      // layer index 1
             foreach (var node in secondLayer)
                 Connect(startNodes[0], node);
 
-            // 第14层 → 第15层：全部连Boss
+            // 第14层 → 第15层：全部连Boss（不受入度限制）
             var preBoss = layers[_specialLayerHSShop - 1]; // layer index 13
             var boss = layers[_specialLayerBoss - 1];       // layer index 14
             foreach (var node in preBoss)
@@ -266,29 +266,53 @@ namespace Camp
                 var srcLayer = layers[srcIdx];
                 var dstLayer = layers[srcIdx + 1];
 
-                // 按 index(行号) 从小到大处理
                 for (int y = 0; y < srcLayer.Count; y++)
                 {
                     var srcNode = srcLayer[y];
-                    int[] offsets = { -1, 0, 1, 2 };
+                    int srcLayerCount = srcLayer.Count;
 
-                    foreach (int offset in offsets)
+                    // 边缘节点（首/末）只有1条出边，中间节点随机1~2条
+                    bool isEdge = (y == 0 || y == srcLayerCount - 1);
+                    int outDegree = isEdge ? 1 : (_rng.Next(2) == 0 ? 1 : 2);
+
+                    bool hasOutgoing = false;
+
+                    // 主路径：必定连接正上方节点
+                    int mainTargetY = y; // 正上方（同索引）
+                    if (mainTargetY >= 0 && mainTargetY < dstLayer.Count)
                     {
-                        int targetY = y + offset;
-                        if (targetY < 0 || targetY >= dstLayer.Count) continue;
+                        var mainTarget = dstLayer[mainTargetY];
+                        if (mainTarget.prevNodeIds.Count < 2)
+                        {
+                            Connect(srcNode, mainTarget);
+                            hasOutgoing = true;
+                        }
+                    }
 
-                        var dstNode = dstLayer[targetY];
-                        int existingIncoming = dstNode.prevNodeIds.Count;
+                    // 副路径：出边数=2时，尝试左上或右上
+                    if (outDegree == 2)
+                    {
+                        // 随机选择方向顺序
+                        int[] sideOffsets = _rng.Next(2) == 0 ? new[] { -1, 1 } : new[] { 1, -1 };
+                        foreach (int offset in sideOffsets)
+                        {
+                            int sideTargetY = y + offset;
+                            if (sideTargetY < 0 || sideTargetY >= dstLayer.Count) continue;
 
-                        if (existingIncoming >= 3) continue;
+                            var sideTarget = dstLayer[sideTargetY];
+                            if (sideTarget.prevNodeIds.Count < 2)
+                            {
+                                Connect(srcNode, sideTarget);
+                                break; // 只加一条副路径
+                            }
+                        }
+                    }
 
-                        double prob;
-                        if (existingIncoming == 0) prob = 1.0;
-                        else if (existingIncoming == 1) prob = 0.5;
-                        else prob = 0.3;
-
-                        if (_rng.NextDouble() < prob)
-                            Connect(srcNode, dstNode);
+                    // 后置保证：非终节点至少1条出边
+                    if (!hasOutgoing && srcIdx < _specialLayerHSShop - 2)
+                    {
+                        int fallbackY = Mathf.Clamp(y, 0, dstLayer.Count - 1);
+                        Connect(srcNode, dstLayer[fallbackY]);
                     }
                 }
             }
@@ -299,7 +323,7 @@ namespace Camp
 
         private void ValidateConnections(List<List<MapNode>> layers)
         {
-            // 保证每个节点都有入边
+            // 保证每个节点都有入边（尊重入度≤2限制）
             for (int i = 1; i < layers.Count; i++)
             {
                 for (int j = 0; j < layers[i].Count; j++)
@@ -307,8 +331,34 @@ namespace Camp
                     if (layers[i][j].prevNodeIds.Count == 0)
                     {
                         var prevLayer = layers[i - 1];
+                        // 优先连接同索引的上层节点，如果入度已满则尝试相邻节点
                         int nearest = Mathf.Min(j, prevLayer.Count - 1);
-                        Connect(prevLayer[nearest], layers[i][j]);
+                        bool connected = false;
+
+                        // 尝试同索引
+                        if (prevLayer[nearest].nextNodeIds.Count < 2)
+                        {
+                            Connect(prevLayer[nearest], layers[i][j]);
+                            connected = true;
+                        }
+
+                        // 尝试相邻节点
+                        if (!connected && nearest > 0 && prevLayer[nearest - 1].nextNodeIds.Count < 2)
+                        {
+                            Connect(prevLayer[nearest - 1], layers[i][j]);
+                            connected = true;
+                        }
+                        if (!connected && nearest < prevLayer.Count - 1 && prevLayer[nearest + 1].nextNodeIds.Count < 2)
+                        {
+                            Connect(prevLayer[nearest + 1], layers[i][j]);
+                            connected = true;
+                        }
+
+                        // 最后兜底：强制连接（可能突破限制，但保证不会孤立）
+                        if (!connected)
+                        {
+                            Connect(prevLayer[nearest], layers[i][j]);
+                        }
                     }
                 }
             }
@@ -474,7 +524,7 @@ namespace Camp
         }
 
         /// <summary>
-        /// 普通关卡敌人组合：鼠辈(5000) + 敌方矛猫(5010) 任意比例
+        /// 普通关卡敌人组合：鼠辈(5000) + 长矛猫(5010) + 苍蝇猫(1002) 任意比例
         /// </summary>
         private int[] GenerateNormalCompositionForMap(int cap)
         {
@@ -482,34 +532,35 @@ namespace Camp
             int remaining = cap;
             while (remaining > 0)
             {
-                result.Add(_rng.Next(2) == 0 ? 5000 : 5010);
+                int roll = _rng.Next(3);
+                result.Add(roll == 0 ? 5000 : roll == 1 ? 5010 : 1002);
                 remaining--;
             }
             return result.ToArray();
         }
 
         /// <summary>
-        /// 精英关卡敌人组合：至少一只游侠或猫骑士
+        /// 精英关卡敌人组合：至少一只游侠或猫骑士，加入奶爸猫/巫毒猫/苍蝇猫
         /// </summary>
         private int[] GenerateEliteCompositionForMap(Combat.BattleCampaignRuntime campaign, int cap)
         {
             var result = new List<int>();
             int remaining = cap;
 
-            // 先确保至少有一只游侠(5040)或猫骑士(5020)
-            if (remaining >= 3 && _rng.Next(2) == 0)
+            // 先确保至少有一只游侠(5040, cost=5)或猫骑士(5020, cost=5)
+            if (remaining >= 5 && _rng.Next(2) == 0)
             {
                 result.Add(5020);
-                remaining -= 3;
+                remaining -= 5;
             }
-            else if (remaining >= 2)
+            else if (remaining >= 5)
             {
                 result.Add(5040);
-                remaining -= 2;
+                remaining -= 5;
             }
             else if (remaining >= 1)
             {
-                result.Add(5000);
+                result.Add(PickRandomCost1EnemyForMap());
                 remaining -= 1;
             }
 
@@ -517,19 +568,19 @@ namespace Camp
             while (remaining > 0)
             {
                 int roll = _rng.Next(100);
-                if (remaining >= 3 && roll < 15)
+                if (remaining >= 5 && roll < 20)
                 {
                     result.Add(5020);
-                    remaining -= 3;
+                    remaining -= 5;
                 }
-                else if (remaining >= 2 && roll < 40)
+                else if (remaining >= 2 && roll < 55)
                 {
-                    result.Add(5040);
+                    result.Add(PickRandomCost2EnemyForMap());
                     remaining -= 2;
                 }
                 else
                 {
-                    result.Add(_rng.Next(2) == 0 ? 5000 : 5010);
+                    result.Add(PickRandomCost1EnemyForMap());
                     remaining -= 1;
                 }
             }
@@ -537,7 +588,7 @@ namespace Camp
         }
 
         /// <summary>
-        /// Boss关卡敌人组合：必定至少一只奶牛猫族长(5030)
+        /// Boss关卡敌人组合：必定至少一只奶牛猫族长(5030, cost=8)，加入奶爸猫/巫毒猫/苍蝇猫
         /// </summary>
         private int[] GenerateBossCompositionForMap(Combat.BattleCampaignRuntime campaign, int cap)
         {
@@ -546,33 +597,50 @@ namespace Camp
 
             // 必定放一只奶牛猫族长
             result.Add(5030);
-            remaining -= 4;
+            remaining -= 8;
 
             // 填充剩余人口
             while (remaining > 0)
             {
-                if (remaining >= 4 && _rng.Next(100) < 20)
+                if (remaining >= 8 && _rng.Next(100) < 20)
                 {
                     result.Add(5030);
-                    remaining -= 4;
+                    remaining -= 8;
                 }
-                else if (remaining >= 3 && _rng.Next(100) < 25)
+                else if (remaining >= 5 && _rng.Next(100) < 25)
                 {
                     result.Add(5020);
-                    remaining -= 3;
+                    remaining -= 5;
                 }
                 else if (remaining >= 2 && _rng.Next(100) < 35)
                 {
-                    result.Add(5040);
+                    result.Add(PickRandomCost2EnemyForMap());
                     remaining -= 2;
                 }
                 else
                 {
-                    result.Add(_rng.Next(2) == 0 ? 5000 : 5010);
+                    result.Add(PickRandomCost1EnemyForMap());
                     remaining -= 1;
                 }
             }
             return result.ToArray();
+        }
+
+        /// <summary>
+        /// 随机选择一个 cost=1 的敌方单位：鼠辈(5000) / 长矛猫(5010) / 苍蝇猫(1002)
+        /// </summary>
+        private int PickRandomCost1EnemyForMap()
+        {
+            int roll = _rng.Next(3);
+            return roll == 0 ? 5000 : roll == 1 ? 5010 : 1002;
+        }
+
+        /// <summary>
+        /// 随机选择一个 cost=2 的敌方单位：奶爸猫(1005) / 巫毒猫(1101)
+        /// </summary>
+        private int PickRandomCost2EnemyForMap()
+        {
+            return _rng.Next(2) == 0 ? 1005 : 1101;
         }
 
         /// <summary>

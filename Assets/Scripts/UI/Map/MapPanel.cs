@@ -20,8 +20,8 @@ public class MapPanel : UIPanel
     private float _minX;
     private float _minY;
 
-    private const float NodeW = 400f;
-    private const float NodeH = 100f;
+    private const float NodeW = 220f;
+    private const float NodeH = 80f;
 
     private readonly List<RectTransform> _availableNodes = new List<RectTransform>();
 
@@ -92,6 +92,9 @@ public class MapPanel : UIPanel
         for (int i = 0; i < mapData.nodes.Count; i++)
             CreateNodeButton(mapData.nodes[i]);
 
+        // Phase 3: 画迷雾遮罩（覆盖所有节点和连线）
+        DrawFogOverlay(mapData);
+
         // 自动滚动到起始节点
         ScrollToFirstAvailableNode(mapData, currentNodeId);
     }
@@ -139,13 +142,10 @@ public class MapPanel : UIPanel
         go.transform.SetParent(_content, false);
 
         var rect = go.AddComponent<RectTransform>();
-        Vector2 delta = to - from;
-        float length = delta.magnitude;
 
-        // 从节点边缘起止：沿方向各缩进半个节点宽度
-        Vector2 dir = delta.normalized;
-        Vector2 edgeFrom = from + dir * (NodeW / 2f);
-        Vector2 edgeTo = to - dir * (NodeW / 2f);
+        // 连线从源节点右侧中心点出发，到目标节点左侧中心点结束
+        Vector2 edgeFrom = new Vector2(from.x + NodeW / 2f, from.y);
+        Vector2 edgeTo = new Vector2(to.x - NodeW / 2f, to.y);
         Vector2 edgeDelta = edgeTo - edgeFrom;
         float edgeLength = edgeDelta.magnitude;
 
@@ -177,6 +177,103 @@ public class MapPanel : UIPanel
             return new Color(1f, 0.9f, 0.3f, 0.9f);
 
         return new Color(0.3f, 0.3f, 0.35f, 0.4f);
+    }
+
+    // ====== Fog Overlay ======
+
+    /// <summary>
+    /// 绘制迷雾遮罩：从第一个迷雾节点所在列开始，覆盖到内容最右端
+    /// </summary>
+    private void DrawFogOverlay(MapData mapData)
+    {
+        // 找到第一个迷雾节点的最小 x 坐标（节点左边缘）
+        float fogStartX = float.MaxValue;
+        foreach (var n in mapData.nodes)
+        {
+            if (n.state == MapNodeState.Fogged)
+            {
+                float nodeCenterX = n.x - _minX + _padding + NodeW / 2f;
+                float nodeLeftX = nodeCenterX - NodeW / 2f;
+                if (nodeLeftX < fogStartX)
+                    fogStartX = nodeLeftX;
+            }
+        }
+
+        // 没有迷雾节点，不绘制
+        if (fogStartX == float.MaxValue) return;
+
+        // 向左偏移，为渐变边缘留出空间
+        float edgeWidth = 80f;
+        fogStartX -= 10f;
+
+        float contentW = _content.sizeDelta.x;
+        float fogWidth = contentW - fogStartX + edgeWidth;
+
+        if (fogWidth <= 0) return;
+
+        // 计算所有节点的 y 范围
+        float minY_center = float.MaxValue, maxY_center = float.MinValue;
+        foreach (var n in mapData.nodes)
+        {
+            Vector2 pos = NodeToUIPos(n);
+            if (pos.y < minY_center) minY_center = pos.y;
+            if (pos.y > maxY_center) maxY_center = pos.y;
+        }
+        float fogHeight = (maxY_center - minY_center) + NodeH + _padding * 2;
+        float fogCenterY = (minY_center + maxY_center) / 2f;
+        float fogCenterX = fogStartX + fogWidth / 2f;
+
+        // 主迷雾遮罩：深灰色完全不透明
+        var fogGo = new GameObject("FogOverlay");
+        fogGo.transform.SetParent(_content, false);
+        fogGo.transform.SetAsLastSibling();
+
+        var fogRect = fogGo.AddComponent<RectTransform>();
+        fogRect.anchorMin = new Vector2(0, 1);
+        fogRect.anchorMax = new Vector2(0, 1);
+        fogRect.pivot = new Vector2(0.5f, 0.5f);
+        fogRect.sizeDelta = new Vector2(fogWidth, fogHeight);
+        fogRect.anchoredPosition = new Vector2(fogCenterX, fogCenterY);
+
+        var fogImg = fogGo.AddComponent<Image>();
+        fogImg.color = new Color(0.12f, 0.12f, 0.15f, 1f);
+        fogImg.raycastTarget = false;
+
+        // 渐变边缘效果
+        var edgeGo = new GameObject("FogEdge");
+        edgeGo.transform.SetParent(_content, false);
+        edgeGo.transform.SetAsLastSibling();
+
+        var edgeRect = edgeGo.AddComponent<RectTransform>();
+        edgeRect.anchorMin = new Vector2(0, 1);
+        edgeRect.anchorMax = new Vector2(0, 1);
+        edgeRect.pivot = new Vector2(0.5f, 0.5f);
+        edgeRect.sizeDelta = new Vector2(edgeWidth, fogHeight);
+        edgeRect.anchoredPosition = new Vector2(fogCenterX - fogWidth / 2f - edgeWidth / 2f, fogCenterY);
+
+        var edgeImg = edgeGo.AddComponent<Image>();
+        edgeImg.color = new Color(0.12f, 0.12f, 0.15f, 0.5f);
+        edgeImg.raycastTarget = false;
+
+        // 迷雾提示文字
+        var hintGo = new GameObject("FogHint");
+        hintGo.transform.SetParent(_content, false);
+        hintGo.transform.SetAsLastSibling();
+
+        var hintRect = hintGo.AddComponent<RectTransform>();
+        hintRect.anchorMin = new Vector2(0, 1);
+        hintRect.anchorMax = new Vector2(0, 1);
+        hintRect.pivot = new Vector2(0.5f, 0.5f);
+        hintRect.sizeDelta = new Vector2(200, 60);
+        hintRect.anchoredPosition = new Vector2(fogCenterX - edgeWidth / 2f, fogCenterY);
+
+        var hintTxt = hintGo.AddComponent<Text>();
+        hintTxt.text = "迷雾封锁";
+        hintTxt.font = GameManager.Instance.ResourceManager.LoadResource<Font>("assets/bundle/font/fzy3k_gbk");
+        hintTxt.fontSize = 28;
+        hintTxt.color = new Color(0.5f, 0.5f, 0.55f, 0.9f);
+        hintTxt.alignment = TextAnchor.MiddleCenter;
+        hintTxt.raycastTarget = false;
     }
 
     // ====== Node Creation ======
@@ -235,7 +332,7 @@ public class MapPanel : UIPanel
         var txt = textGo.AddComponent<Text>();
         txt.text = label;
         txt.font = GameManager.Instance.ResourceManager.LoadResource<Font>("assets/bundle/font/fzy3k_gbk");
-        txt.fontSize = 28;
+        txt.fontSize = 22;
         txt.color = node.state == MapNodeState.Visited ? new Color(0.6f, 0.6f, 0.6f) : Color.white;
         txt.alignment = TextAnchor.MiddleCenter;
         txt.raycastTarget = false;
@@ -249,12 +346,12 @@ public class MapPanel : UIPanel
             checkRect.anchorMin = new Vector2(1, 1);
             checkRect.anchorMax = new Vector2(1, 1);
             checkRect.pivot = new Vector2(1, 1);
-            checkRect.sizeDelta = new Vector2(30, 30);
-            checkRect.anchoredPosition = new Vector2(-4, -4);
+            checkRect.sizeDelta = new Vector2(24, 24);
+            checkRect.anchoredPosition = new Vector2(-3, -3);
             var checkTxt = checkGo.AddComponent<Text>();
             checkTxt.text = "✓";
             checkTxt.font = GameManager.Instance.ResourceManager.LoadResource<Font>("assets/bundle/font/fzy3k_gbk");
-            checkTxt.fontSize = 22;
+            checkTxt.fontSize = 18;
             checkTxt.color = new Color(0.5f, 1f, 0.5f);
             checkTxt.alignment = TextAnchor.MiddleCenter;
             checkTxt.raycastTarget = false;
@@ -310,7 +407,7 @@ public class MapPanel : UIPanel
             string desc = enemyIds.Length <= 3 ? "少量敌人" : enemyIds.Length <= 6 ? "中等数量" : "大量敌人";
             hintTxt.text = desc;
             try { hintTxt.font = GameManager.Instance.ResourceManager.LoadResource<Font>("assets/bundle/font/fzy3k_gbk"); } catch { }
-            hintTxt.fontSize = 20;
+            hintTxt.fontSize = 16;
             hintTxt.color = new Color(0.7f, 0.7f, 0.7f);
             hintTxt.alignment = TextAnchor.MiddleCenter;
             hintTxt.raycastTarget = false;
@@ -331,7 +428,7 @@ public class MapPanel : UIPanel
             int max = enemyIds.Length + 3;
             hintTxt.text = $"敌人约 {min}-{max} 只";
             try { hintTxt.font = GameManager.Instance.ResourceManager.LoadResource<Font>("assets/bundle/font/fzy3k_gbk"); } catch { }
-            hintTxt.fontSize = 20;
+            hintTxt.fontSize = 16;
             hintTxt.color = new Color(0.8f, 0.8f, 0.8f);
             hintTxt.alignment = TextAnchor.MiddleCenter;
             hintTxt.raycastTarget = false;
@@ -345,13 +442,13 @@ public class MapPanel : UIPanel
         iconsGo.transform.SetParent(nodeGo.transform, false);
         var iconsRect = iconsGo.AddComponent<RectTransform>();
         iconsRect.anchorMin = new Vector2(0, 0);
-        iconsRect.anchorMax = new Vector2(1, 0.5f);
+        iconsRect.anchorMax = new Vector2(1, 0.45f);
         iconsRect.sizeDelta = Vector2.zero;
         iconsRect.anchoredPosition = Vector2.zero;
 
         int count = displayIds.Count;
-        float iconSize = 120f;
-        float gap = 8f;
+        float iconSize = 50f;
+        float gap = 4f;
         float totalW = count * iconSize + (count - 1) * gap;
         float startX = -totalW / 2f + iconSize / 2f;
 

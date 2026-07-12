@@ -61,39 +61,87 @@ namespace Camp
         }
 
         /// <summary>
-        /// 根据敌方兵种 ID 列表生成招募卡片。
-        /// 文档要求招募对象就是战斗中出现过的敌方兵种，不再临时替换成同族其他稀有度单位。
+        /// 生成招募卡片：一个己方本次出战的猫（随机选） + 一个本次敌方出战的猫（随机选）。
+        /// 两张卡片都可直接招募（无掷骰子），都按原公式收费。
         /// </summary>
-        public List<RecruitmentCard> GenerateRecruitmentCards(List<int> enemyFighterIds)
+        /// <param name="enemyFighterIds">本次敌方出战的猫ID列表</param>
+        /// <param name="playerFighterIds">本次己方出战的猫ID列表</param>
+        public List<RecruitmentCard> GenerateRecruitmentCards(List<int> enemyFighterIds, List<int> playerFighterIds = null)
         {
             var cards = new List<RecruitmentCard>();
-            if (enemyFighterIds == null) return cards;
-
             int regionId = GetCurrentRegionId();
             bool isBossBattle = IsCurrentBattleBoss();
-            var addedMap = new Dictionary<int, int>();
 
-            foreach (int fighterId in enemyFighterIds)
+            // 预处理：去重并过滤有效ID
+            var validPlayer = DeduplicateAndFilter(playerFighterIds);
+            var validEnemy = DeduplicateAndFilter(enemyFighterIds);
+
+            // 排除敌方中与己方重复的ID
+            if (validPlayer.Count > 0)
             {
-                var config = TribeConfigLoader.Instance?.GetFighterConfig(fighterId);
-                if (config == null) continue;
+                var playerSet = new HashSet<int>(validPlayer);
+                validEnemy.RemoveAll(id => playerSet.Contains(id));
+            }
 
-                bool bornEnhanced = !isBossBattle && RollBornEnhanced((Rarity)config.rarity, regionId);
+            GameLogger.Log("Recruit", $"GenerateCards validPlayer=[{string.Join(",", validPlayer)}] validEnemy=[{string.Join(",", validEnemy)}]");
 
-                if (addedMap.TryGetValue(config.fighterId, out int existingIndex))
+            // 1. 从己方本次出战的猫中随机选1个
+            if (validPlayer.Count > 0)
+            {
+                int pickedId = validPlayer[_rng.Next(validPlayer.Count)];
+                var cfg = TribeConfigLoader.Instance.GetFighterConfig(pickedId);
+                bool bornEnhanced = !isBossBattle && RollBornEnhanced((Rarity)cfg.rarity, regionId);
+                cards.Add(CreateCard(cfg, bornEnhanced));
+            }
+
+            // 2. 从本次敌方出战的猫中随机选1个
+            if (validEnemy.Count > 0)
+            {
+                int pickedId = validEnemy[_rng.Next(validEnemy.Count)];
+                var cfg = TribeConfigLoader.Instance.GetFighterConfig(pickedId);
+                bool bornEnhanced = !isBossBattle && RollBornEnhanced((Rarity)cfg.rarity, regionId);
+                cards.Add(CreateCard(cfg, bornEnhanced));
+            }
+
+            // 保底：如果某一来源为空，从另一来源补选（确保有2张卡）
+            if (cards.Count < 2)
+            {
+                var fallbackSource = cards.Count == 0 ? validPlayer : (validPlayer.Count > 0 ? validPlayer : validEnemy);
+                if (fallbackSource.Count > 0)
                 {
-                    if (bornEnhanced && !cards[existingIndex].bornEnhanced)
+                    // 排除已选的
+                    var existingIds = new HashSet<int>();
+                    foreach (var c in cards) existingIds.Add(c.fighterId);
+                    var remaining = new List<int>();
+                    foreach (int fid in fallbackSource)
                     {
-                        cards[existingIndex] = CreateCard(config, bornEnhanced);
+                        if (!existingIds.Contains(fid))
+                            remaining.Add(fid);
                     }
-                    continue;
-                }
+                    // 如果没有不同的，允许重复
+                    if (remaining.Count == 0) remaining = new List<int>(fallbackSource);
 
-                addedMap[config.fighterId] = cards.Count;
-                cards.Add(CreateCard(config, bornEnhanced));
+                    int pickedId = remaining[_rng.Next(remaining.Count)];
+                    var cfg = TribeConfigLoader.Instance.GetFighterConfig(pickedId);
+                    bool bornEnhanced = !isBossBattle && RollBornEnhanced((Rarity)cfg.rarity, regionId);
+                    cards.Add(CreateCard(cfg, bornEnhanced));
+                }
             }
 
             return cards;
+        }
+
+        private List<int> DeduplicateAndFilter(List<int> ids)
+        {
+            var result = new List<int>();
+            if (ids == null) return result;
+            var seen = new HashSet<int>();
+            foreach (int fid in ids)
+            {
+                if (seen.Add(fid) && TribeConfigLoader.Instance?.GetFighterConfig(fid) != null)
+                    result.Add(fid);
+            }
+            return result;
         }
 
         /// <summary>
@@ -253,7 +301,7 @@ namespace Camp
                 tribeType = config.tribeType,
                 populationCost = config.populationCost,
                 goldCost = CalculateRecruitCost(config),
-                diceResult = DiceResult.Pending,
+                diceResult = DiceResult.Success,
                 config = config,
                 rarity = config.rarity,
                 bornEnhanced = bornEnhanced
