@@ -128,6 +128,16 @@ namespace Camp
                 }
             }
 
+            // 3. 固定第3张卡：从苍蝇猫(1002)、奶爸猫(1005)、巫毒猫(1101)中等概率随机
+            int[] thirdCardPool = { 1002, 1005, 1101 };
+            int thirdId = thirdCardPool[_rng.Next(thirdCardPool.Length)];
+            var thirdCfg = TribeConfigLoader.Instance.GetFighterConfig(thirdId);
+            if (thirdCfg != null)
+            {
+                bool thirdEnhanced = !isBossBattle && RollBornEnhanced((Rarity)thirdCfg.rarity, regionId);
+                cards.Add(CreateCard(thirdCfg, thirdEnhanced));
+            }
+
             return cards;
         }
 
@@ -330,8 +340,7 @@ namespace Camp
         private int CalculateRecruitCost(FighterConfig config)
         {
             if (config == null) return 100;
-            float rarityMultiplier = 1f + config.rarity * 0.5f;
-            return Mathf.RoundToInt(100 * (1 + config.tier * 0.5f) * rarityMultiplier);
+            return config.recruitCost > 0 ? config.recruitCost : 100;
         }
 
         private bool IsCurrentBattleBoss()

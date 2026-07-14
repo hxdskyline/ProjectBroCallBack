@@ -35,6 +35,7 @@ namespace Camp
         public string avatarId;
         public List<string> tags;
         public int populationCost;
+        public int recruitCost;         // 招募消耗金币（配置值）
         public int deployZones; // 位标志: inner=1, middle=2, outer=4
         public int rarity;              // Rarity 枚举值，0=普通/1=高级/2=稀有
         public int enhanceLevel;        // 配置中的默认强化等级（通常0，天生强化时为1）

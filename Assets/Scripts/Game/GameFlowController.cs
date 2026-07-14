@@ -916,10 +916,21 @@ public class GameFlowController : MonoBehaviour
                                _currentNodeId >= 0 &&
                                _currentRegionMap.GetNode(_currentNodeId)?.nodeType == MapNodeType.Boss;
             if (isBossBattle) expReward *= 3;
+        }
 
-            var campaign = GameManager.Instance?.BattleCampaignRuntime;
-            if (campaign != null)
-                catFoodReward = campaign.GetCatFoodRewardForBattle(_currentRound);
+        // 根据节点类型确定难度，获取关卡奖励（失败时为胜利奖励的一半）
+        var nodeType = _currentRegionMap?.GetNode(_currentNodeId)?.nodeType ?? MapNodeType.Battle;
+        var difficulty = nodeType switch
+        {
+            MapNodeType.Boss => DifficultyLevel.Boss,
+            MapNodeType.EliteBattle => DifficultyLevel.Hard,
+            _ => DifficultyLevel.Normal
+        };
+        var campaign = GameManager.Instance?.BattleCampaignRuntime;
+        if (campaign != null)
+        {
+            int fullReward = campaign.GetCatFoodReward(_currentRound, difficulty);
+            catFoodReward = victory ? fullReward : fullReward / 2;
         }
 
         // 显示结算面板，等待玩家确认后继续
@@ -1151,7 +1162,7 @@ public class GameFlowController : MonoBehaviour
             cards,
             onSelected: card =>
             {
-                recruitmentSystem.RecruitUnit(card);
+                return recruitmentSystem.RecruitUnit(card);
             },
             onSkipped: () =>
             {
@@ -1415,7 +1426,7 @@ public class GameFlowController : MonoBehaviour
             cards,
             onSelected: card =>
             {
-                recruitmentSystem.RecruitRareFighter(card.config);
+                return recruitmentSystem.RecruitRareFighter(card.config);
             },
             onSkipped: () =>
             {

@@ -211,7 +211,7 @@ namespace Combat
                 // 摧毁看板时，爆发大量货币
                 if (camp == BillboardCamp.Enemy)
                 {
-                    int burstAmount = 500;
+                    int burstAmount = 100;
                     OnCurrencyDropped?.Invoke(burstAmount);
                 }
             }

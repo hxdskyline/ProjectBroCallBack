@@ -744,7 +744,7 @@ namespace Combat
                         }
                         else if (statsData.IsObject)
                         {
-                            // New format: { "normal": {...}, "hard": {...}, "bloodbath": {...} }
+                            // New format: { "normal": {...}, "hard": {...}, "boss": {...} }
                             var statsMap = new Dictionary<DifficultyLevel, UnitStaticAttributes>();
 
                             foreach (string key in statsData.Keys)
@@ -778,7 +778,7 @@ namespace Combat
                         }
                         else if (rewardData.IsObject)
                         {
-                            // New format: { "normal": 100, "hard": 150, "bloodbath": 250 }
+                            // New format: { "normal": 100, "hard": 150, "boss": 250 }
                             var rewardMap = new Dictionary<DifficultyLevel, int>();
 
                             foreach (string key in rewardData.Keys)
@@ -965,7 +965,7 @@ namespace Combat
             switch (s.ToLowerInvariant())
             {
                 case "hard": return DifficultyLevel.Hard;
-                case "bloodbath": return DifficultyLevel.Bloodbath;
+                case "boss": return DifficultyLevel.Boss;
                 default: return DifficultyLevel.Normal;
             }
         }

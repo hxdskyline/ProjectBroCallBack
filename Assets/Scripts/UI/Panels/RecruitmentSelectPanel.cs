@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class RecruitmentSelectPanel : UIPanel
 {
-    private Action<RecruitmentCard> _onSelected;
+    private Func<RecruitmentCard, bool> _onSelected;
     private Action _onSkipped;
     private List<RecruitmentCard> _cards;
     private HashSet<int> _selectedIndices = new HashSet<int>();
@@ -15,7 +15,7 @@ public class RecruitmentSelectPanel : UIPanel
 
     public void ShowRecruitment(
         List<RecruitmentCard> cards,
-        Action<RecruitmentCard> onSelected,
+        Func<RecruitmentCard, bool> onSelected,
         Action onSkipped,
         string title = "招募",
         string skipText = "跳过")
@@ -44,6 +44,11 @@ public class RecruitmentSelectPanel : UIPanel
         var titleText = CreateText("Title", _title, 34, new Color(1f, 0.85f, 0.4f));
         titleText.rectTransform.anchoredPosition = new Vector2(0, 350);
 
+        // 显示当前剩余货币
+        long currentGold = GameManager.Instance?.CurrencyManager?.GetCurrencyAmount(CurrencyType.Gold) ?? 0;
+        var goldText = CreateText("GoldDisplay", $"木天蓼叶: {currentGold}", 22, new Color(1f, 0.9f, 0.5f));
+        goldText.rectTransform.anchoredPosition = new Vector2(350, 350);
+
         if (_cards.Count > 0)
         {
             float cardWidth = 400f;
@@ -58,16 +63,12 @@ public class RecruitmentSelectPanel : UIPanel
             }
         }
 
-        // 所有卡都已选择时自动关闭
-        if (_cards.Count > 0 && _selectedIndices.Count >= _cards.Count)
+        // 未选满时显示跳过按钮
+        if (_selectedIndices.Count < _cards.Count)
         {
-            Close();
-            _onSkipped?.Invoke();
-            return;
+            var skipBtn = CreateButton("SkipButton", _skipText, OnSkip, new Color(0.4f, 0.4f, 0.4f));
+            skipBtn.anchoredPosition = new Vector2(0, -380);
         }
-
-        var skipBtn = CreateButton("SkipButton", _skipText, OnSkip, new Color(0.4f, 0.4f, 0.4f));
-        skipBtn.anchoredPosition = new Vector2(0, -380);
     }
 
     private void CreateCardUI(RecruitmentCard card, int index, float xPos, bool isSelected)
@@ -155,12 +156,21 @@ public class RecruitmentSelectPanel : UIPanel
         if (index < 0 || index >= _cards.Count) return;
         if (_selectedIndices.Contains(index)) return;
 
-        _selectedIndices.Add(index);
-        _onSelected?.Invoke(_cards[index]);
+        bool success = _onSelected != null && _onSelected(_cards[index]);
+        if (!success) return; // 货币不足等原因招募失败，不标记
 
-        // 只能招募一个，选完直接关闭
-        Close();
-        _onSkipped?.Invoke();
+        _selectedIndices.Add(index);
+
+        // 全部选完自动结束，否则刷新UI继续选择
+        if (_selectedIndices.Count >= _cards.Count)
+        {
+            Close();
+            _onSkipped?.Invoke();
+        }
+        else
+        {
+            BuildUI();
+        }
     }
 
     private void OnSkip()
