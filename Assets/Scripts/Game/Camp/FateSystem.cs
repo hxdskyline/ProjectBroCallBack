@@ -334,7 +334,7 @@ namespace Camp
                 case "HealPotion": effectType = 0; value = 50; break;
                 case "AttackBuff": effectType = 1; value = 0.3f; break;
                 case "DefenseBuff": effectType = 2; value = 0.3f; break;
-                case "Bomb": effectType = 3; value = 200; break;
+                case "Bomb": effectType = 3; value = 500; break;
                 case "FreezeTrap": effectType = 4; value = 3; break;
             }
 

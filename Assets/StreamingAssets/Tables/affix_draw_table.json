@@ -107,5 +107,5 @@
     }
   ],
   "drawCount": 3,
-  "description": "词缀抽取概率表：根据关卡范围和难度决定低级/高级/固定词缀的出现概率。难度对应：normal=普通, hard=困难, elite=极难(Bloodbath)"
+  "description": "词缀抽取概率表：根据关卡范围和难度决定低级/高级/固定词缀的出现概率。难度对应：normal=普通, hard=精英, boss=Boss"
 }

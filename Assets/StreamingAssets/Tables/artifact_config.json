@@ -196,7 +196,7 @@
   "dropPools": {
     "battle_normal":    { "artifactIds": ["Artifact_AtkFlat40", "Artifact_DefFlat20", "Artifact_HpFlat500", "Artifact_MoveSpeed40", "Artifact_AtkSpd40", "Artifact_AtkPct20", "Artifact_DefPct15", "Artifact_HpPct25"], "dropRate": 0.1 },
     "battle_hard":      { "artifactIds": ["Artifact_Atk25_Hp250", "Artifact_Def12_Hp300", "Artifact_Atk20_AtkSpd20", "Artifact_MoveSpeed20_AtkSpd20", "Artifact_AtkPct10_HpPct15", "Artifact_DefPct8_HpPct15", "Artifact_Atk15_Def10_Hp150", "Artifact_AllStats5"], "dropRate": 0.15 },
-    "battle_bloodbath": { "artifactIds": ["Artifact_KillHeal15", "Artifact_DmgReduce10", "Artifact_LowHpDmg30", "Artifact_ShieldOnKill"], "dropRate": 0.2 },
+    "battle_boss":      { "artifactIds": ["Artifact_KillHeal15", "Artifact_DmgReduce10", "Artifact_LowHpDmg30", "Artifact_ShieldOnKill"], "dropRate": 0.2 },
     "prayer_free":      { "artifactIds": ["Artifact_AtkFlat40", "Artifact_DefFlat20", "Artifact_HpFlat500"] },
     "prayer_low":       { "artifactIds": ["Artifact_MoveSpeed40", "Artifact_AtkSpd40", "Artifact_AtkPct20", "Artifact_DefPct15", "Artifact_HpPct25", "Artifact_Atk25_Hp250"] },
     "prayer_high":      { "artifactIds": ["Artifact_Def12_Hp300", "Artifact_Atk20_AtkSpd20", "Artifact_MoveSpeed20_AtkSpd20", "Artifact_AtkPct10_HpPct15", "Artifact_DefPct8_HpPct15", "Artifact_Atk15_Def10_Hp150", "Artifact_AllStats5", "Artifact_KillHeal15", "Artifact_DmgReduce10", "Artifact_LowHpDmg30", "Artifact_ShieldOnKill"] }

@@ -50,6 +50,8 @@ public class GameFlowController : MonoBehaviour
     private int _currentRegion = 1;
     private int _currentNodeId = -1;
     private readonly List<FighterData> _lastBattleDeployedUnits = new List<FighterData>();
+    private readonly List<int> _lastBattlePlayerFighterIds = new List<int>();
+    private readonly List<int> _lastBattleEnemyFighterIds = new List<int>();
 
     private int _currentRound = 1;
     private bool _isGameStarted = false;
@@ -292,6 +294,9 @@ public class GameFlowController : MonoBehaviour
         {
             _currentRegionMap.nodes[0].state = MapNodeState.Available;
         }
+
+        // 应用初始迷雾：第1层可见，超过第4层的节点设为迷雾封锁
+        _currentRegionMap.UpdateFog(1);
 
         Debug.Log($"[GameFlowController] 地图生成完成，共 {_mapDataList.Count} 个地区");
     }
@@ -623,6 +628,12 @@ public class GameFlowController : MonoBehaviour
         }
         if (enemyIds == null)
             enemyIds = campaign.GetEnemyUnitIdsForBattle(battleNumber);
+
+        // 保存实际出战敌人ID（用于招募）
+        _lastBattleEnemyFighterIds.Clear();
+        if (enemyIds != null)
+            _lastBattleEnemyFighterIds.AddRange(enemyIds);
+
         var enemyStats = campaign.GetEnemyStats(battleNumber, DifficultyLevel.Normal);
         var scenarios = campaign.GetScenarioOptions(battleNumber);
         var scenario = scenarios.Count > 0 ? scenarios[0] : default;
@@ -757,6 +768,25 @@ public class GameFlowController : MonoBehaviour
         if (_uiManager != null)
             _uiManager.ClosePanel("BattlePreparePanel");
 
+        // 保存实际出战敌人ID（用于招募）
+        var campaign = GameManager.Instance?.BattleCampaignRuntime;
+        int[] enemyIds = null;
+        if (campaign != null)
+        {
+            bool useNodeEnemyIds = campaign.GetEnemyUnitVariantsForBattle(battleNumber) == null;
+            if (useNodeEnemyIds && _currentRegionMap != null && _currentNodeId >= 0)
+            {
+                var currentNode = _currentRegionMap.GetNode(_currentNodeId);
+                if (currentNode?.enemyUnitIds != null && currentNode.enemyUnitIds.Length > 0)
+                    enemyIds = currentNode.enemyUnitIds;
+            }
+            if (enemyIds == null)
+                enemyIds = campaign.GetEnemyUnitIdsForBattle(battleNumber);
+        }
+        _lastBattleEnemyFighterIds.Clear();
+        if (enemyIds != null)
+            _lastBattleEnemyFighterIds.AddRange(enemyIds);
+
         // 构建玩家单位定义
         var playerDefs = new List<Combat.Fighter.BattleFighterSpawnDefinition>();
         var playerPositions = new List<Vector3>();
@@ -875,16 +905,32 @@ public class GameFlowController : MonoBehaviour
         int catFoodReward = 0;
         if (victory)
         {
+            // 在 RecoverRestingUnitsAfterVictory 清空 _lastBattleDeployedUnits 之前，保存己方出战猫ID
+            _lastBattlePlayerFighterIds.Clear();
+            foreach (var unit in _lastBattleDeployedUnits)
+                _lastBattlePlayerFighterIds.Add(unit.fighterId);
+
             RecoverRestingUnitsAfterVictory();
             expReward = 50 + _currentRound * 10;
             bool isBossBattle = _currentRegionMap != null &&
                                _currentNodeId >= 0 &&
                                _currentRegionMap.GetNode(_currentNodeId)?.nodeType == MapNodeType.Boss;
             if (isBossBattle) expReward *= 3;
+        }
 
-            var campaign = GameManager.Instance?.BattleCampaignRuntime;
-            if (campaign != null)
-                catFoodReward = campaign.GetCatFoodRewardForBattle(_currentRound);
+        // 根据节点类型确定难度，获取关卡奖励（失败时为胜利奖励的一半）
+        var nodeType = _currentRegionMap?.GetNode(_currentNodeId)?.nodeType ?? MapNodeType.Battle;
+        var difficulty = nodeType switch
+        {
+            MapNodeType.Boss => DifficultyLevel.Boss,
+            MapNodeType.EliteBattle => DifficultyLevel.Hard,
+            _ => DifficultyLevel.Normal
+        };
+        var campaign = GameManager.Instance?.BattleCampaignRuntime;
+        if (campaign != null)
+        {
+            int fullReward = campaign.GetCatFoodReward(_currentRound, difficulty);
+            catFoodReward = victory ? fullReward : fullReward / 2;
         }
 
         // 显示结算面板，等待玩家确认后继续
@@ -1095,17 +1141,8 @@ public class GameFlowController : MonoBehaviour
     /// <param name="onComplete">招募+构筑全部完成后回调（Boss关用于切换地区）</param>
     private void ShowBattleResultRecruitment(Action onComplete)
     {
-        List<int> enemyFighterIds = GetEnemyFighterIdsForCurrentLevel();
-
-        if (enemyFighterIds == null || enemyFighterIds.Count == 0)
-        {
-            Debug.Log("[GameFlowController] 没有可招募的敌方兵种，进入构筑阶段");
-            EnterBuildPhase(onComplete);
-            return;
-        }
-
         var recruitmentSystem = new RecruitmentDiceSystem();
-        var cards = recruitmentSystem.GenerateRecruitmentCards(enemyFighterIds);
+        var cards = recruitmentSystem.GenerateRecruitmentCards(_lastBattleEnemyFighterIds, _lastBattlePlayerFighterIds);
 
         if (cards == null || cards.Count == 0)
         {
@@ -1125,7 +1162,7 @@ public class GameFlowController : MonoBehaviour
             cards,
             onSelected: card =>
             {
-                recruitmentSystem.RecruitUnit(card);
+                return recruitmentSystem.RecruitUnit(card);
             },
             onSkipped: () =>
             {
@@ -1164,6 +1201,17 @@ public class GameFlowController : MonoBehaviour
         var campaign = GameManager.Instance?.BattleCampaignRuntime;
         var events = campaign?.GetSortedPopupEvents(_currentRound);
 
+        // 过滤掉当前层地图节点中已有的特殊事件（避免重复触发）
+        if (events != null && events.Count > 0 && _currentRegionMap != null)
+        {
+            var nodeEvents = GetMapNodeEventsForCurrentLayer();
+            if (nodeEvents.Count > 0)
+            {
+                events.RemoveAll(e => nodeEvents.Contains(e));
+                GameLogger.Log("GFC", $"EnterBuildPhase: filtered map node events: {string.Join(",", nodeEvents)}");
+            }
+        }
+
         if (events == null || events.Count == 0)
         {
             // 无构筑事件，直接进入选关
@@ -1174,6 +1222,35 @@ public class GameFlowController : MonoBehaviour
 
         // 依次处理事件队列，最后进入选关
         ProcessBuildPhaseEvents(events, 0, onComplete);
+    }
+
+    /// <summary>
+    /// 获取当前层地图节点中已有的特殊事件类型（用于过滤构筑阶段重复事件）
+    /// </summary>
+    private HashSet<string> GetMapNodeEventsForCurrentLayer()
+    {
+        var result = new HashSet<string>();
+        if (_currentRegionMap == null) return result;
+
+        // 获取当前层（battleNumber 相同）的所有节点
+        int currentBattleNum = _currentRound;
+        foreach (var node in _currentRegionMap.nodes)
+        {
+            if (node.battleNumber != currentBattleNum) continue;
+            switch (node.nodeType)
+            {
+                case MapNodeType.Shop:
+                    result.Add("shop");
+                    break;
+                case MapNodeType.Fate:
+                    result.Add("ritual");
+                    break;
+                case MapNodeType.Event:
+                    result.Add("randomEvent");
+                    break;
+            }
+        }
+        return result;
     }
 
     /// <summary>
@@ -1349,7 +1426,7 @@ public class GameFlowController : MonoBehaviour
             cards,
             onSelected: card =>
             {
-                recruitmentSystem.RecruitRareFighter(card.config);
+                return recruitmentSystem.RecruitRareFighter(card.config);
             },
             onSkipped: () =>
             {

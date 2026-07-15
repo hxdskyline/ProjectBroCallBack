@@ -10,6 +10,7 @@ public class BattleResultPanel : UIPanel
 {
     private System.Action _onClosed;
     private Font _font;
+    private int _catFoodReward;
 
     public override void Initialize()
     {
@@ -25,6 +26,7 @@ public class BattleResultPanel : UIPanel
         List<FighterBattleStats> battleStats, System.Action onClosed)
     {
         _onClosed = onClosed;
+        _catFoodReward = catFoodReward;
         _font = GameManager.Instance.ResourceManager.LoadResource<Font>("assets/bundle/font/fzy3k_gbk");
 
         // 清除旧子物体
@@ -231,6 +233,14 @@ public class BattleResultPanel : UIPanel
     private void OnConfirm()
     {
         GameLogger.Log("BattleResult", "确认关闭");
+
+        // 发放关卡结算奖励
+        if (_catFoodReward > 0)
+        {
+            GameManager.Instance?.DataManager?.AddCatFood(_catFoodReward);
+            GameLogger.Log("BattleResult", $"发放关卡奖励: {_catFoodReward} 木天蓼叶");
+        }
+
         GameManager.Instance?.UIManager?.ClosePanel("BattleResultPanel");
         _onClosed?.Invoke();
         GameLogger.Log("BattleResult", "继续执行后续流程");

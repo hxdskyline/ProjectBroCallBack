@@ -7,7 +7,11 @@
       "Bash(python3 -c ' *)",
       "Bash(python -c ' *)",
       "Bash(ls -la \"d:\\\\Work\\\\catcat\\\\CatNew\\\\ProjectBroCallBack\\\\\" | head -30)",
-      "Read(//d/Work/catcat/CatNew/**)"
+      "Read(//d/Work/catcat/CatNew/**)",
+      "Bash(git checkout *)",
+      "Read(//c/Users/啊哈/AppData/LocalLow/DefaultCompany/ProjectBroCallBack/Logs/**)",
+      "Bash(ls -lt \"C:\\\\Users\\\\啊哈\\\\AppData\\\\LocalLow\\\\DefaultCompany\\\\ProjectBroCallBack\\\\Logs\\\\\" 2>/dev/null | head -5)",
+      "Read(//c/Users/啊哈/AppData/LocalLow/DefaultCompany/ProjectBroCallBack/Logs\" 2>/dev/**)"
     ]
   }
 }

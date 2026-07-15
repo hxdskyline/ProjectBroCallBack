@@ -6,24 +6,24 @@ using UnityEngine.UI;
 
 public class RecruitmentSelectPanel : UIPanel
 {
-    private Action<RecruitmentCard> _onSelected;
+    private Func<RecruitmentCard, bool> _onSelected;
     private Action _onSkipped;
     private List<RecruitmentCard> _cards;
-    private RecruitmentDiceSystem _recruitmentSystem;
+    private HashSet<int> _selectedIndices = new HashSet<int>();
     private string _title;
     private string _skipText;
 
     public void ShowRecruitment(
         List<RecruitmentCard> cards,
-        Action<RecruitmentCard> onSelected,
+        Func<RecruitmentCard, bool> onSelected,
         Action onSkipped,
-        string title = "\u62DB\u52DF",
-        string skipText = "\u8DF3\u8FC7")
+        string title = "招募",
+        string skipText = "跳过")
     {
         _cards = cards != null ? new List<RecruitmentCard>(cards) : new List<RecruitmentCard>();
         _onSelected = onSelected;
         _onSkipped = onSkipped;
-        _recruitmentSystem = new RecruitmentDiceSystem();
+        _selectedIndices = new HashSet<int>();
         _title = title;
         _skipText = skipText;
 
@@ -44,6 +44,11 @@ public class RecruitmentSelectPanel : UIPanel
         var titleText = CreateText("Title", _title, 34, new Color(1f, 0.85f, 0.4f));
         titleText.rectTransform.anchoredPosition = new Vector2(0, 350);
 
+        // 显示当前剩余货币
+        long currentGold = GameManager.Instance?.CurrencyManager?.GetCurrencyAmount(CurrencyType.Gold) ?? 0;
+        var goldText = CreateText("GoldDisplay", $"木天蓼叶: {currentGold}", 22, new Color(1f, 0.9f, 0.5f));
+        goldText.rectTransform.anchoredPosition = new Vector2(350, 350);
+
         if (_cards.Count > 0)
         {
             float cardWidth = 400f;
@@ -53,15 +58,20 @@ public class RecruitmentSelectPanel : UIPanel
             for (int i = 0; i < _cards.Count; i++)
             {
                 float xPos = startX + i * (cardWidth + 30f);
-                CreateCardUI(_cards[i], i, xPos);
+                bool isSelected = _selectedIndices.Contains(i);
+                CreateCardUI(_cards[i], i, xPos, isSelected);
             }
         }
 
-        var skipBtn = CreateButton("SkipButton", _skipText, OnSkip, new Color(0.4f, 0.4f, 0.4f));
-        skipBtn.anchoredPosition = new Vector2(0, -380);
+        // 未选满时显示跳过按钮
+        if (_selectedIndices.Count < _cards.Count)
+        {
+            var skipBtn = CreateButton("SkipButton", _skipText, OnSkip, new Color(0.4f, 0.4f, 0.4f));
+            skipBtn.anchoredPosition = new Vector2(0, -380);
+        }
     }
 
-    private void CreateCardUI(RecruitmentCard card, int index, float xPos)
+    private void CreateCardUI(RecruitmentCard card, int index, float xPos, bool isSelected)
     {
         GameObject cardGo = new GameObject($"Card_{index}");
         cardGo.transform.SetParent(transform, false);
@@ -70,7 +80,9 @@ public class RecruitmentSelectPanel : UIPanel
         cardRect.anchoredPosition = new Vector2(xPos, -20);
 
         var cardBg = cardGo.AddComponent<Image>();
-        cardBg.color = new Color(0.15f, 0.15f, 0.25f, 0.95f);
+        cardBg.color = isSelected
+            ? new Color(0.1f, 0.1f, 0.15f, 0.7f)
+            : new Color(0.15f, 0.15f, 0.25f, 0.95f);
 
         Color rarityColor = card.rarity switch
         {
@@ -78,93 +90,93 @@ public class RecruitmentSelectPanel : UIPanel
             1 => new Color(0.3f, 0.6f, 1f),
             _ => new Color(0.6f, 0.6f, 0.6f)
         };
+        if (isSelected) rarityColor *= 0.5f;
 
         CreateChildImage(cardGo.transform, "RarityBar", new Vector2(380, 8), new Vector2(0, 280), rarityColor);
 
         string rarityStr = card.rarity switch
         {
-            2 => "[\u7A00\u6709]",
-            1 => "[\u9AD8\u7EA7]",
-            _ => "[\u666E\u901A]"
+            2 => "[稀有]",
+            1 => "[高级]",
+            _ => "[普通]"
         };
-        var nameText = CreateChildText(cardGo.transform, "Name", $"{rarityStr} {card.name}", 26, Color.white);
+        var nameColor = isSelected ? new Color(0.5f, 0.5f, 0.5f) : Color.white;
+        var nameText = CreateChildText(cardGo.transform, "Name", $"{rarityStr} {card.name}", 26, nameColor);
         nameText.rectTransform.anchoredPosition = new Vector2(0, 230);
 
         var cfg = card.config;
         if (cfg != null)
         {
+            var statsColor = isSelected ? new Color(0.4f, 0.4f, 0.4f) : new Color(0.8f, 0.8f, 0.8f);
             string statsText = $"HP: {cfg.hp}  攻: {cfg.attack}  防: {cfg.defense}\n速度: {cfg.moveSpeed}  攻速: {cfg.attackSpeed}";
-            var statsLabel = CreateChildText(cardGo.transform, "Stats", statsText, 18, new Color(0.8f, 0.8f, 0.8f));
+            var statsLabel = CreateChildText(cardGo.transform, "Stats", statsText, 18, statsColor);
             statsLabel.rectTransform.anchoredPosition = new Vector2(0, 150);
 
+            var tierColor = isSelected ? new Color(0.3f, 0.3f, 0.3f) : new Color(0.6f, 0.6f, 0.6f);
             string tierText = $"Tier: {cfg.tier}  人口: {card.populationCost}";
-            var tierLabel = CreateChildText(cardGo.transform, "Tier", tierText, 16, new Color(0.6f, 0.6f, 0.6f));
+            var tierLabel = CreateChildText(cardGo.transform, "Tier", tierText, 16, tierColor);
             tierLabel.rectTransform.anchoredPosition = new Vector2(0, 90);
         }
 
-        if (card.bornEnhanced)
+        if (card.bornEnhanced && !isSelected)
         {
-            var enhanceLabel = CreateChildText(cardGo.transform, "Enhanced", "\u5929\u751F\u5F3A\u5316", 18, new Color(1f, 0.85f, 0.3f));
+            var enhanceLabel = CreateChildText(cardGo.transform, "Enhanced", "天生强化", 18, new Color(1f, 0.85f, 0.3f));
             enhanceLabel.rectTransform.anchoredPosition = new Vector2(0, 50);
         }
 
-        string costText = card.goldCost > 0 ? $"\u8D39\u7528: {card.goldCost}" : "\u514D\u8D39";
-        var costLabel = CreateChildText(
-            cardGo.transform,
-            "Cost",
-            costText,
-            20,
-            card.goldCost > 0 ? new Color(1f, 0.9f, 0.5f) : new Color(0.5f, 1f, 0.5f));
-        costLabel.rectTransform.anchoredPosition = new Vector2(0, -10);
-
-        if (card.diceResult == DiceResult.Pending)
+        if (isSelected)
         {
-            var rollBtn = CreateChildButton(
-                cardGo.transform,
-                "RollBtn",
-                "\u63B7\u9AB0\u5B50",
-                () => OnRollDice(card),
-                new Color(0.5f, 0.3f, 0.7f));
-            rollBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -130);
-            return;
+            var recruitedLabel = CreateChildText(cardGo.transform, "Recruited", "✔ 已招募", 28, new Color(0.3f, 1f, 0.3f));
+            recruitedLabel.rectTransform.anchoredPosition = new Vector2(0, -80);
         }
-
-        if (card.diceResult == DiceResult.Success)
+        else
         {
-            var resultLabel = CreateChildText(cardGo.transform, "Result", "\u62DB\u52DF\u6210\u529F", 24, new Color(0.3f, 1f, 0.3f));
-            resultLabel.rectTransform.anchoredPosition = new Vector2(0, -60);
+            string costText = card.goldCost > 0 ? $"费用: {card.goldCost}" : "免费";
+            var costLabel = CreateChildText(
+                cardGo.transform,
+                "Cost",
+                costText,
+                20,
+                card.goldCost > 0 ? new Color(1f, 0.9f, 0.5f) : new Color(0.5f, 1f, 0.5f));
+            costLabel.rectTransform.anchoredPosition = new Vector2(0, -10);
 
+            int capturedIndex = index;
             var selectBtn = CreateChildButton(
                 cardGo.transform,
                 "SelectBtn",
-                "\u62DB\u52DF",
-                () => OnSelectCard(card),
+                "招募",
+                () => OnSelectCard(capturedIndex),
                 new Color(0.2f, 0.7f, 0.3f));
             selectBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -130);
-            return;
         }
-
-        var failLabel = CreateChildText(cardGo.transform, "Result", "\u4E0D\u53EF\u62DB\u52DF", 24, new Color(1f, 0.3f, 0.3f));
-        failLabel.rectTransform.anchoredPosition = new Vector2(0, -130);
     }
 
-    private void OnRollDice(RecruitmentCard card)
+    private void OnSelectCard(int index)
     {
-        _recruitmentSystem.RollDice(card);
-        BuildUI();
-    }
+        if (index < 0 || index >= _cards.Count) return;
+        if (_selectedIndices.Contains(index)) return;
 
-    private void OnSelectCard(RecruitmentCard card)
-    {
-        _onSelected?.Invoke(card);
-        _cards.Remove(card);
-        BuildUI();
+        bool success = _onSelected != null && _onSelected(_cards[index]);
+        if (!success) return; // 货币不足等原因招募失败，不标记
+
+        _selectedIndices.Add(index);
+
+        // 全部选完自动结束，否则刷新UI继续选择
+        if (_selectedIndices.Count >= _cards.Count)
+        {
+            Close();
+            _onSkipped?.Invoke();
+        }
+        else
+        {
+            BuildUI();
+        }
     }
 
     private void OnSkip()
     {
-        _onSkipped?.Invoke();
         Close();
+        _onSkipped?.Invoke();
     }
 
     private void ClearChildren()

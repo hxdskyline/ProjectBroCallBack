@@ -6,7 +6,7 @@ namespace Camp
     public enum DifficultyLevel
     {
         Normal = 0,     // 普通
-        Hard = 1,       // 困难
-        Bloodbath = 2   // 血战
+        Hard = 1,       // 精英
+        Boss = 2        // Boss
     }
 }

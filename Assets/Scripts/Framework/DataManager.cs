@@ -96,7 +96,7 @@ public class DataManager : MonoBehaviour
         SetCurrencyAmount(CurrencyManager.GetCurrencyKey(CurrencyType.Diamond), 0, false);
 
         // 初始化主角属性
-        _playerData.leadership = 4;      // 领导力初始值4
+        _playerData.leadership = 20;     // 领导力初始值20
         _playerData.streetIntel = 1;     // 街头情报初始值1
         _playerData.charisma = 1;        // 咪格魅力初始值1
         _playerData.leaderExp = 0;       // 主角经验值初始值0
@@ -106,23 +106,30 @@ public class DataManager : MonoBehaviour
         // Initialize tribe fields
         _playerData.tribes = new System.Collections.Generic.List<TribeRecord>();
         _playerData.currentRound = 1;
-        _playerData.catFood = 1000; // Initial cat food
+        _playerData.catFood = 200; // Initial cat food
         _playerData.shopRefreshCount = 0;
         _playerData.lastShopRound = 0;
         _playerData.consumables = new System.Collections.Generic.List<ConsumableItem>();
         _playerData.runChoices = new System.Collections.Generic.List<GameChoice>();
         _playerData.runEquipments = new System.Collections.Generic.List<EquipmentRecord>();
 
-        for (int i = 0; i < 10; i++)
+        // 初始道具：2个冰冻陷阱 + 1个炸弹
+        _playerData.consumables.Add(new ConsumableItem
         {
-            _playerData.consumables.Add(new ConsumableItem
-            {
-                id = 100000 + i,
-                name = "冰冻陷阱",
-                effectType = (int)ConsumableEffectType.FreezeTrap,
-                value = 3f
-            });
-        }
+            id = 100001,
+            name = "冰冻陷阱",
+            effectType = (int)ConsumableEffectType.FreezeTrap,
+            value = 3f,
+            count = 2
+        });
+        _playerData.consumables.Add(new ConsumableItem
+        {
+            id = 100002,
+            name = "炸弹",
+            effectType = (int)ConsumableEffectType.Bomb,
+            value = 500f,
+            count = 1
+        });
 
         SavePlayerData();
         Debug.Log("[DataManager] New player data created");
@@ -660,13 +667,26 @@ public class DataManager : MonoBehaviour
     {
         if (_playerData == null || item == null) return;
         EnsurePlayerDataDefaults();
+
+        // 同名道具堆叠：查找已有相同名称的道具，增加数量
+        for (int i = 0; i < _playerData.consumables.Count; i++)
+        {
+            if (_playerData.consumables[i] != null && _playerData.consumables[i].name == item.name)
+            {
+                _playerData.consumables[i].count += item.count;
+                SavePlayerData();
+                return;
+            }
+        }
+
+        // 没有相同道具，新增
         _playerData.consumables.Add(item);
         SavePlayerData();
     }
 
-    public void RemoveConsumable(int id)
+    public bool RemoveConsumable(int id)
     {
-        if (_playerData == null) return;
+        if (_playerData == null) return false;
         EnsurePlayerDataDefaults();
         for (int i = 0; i < _playerData.consumables.Count; i++)
         {
@@ -675,10 +695,20 @@ public class DataManager : MonoBehaviour
                 continue;
             }
 
-            _playerData.consumables.RemoveAt(i);
+            if (_playerData.consumables[i].count > 1)
+            {
+                // 数量 > 1，减少数量
+                _playerData.consumables[i].count--;
+            }
+            else
+            {
+                // 数量 = 1，移除条目
+                _playerData.consumables.RemoveAt(i);
+            }
             SavePlayerData();
-            return;
+            return true;
         }
+        return false;
     }
 
     public int GetConsumableCount()
@@ -803,7 +833,7 @@ public class DataManager : MonoBehaviour
         // 确保主角属性有默认值
         if (_playerData.leadership <= 0)
         {
-            _playerData.leadership = 4;  // 领导力初始值4
+            _playerData.leadership = 20; // 领导力初始值20
         }
         if (_playerData.streetIntel <= 0)
         {

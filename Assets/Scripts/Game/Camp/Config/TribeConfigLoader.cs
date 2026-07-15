@@ -210,6 +210,7 @@ namespace Camp
                     attackRange = ReadFloat(item, "attackRange"),
                     avatarId = ReadString(item, "avatarId"),
                     populationCost = item.ContainsKey("populationCost") ? (int)item["populationCost"] : 1,
+                    recruitCost = item.ContainsKey("recruitCost") ? ReadInt(item, "recruitCost") : 0,
                     deployZones = item.ContainsKey("deployZones") ? (int)item["deployZones"] : 1,
                     rarity = item.ContainsKey("rarity") ? ReadInt(item, "rarity") : 0,
                     enhanceLevel = item.ContainsKey("enhanceLevel") ? ReadInt(item, "enhanceLevel") : 0,

@@ -11,20 +11,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 0,
-      "enemyUnitIds": {
-        "single": [
-          5000,
-          5000,
-          5000
-        ]
-      },
       "catFoodReward": {
-        "normal": 100,
-        "hard": 150
+        "normal": 100
       },
       "hasRecruitment": false,
       "hasRitual": false,
@@ -43,35 +34,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 50,
-      "enemyUnitIds": [
-        [
-          5000,
-          5000,
-          5000
-        ],
-        [
-          5000,
-          5000,
-          5010
-        ],
-        [
-          5000,
-          5000,
-          5000
-        ],
-        [
-          5000,
-          5000,
-          5020
-        ]
-      ],
       "catFoodReward": {
-        "normal": 120,
-        "hard": 180
+        "normal": 100
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -95,45 +62,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "hard"
       ],
       "freeDeployQuota": 60,
-      "enemyUnitIds": [
-        [
-          5010,
-          5010,
-          5010,
-          5010,
-          5020
-        ],
-        [
-          5010,
-          5010,
-          5010,
-          5020,
-          5020
-        ],
-        [
-          5010,
-          5010,
-          5000,
-          5000,
-          5020
-        ],
-        [
-          5010,
-          5010,
-          5010,
-          5010,
-          5000
-        ]
-      ],
       "catFoodReward": {
-        "normal": 140,
-        "hard": 210,
-        "bloodbath": 350
+        "hard": 150
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -158,43 +91,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 80,
-      "enemyUnitIds": [
-        [
-          5000,
-          5000,
-          5000,
-          5010,
-          5010
-        ],
-        [
-          5000,
-          5000,
-          5010,
-          5010,
-          5010
-        ],
-        [
-          5000,
-          5000,
-          5000,
-          5010,
-          5020
-        ],
-        [
-          5000,
-          5000,
-          5000,
-          5000,
-          5010
-        ]
-      ],
       "catFoodReward": {
-        "normal": 160,
-        "hard": 240
+        "normal": 100
       },
       "hasRecruitment": true,
       "hasRitual": true,
@@ -204,7 +105,7 @@
     },
     {
       "battleNumber": 5,
-      "levelType": "boss",
+      "levelType": "elite",
       "scenarioOptions": [
         {
           "terrain": "plain",
@@ -213,33 +114,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "hard"
       ],
       "freeDeployQuota": 100,
-      "enemyUnitIds": [
-        [
-          5030
-        ],
-        [
-          5030,
-          5000
-        ],
-        [
-          5030,
-          5010
-        ],
-        [
-          5030,
-          5000,
-          5000
-        ]
-      ],
       "catFoodReward": {
-        "normal": 180,
-        "hard": 270,
-        "bloodbath": 400
+        "hard": 150
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -264,44 +143,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 120,
-      "enemyUnitIds": [
-        [
-          5020,
-          5020,
-          5010,
-          5010,
-          5010
-        ],
-        [
-          5020,
-          5010,
-          5010,
-          5010,
-          5010
-        ],
-        [
-          5020,
-          5020,
-          5010,
-          5010,
-          5000
-        ],
-        [
-          5020,
-          5020,
-          5010,
-          5010,
-          5010,
-          5000
-        ]
-      ],
       "catFoodReward": {
-        "normal": 200,
-        "hard": 300
+        "normal": 100
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -330,43 +176,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 140,
-      "enemyUnitIds": [
-        [
-          5020,
-          5020,
-          5020,
-          5020,
-          5040
-        ],
-        [
-          5020,
-          5020,
-          5020,
-          5040,
-          5000
-        ],
-        [
-          5020,
-          5020,
-          5020,
-          5020,
-          5010
-        ],
-        [
-          5020,
-          5020,
-          5020,
-          5040,
-          5010
-        ]
-      ],
       "catFoodReward": {
-        "normal": 220,
-        "hard": 330
+        "normal": 100
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -395,49 +209,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "hard"
       ],
       "freeDeployQuota": 160,
-      "enemyUnitIds": [
-        [
-          5010,
-          5010,
-          5020,
-          1001,
-          1002,
-          2001
-        ],
-        [
-          5000,
-          5000,
-          5010,
-          5020,
-          2001,
-          2001
-        ],
-        [
-          5010,
-          5010,
-          5010,
-          1002,
-          2001,
-          5020
-        ],
-        [
-          5000,
-          5020,
-          5020,
-          1002,
-          2001,
-          5010
-        ]
-      ],
       "catFoodReward": {
-        "normal": 240,
-        "hard": 360,
-        "bloodbath": 550
+        "hard": 150
       },
       "hasRecruitment": true,
       "hasRitual": true,
@@ -466,44 +242,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 180,
-      "enemyUnitIds": [
-        [
-          1001,
-          5000,
-          5010,
-          5010,
-          5010
-        ],
-        [
-          5000,
-          5000,
-          5000,
-          5010,
-          5020
-        ],
-        [
-          5010,
-          5010,
-          5010,
-          5010,
-          5000
-        ],
-        [
-          5000,
-          5000,
-          5020,
-          5010,
-          5000,
-          5010
-        ]
-      ],
       "catFoodReward": {
-        "normal": 260,
-        "hard": 390
+        "normal": 100
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -532,46 +275,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "boss"
       ],
       "freeDeployQuota": 200,
-      "enemyUnitIds": [
-        [
-          1000,
-          1001,
-          5010,
-          5020,
-          5020
-        ],
-        [
-          2000,
-          5000,
-          5000,
-          5020,
-          5020
-        ],
-        [
-          1000,
-          5010,
-          5010,
-          5020,
-          5020,
-          5000
-        ],
-        [
-          2000,
-          1002,
-          5010,
-          5010,
-          5020
-        ]
-      ],
       "catFoodReward": {
-        "normal": 280,
-        "hard": 420,
-        "bloodbath": 650
+        "boss": 200
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -596,44 +304,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 220,
-      "enemyUnitIds": [
-        [
-          2002,
-          5000,
-          5010,
-          5010,
-          5020
-        ],
-        [
-          5010,
-          5010,
-          5010,
-          5000,
-          5000
-        ],
-        [
-          5000,
-          5020,
-          5010,
-          5010,
-          5000
-        ],
-        [
-          5010,
-          5010,
-          5000,
-          5000,
-          5010,
-          5000
-        ]
-      ],
       "catFoodReward": {
-        "normal": 300,
-        "hard": 450
+        "normal": 100
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -662,50 +337,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "hard"
       ],
       "freeDeployQuota": 240,
-      "enemyUnitIds": [
-        [
-          2002,
-          5010,
-          5020,
-          5020,
-          1002,
-          1002
-        ],
-        [
-          5000,
-          5010,
-          5010,
-          5020,
-          2001,
-          2001
-        ],
-        [
-          5020,
-          5020,
-          5010,
-          5010,
-          5010,
-          1002,
-          1002
-        ],
-        [
-          5000,
-          5000,
-          5020,
-          5020,
-          5010,
-          2001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 320,
-        "hard": 480,
-        "bloodbath": 700
+        "hard": 150
       },
       "hasRecruitment": true,
       "hasRitual": true,
@@ -729,46 +365,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 260,
-      "enemyUnitIds": [
-        [
-          5000,
-          5000,
-          5000,
-          5010,
-          5010,
-          5010
-        ],
-        [
-          5010,
-          5010,
-          5010,
-          5010,
-          5000,
-          5000
-        ],
-        [
-          5000,
-          5000,
-          5020,
-          5010,
-          5010
-        ],
-        [
-          5000,
-          5010,
-          5010,
-          5000,
-          5000,
-          5020
-        ]
-      ],
       "catFoodReward": {
-        "normal": 340,
-        "hard": 510
+        "normal": 100
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -792,47 +393,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 280,
-      "enemyUnitIds": [
-        [
-          2003,
-          5000,
-          5010,
-          5010,
-          5020,
-          5010
-        ],
-        [
-          5010,
-          5010,
-          5000,
-          5000,
-          5000,
-          5010
-        ],
-        [
-          5000,
-          5020,
-          5010,
-          5010,
-          5000,
-          5010
-        ],
-        [
-          5010,
-          5000,
-          5000,
-          5020,
-          5010,
-          5000
-        ]
-      ],
       "catFoodReward": {
-        "normal": 360,
-        "hard": 540
+        "normal": 100
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -861,47 +426,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "boss"
       ],
       "freeDeployQuota": 300,
-      "enemyUnitIds": [
-        [
-          1000,
-          5010,
-          5010,
-          5020,
-          5020
-        ],
-        [
-          2000,
-          5010,
-          5020,
-          5020,
-          5000,
-          5000
-        ],
-        [
-          1000,
-          5010,
-          5010,
-          5020,
-          5020,
-          5000
-        ],
-        [
-          2000,
-          5010,
-          5010,
-          5020,
-          2001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 380,
-        "hard": 570,
-        "bloodbath": 800
+        "boss": 200
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -926,43 +455,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 320,
-      "enemyUnitIds": [
-        [
-          5010,
-          5010,
-          5020,
-          3001,
-          3001
-        ],
-        [
-          1001,
-          5010,
-          5020,
-          3001,
-          3002
-        ],
-        [
-          5020,
-          3001,
-          3001,
-          3001,
-          5010
-        ],
-        [
-          5010,
-          5010,
-          3001,
-          3002,
-          5020
-        ]
-      ],
       "catFoodReward": {
-        "normal": 400,
-        "hard": 600
+        "normal": 150
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -991,51 +488,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "hard"
       ],
       "freeDeployQuota": 340,
-      "enemyUnitIds": [
-        [
-          5010,
-          5020,
-          5020,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          5000,
-          5010,
-          5010,
-          5020,
-          3001,
-          3002
-        ],
-        [
-          5020,
-          5020,
-          3001,
-          3001,
-          3001,
-          5010,
-          1002
-        ],
-        [
-          5010,
-          5010,
-          5020,
-          3001,
-          3001,
-          3002,
-          5000
-        ]
-      ],
       "catFoodReward": {
-        "normal": 420,
-        "hard": 630,
-        "bloodbath": 850
+        "hard": 200
       },
       "hasRecruitment": true,
       "hasRitual": true,
@@ -1059,44 +516,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 360,
-      "enemyUnitIds": [
-        [
-          5010,
-          5010,
-          3001,
-          3001,
-          5020
-        ],
-        [
-          5000,
-          5010,
-          3001,
-          3002,
-          5010
-        ],
-        [
-          5020,
-          3001,
-          3001,
-          5010,
-          5010,
-          3001
-        ],
-        [
-          5010,
-          3001,
-          3001,
-          3001,
-          5020
-        ]
-      ],
       "catFoodReward": {
-        "normal": 440,
-        "hard": 660
+        "normal": 150
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -1125,51 +549,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "hard"
       ],
       "freeDeployQuota": 380,
-      "enemyUnitIds": [
-        [
-          5010,
-          5020,
-          3001,
-          3001,
-          3001,
-          3002
-        ],
-        [
-          5000,
-          5010,
-          5020,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          5020,
-          5020,
-          3001,
-          3001,
-          3001,
-          3001,
-          5010
-        ],
-        [
-          5010,
-          5010,
-          5020,
-          3001,
-          3001,
-          3002,
-          3001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 460,
-        "hard": 690,
-        "bloodbath": 900
+        "hard": 200
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -1198,45 +582,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "boss"
       ],
       "freeDeployQuota": 400,
-      "enemyUnitIds": [
-        [
-          3000,
-          5010,
-          5020,
-          3001,
-          3001
-        ],
-        [
-          1000,
-          5020,
-          5020,
-          3001,
-          3001
-        ],
-        [
-          3000,
-          5010,
-          5010,
-          5020,
-          3001
-        ],
-        [
-          2000,
-          5010,
-          3001,
-          3001,
-          5020
-        ]
-      ],
       "catFoodReward": {
-        "normal": 480,
-        "hard": 720,
-        "bloodbath": 1000
+        "boss": 250
       },
       "hasRecruitment": false,
       "hasRitual": true,
@@ -1260,45 +610,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 420,
-      "enemyUnitIds": [
-        [
-          2002,
-          5020,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          5000,
-          5010,
-          5020,
-          3001,
-          3002
-        ],
-        [
-          5020,
-          3001,
-          3001,
-          5010,
-          5010,
-          3001
-        ],
-        [
-          5010,
-          5010,
-          3001,
-          3001,
-          5020,
-          3001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 500,
-        "hard": 750
+        "normal": 150
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -1322,46 +638,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 440,
-      "enemyUnitIds": [
-        [
-          5010,
-          5010,
-          5020,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          5000,
-          5010,
-          3001,
-          3001,
-          3002
-        ],
-        [
-          5020,
-          5020,
-          3001,
-          3001,
-          5010,
-          3001
-        ],
-        [
-          5010,
-          5010,
-          3001,
-          3001,
-          3001,
-          5020
-        ]
-      ],
       "catFoodReward": {
-        "normal": 520,
-        "hard": 780
+        "normal": 150
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -1390,51 +671,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "hard"
       ],
       "freeDeployQuota": 460,
-      "enemyUnitIds": [
-        [
-          5020,
-          5020,
-          3001,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          5010,
-          5010,
-          5020,
-          3001,
-          3001,
-          3002,
-          3001
-        ],
-        [
-          5020,
-          5020,
-          5020,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          5010,
-          5020,
-          5020,
-          3001,
-          3001,
-          3001,
-          3001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 540,
-        "hard": 810,
-        "bloodbath": 1100
+        "hard": 200
       },
       "hasRecruitment": true,
       "hasRitual": true,
@@ -1458,45 +699,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 480,
-      "enemyUnitIds": [
-        [
-          5010,
-          5020,
-          3001,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          5000,
-          5010,
-          5020,
-          3001,
-          3001
-        ],
-        [
-          5020,
-          3001,
-          3001,
-          3001,
-          5010
-        ],
-        [
-          5010,
-          5010,
-          3001,
-          3001,
-          3002,
-          3001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 560,
-        "hard": 840
+        "normal": 150
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -1525,46 +732,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "boss"
       ],
       "freeDeployQuota": 500,
-      "enemyUnitIds": [
-        [
-          3000,
-          5020,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          2000,
-          5020,
-          5020,
-          3001,
-          3001
-        ],
-        [
-          3000,
-          5010,
-          5020,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          1000,
-          5020,
-          3001,
-          3001,
-          3001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 580,
-        "hard": 870,
-        "bloodbath": 1200
+        "boss": 250
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -1589,45 +761,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 520,
-      "enemyUnitIds": [
-        [
-          5020,
-          3001,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          1001,
-          5020,
-          3001,
-          3001,
-          3002
-        ],
-        [
-          5020,
-          5020,
-          3001,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          5010,
-          3001,
-          3001,
-          3001,
-          5020,
-          3001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 600,
-        "hard": 900
+        "normal": 150
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -1656,46 +794,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 540,
-      "enemyUnitIds": [
-        [
-          5010,
-          5020,
-          3001,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          5020,
-          3001,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          5010,
-          5010,
-          5020,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          5020,
-          3001,
-          3001,
-          3002,
-          3001,
-          5010
-        ]
-      ],
       "catFoodReward": {
-        "normal": 620,
-        "hard": 930
+        "normal": 150
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -1724,54 +827,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "hard"
       ],
       "freeDeployQuota": 560,
-      "enemyUnitIds": [
-        [
-          5020,
-          5020,
-          3001,
-          3001,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          5010,
-          5020,
-          5020,
-          3001,
-          3001,
-          3001,
-          3002
-        ],
-        [
-          5020,
-          5020,
-          5020,
-          3001,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          5010,
-          5010,
-          5020,
-          5020,
-          3001,
-          3001,
-          3001,
-          3001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 640,
-        "hard": 960,
-        "bloodbath": 1300
+        "hard": 200
       },
       "hasRecruitment": true,
       "hasRitual": true,
@@ -1795,45 +855,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 580,
-      "enemyUnitIds": [
-        [
-          5020,
-          3001,
-          3001,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          5010,
-          5020,
-          3001,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          5020,
-          5020,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          5010,
-          3001,
-          3001,
-          3002,
-          3001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 660,
-        "hard": 990
+        "normal": 150
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -1862,46 +888,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "boss"
       ],
       "freeDeployQuota": 600,
-      "enemyUnitIds": [
-        [
-          3000,
-          5020,
-          5020,
-          3001,
-          3001
-        ],
-        [
-          3000,
-          3001,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          1000,
-          5020,
-          5020,
-          3001,
-          3001,
-          3001
-        ],
-        [
-          2000,
-          5020,
-          3001,
-          3001,
-          3001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 680,
-        "hard": 1020,
-        "bloodbath": 1400
+        "boss": 250
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -1926,44 +917,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 620,
-      "enemyUnitIds": [
-        [
-          3001,
-          3001,
-          3001,
-          4001,
-          4001
-        ],
-        [
-          5020,
-          3001,
-          3001,
-          4001,
-          4001
-        ],
-        [
-          3001,
-          3001,
-          4001,
-          4001,
-          3002
-        ],
-        [
-          5010,
-          3001,
-          3001,
-          3001,
-          4001,
-          4001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 700,
-        "hard": 1050
+        "normal": 200
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -1987,44 +945,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 640,
-      "enemyUnitIds": [
-        [
-          3001,
-          3001,
-          4001,
-          4001,
-          3001
-        ],
-        [
-          5020,
-          3001,
-          4001,
-          4001,
-          3002
-        ],
-        [
-          3001,
-          3001,
-          3001,
-          4001,
-          4001
-        ],
-        [
-          4003,
-          3001,
-          3001,
-          4001,
-          4001,
-          3001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 720,
-        "hard": 1080
+        "normal": 200
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -2053,50 +978,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "hard"
       ],
       "freeDeployQuota": 660,
-      "enemyUnitIds": [
-        [
-          3001,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          4002,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          3001,
-          3001,
-          3001,
-          3001,
-          4001,
-          4001
-        ],
-        [
-          5020,
-          3001,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 740,
-        "hard": 1110,
-        "bloodbath": 1500
+        "hard": 250
       },
       "hasRecruitment": true,
       "hasRitual": true,
@@ -2120,44 +1006,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 680,
-      "enemyUnitIds": [
-        [
-          3001,
-          3001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          5020,
-          3001,
-          3001,
-          4001,
-          4001
-        ],
-        [
-          3001,
-          3001,
-          3001,
-          4001,
-          4001,
-          3002
-        ],
-        [
-          5010,
-          3001,
-          4001,
-          4001,
-          4001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 760,
-        "hard": 1140
+        "normal": 200
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -2186,46 +1039,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "boss"
       ],
       "freeDeployQuota": 700,
-      "enemyUnitIds": [
-        [
-          4000,
-          3001,
-          3001,
-          4001,
-          4001
-        ],
-        [
-          3000,
-          3001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          4000,
-          3001,
-          3001,
-          4001,
-          4001,
-          3002
-        ],
-        [
-          1000,
-          3001,
-          4001,
-          4001,
-          4001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 780,
-        "hard": 1170,
-        "bloodbath": 1600
+        "boss": 300
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -2250,45 +1068,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 720,
-      "enemyUnitIds": [
-        [
-          3001,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          1003,
-          3001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          3002
-        ],
-        [
-          5010,
-          3001,
-          3001,
-          4001,
-          4001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 800,
-        "hard": 1200
+        "normal": 200
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -2317,46 +1101,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 740,
-      "enemyUnitIds": [
-        [
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          5020,
-          3001,
-          3001,
-          4001,
-          4001
-        ],
-        [
-          3001,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          3001,
-          3001,
-          4001,
-          4001,
-          3002,
-          4001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 820,
-        "hard": 1230
+        "normal": 200
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -2385,54 +1134,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "hard"
       ],
       "freeDeployQuota": 760,
-      "enemyUnitIds": [
-        [
-          3001,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          5020,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          3001,
-          3001,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          5020,
-          3001,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 840,
-        "hard": 1260,
-        "bloodbath": 1700
+        "hard": 250
       },
       "hasRecruitment": true,
       "hasRitual": true,
@@ -2456,48 +1162,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 780,
-      "enemyUnitIds": [
-        [
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          2003,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          3001,
-          3001,
-          3001,
-          4001,
-          4001,
-          3002
-        ],
-        [
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001,
-          3001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 860,
-        "hard": 1290
+        "normal": 200
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -2526,46 +1195,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "boss"
       ],
       "freeDeployQuota": 800,
-      "enemyUnitIds": [
-        [
-          4000,
-          3001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          3000,
-          3001,
-          3001,
-          4001,
-          4001
-        ],
-        [
-          4000,
-          3001,
-          4001,
-          4001,
-          4001,
-          3002
-        ],
-        [
-          2000,
-          3001,
-          4001,
-          4001,
-          4001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 880,
-        "hard": 1320,
-        "bloodbath": 1800
+        "boss": 300
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -2590,47 +1224,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 820,
-      "enemyUnitIds": [
-        [
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          1003,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          3002
-        ],
-        [
-          3001,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 900,
-        "hard": 1350
+        "normal": 200
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -2654,48 +1252,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 840,
-      "enemyUnitIds": [
-        [
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          3001,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          5020,
-          3001,
-          4001,
-          4001,
-          4001,
-          3002
-        ],
-        [
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001,
-          3001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 920,
-        "hard": 1380
+        "normal": 200
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -2724,58 +1285,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "hard"
       ],
       "freeDeployQuota": 860,
-      "enemyUnitIds": [
-        [
-          3001,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          5020,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          3001,
-          3001,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          5020,
-          3001,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001,
-          4001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 940,
-        "hard": 1410,
-        "bloodbath": 1900
+        "hard": 250
       },
       "hasRecruitment": true,
       "hasRitual": true,
@@ -2799,50 +1313,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard"
+        "normal"
       ],
       "freeDeployQuota": 880,
-      "enemyUnitIds": [
-        [
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          3001,
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          4003,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          3001,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001,
-          3002
-        ]
-      ],
       "catFoodReward": {
-        "normal": 960,
-        "hard": 1440
+        "normal": 200
       },
       "hasRecruitment": true,
       "hasRitual": false,
@@ -2871,47 +1346,11 @@
         }
       ],
       "difficultyOptions": [
-        "normal",
-        "hard",
-        "bloodbath"
+        "boss"
       ],
       "freeDeployQuota": 900,
-      "enemyUnitIds": [
-        [
-          4000,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          4000,
-          3001,
-          3001,
-          4001,
-          4001
-        ],
-        [
-          3000,
-          3001,
-          4001,
-          4001,
-          4001,
-          4001
-        ],
-        [
-          4000,
-          5020,
-          4001,
-          4001,
-          4001
-        ]
-      ],
       "catFoodReward": {
-        "normal": 980,
-        "hard": 1470,
-        "bloodbath": 2000
+        "boss": 300
       },
       "hasRecruitment": false,
       "hasRitual": true,

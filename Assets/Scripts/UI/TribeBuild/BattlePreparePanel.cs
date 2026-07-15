@@ -77,7 +77,6 @@ public class BattlePreparePanel : UIPanel
         _deployedUnits.Clear();
 
         _populationCap = GameManager.Instance.DataManager.GetPopulationCap();
-        if (_isBossBattle) _populationCap = 999;
 
         InitializeBattlefield();
         RefreshPopulationBar();
@@ -271,7 +270,7 @@ public class BattlePreparePanel : UIPanel
         _populationSlots.Clear();
 
         // 计算布局
-        int slots = _isBossBattle ? Mathf.Min(_populationCap, 20) : _populationCap;
+        int slots = _populationCap;
         float slotSize = 36f;
         float gap = 4f;
         float totalWidth = slots * (slotSize + gap) - gap;
