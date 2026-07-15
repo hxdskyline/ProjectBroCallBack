@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Combat.Fighter;
 using Combat.Effects;
+using Combat.SkillSystem;
 
 namespace Combat
 {
@@ -74,6 +75,7 @@ namespace Combat
         private SummonManager _summonManager;
         private PassiveSkillSystem _passiveSkillSystem;
         private ComboSkillSystem _comboSkillSystem;
+        private BattleSkillRuntime _skillRuntime;
         private float _comboCheckTimer;
         private static readonly Dictionary<BattleFighter, float> _hitEffectTimers = new Dictionary<BattleFighter, float>();
         private static readonly Dictionary<BattleFighter, bool> _freezeVisualStates = new Dictionary<BattleFighter, bool>();
@@ -95,6 +97,11 @@ namespace Combat
             _passiveSkillSystem = new PassiveSkillSystem(playerFighters, enemyFighters, this);
             _passiveSkillSystem.InitializeSkills();
             _comboSkillSystem = new ComboSkillSystem();
+            _skillRuntime = new BattleSkillRuntime(this);
+            _skillRuntime.RegisterFighters(playerFighters);
+            _skillRuntime.RegisterFighters(enemyFighters);
+            NotifyBattleStart(playerFighters);
+            NotifyBattleStart(enemyFighters);
             _currentSimulation = this;
         }
 
@@ -469,6 +476,7 @@ namespace Combat
             TickKnockdowns(_playerFighters, deltaTime);
             TickKnockdowns(_enemyFighters, deltaTime);
             TickAllBuffs(deltaTime);
+            _skillRuntime?.Tick(deltaTime);
             TickPassiveSkills(deltaTime);
             TickComboSkills(deltaTime);
             TickArtifactEffects();
@@ -663,6 +671,7 @@ namespace Combat
 
                 // 鍑烘墜鏃惰Е鍙戣鍔ㄦ妧鑳斤紙鍒嗚绛夊湪鍑烘墜鏃跺垽瀹氭鐜囩殑鏁堟灉锛?
                 _passiveSkillSystem?.OnAttackLaunch(self, target);
+                _skillRuntime?.RaiseEvent(self, new SkillEventData(SkillEventType.AttackLaunch, self, target));
 
                 if (IsAllyTargetSupport(self))
                 {
@@ -750,6 +759,7 @@ namespace Combat
 
             if (IsAllyTargetSupport(attacker) && IsSameCamp(attacker, defender))
             {
+                _skillRuntime?.RaiseEvent(attacker, new SkillEventData(SkillEventType.AttackHit, attacker, defender));
                 _passiveSkillSystem?.OnAttackHit(attacker, defender);
                 return;
             }
@@ -804,6 +814,11 @@ namespace Combat
 
                     ShowHitEffect(defender);
                 }
+
+                _skillRuntime?.RaiseEvent(attacker,
+                    new SkillEventData(SkillEventType.AttackHit, attacker, defender, 0f, damage));
+                _skillRuntime?.RaiseEvent(defender,
+                    new SkillEventData(SkillEventType.ReceiveHit, attacker, defender, 0f, damage));
             }
 
             if (defenderRuntime.CurrentHp <= 0)
@@ -1195,6 +1210,25 @@ namespace Combat
             return a != null && b != null && a.Camp == b.Camp;
         }
 
+        private void NotifyBattleStart(BattleFighter[] fighters)
+        {
+            if (fighters == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < fighters.Length; i++)
+            {
+                BattleFighter fighter = fighters[i];
+                if (fighter == null)
+                {
+                    continue;
+                }
+
+                _skillRuntime?.RaiseEvent(fighter, new SkillEventData(SkillEventType.BattleStart, fighter, fighter));
+            }
+        }
+
         public void StartDeath(BattleFighter fighter)
         {
             if (fighter == null || fighter.IsRemoved || fighter.IsDying)
@@ -1204,6 +1238,7 @@ namespace Combat
             }
 
             Debug.Log($"[StartDeath] Killing {fighter.Name} fighterId={fighter.FighterId} hp={fighter.CurrentHp}");
+            _skillRuntime?.RaiseEvent(fighter, new SkillEventData(SkillEventType.UnitDied, fighter, fighter));
             fighter.IsDying = true;
             fighter.PendingHitTimer = 0f;
             fighter.AttackCooldownTimer = 0f;
@@ -1226,6 +1261,7 @@ namespace Combat
                     {
                         pf.RuntimeAttributes?.TriggerKillEffects(fighter);
                         _passiveSkillSystem?.OnKill(pf, fighter);
+                        _skillRuntime?.RaiseEvent(pf, new SkillEventData(SkillEventType.UnitKilled, pf, fighter));
                     }
                 }
             }
