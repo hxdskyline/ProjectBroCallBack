@@ -131,9 +131,11 @@ public class BattlePreparePanel : UIPanel
                     var avatar = GameManager.Instance.ResourceManager.LoadResource<AvatarAnimationDefinition>(address);
                     if (avatar == null)
                         avatar = enemyAvatar;
-                    defs.Add(new Combat.Fighter.BattleFighterSpawnDefinition(
+                    var def = new Combat.Fighter.BattleFighterSpawnDefinition(
                         cfg.fighterName, cfg.ToStaticAttributes(), avatar,
-                        1.0f, (Camp.TribeType)cfg.tribeType, cfg.fighterId));
+                        1.0f, (Camp.TribeType)cfg.tribeType, cfg.fighterId);
+                    def.DeployZones = cfg.deployZones;
+                    defs.Add(def);
                 }
             }
             if (defs.Count == enemyIds.Length)

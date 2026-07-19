@@ -657,9 +657,11 @@ public class GameFlowController : MonoBehaviour
                     var avatar = GameManager.Instance.ResourceManager.LoadResource<AvatarAnimationDefinition>(address);
                     if (avatar == null)
                         avatar = enemyAvatar;
-                    defs.Add(new BattleFighterSpawnDefinition(
+                    var def = new BattleFighterSpawnDefinition(
                         cfg.fighterName, cfg.ToStaticAttributes(), avatar,
-                        1.0f, (Camp.TribeType)cfg.tribeType, cfg.fighterId));
+                        1.0f, (Camp.TribeType)cfg.tribeType, cfg.fighterId);
+                    def.DeployZones = cfg.deployZones;
+                    defs.Add(def);
                 }
             }
             if (defs.Count == enemyIds.Length)
@@ -872,9 +874,9 @@ public class GameFlowController : MonoBehaviour
         }
     }
 
-    private void OnBattleEndedFromScene(bool victory)
+    private void OnBattleEndedFromScene(bool victory, int billboardCurrencyReward)
     {
-        GameLogger.Log("GFC", $"BattleEndedFromScene victory={victory}");
+        GameLogger.Log("GFC", $"BattleEndedFromScene victory={victory} billboardCurrencyReward={billboardCurrencyReward}");
 
         // 在销毁前收集战斗统计
         var battleStats = CollectBattleStats();
@@ -887,15 +889,15 @@ public class GameFlowController : MonoBehaviour
         }
 
         // 调用原有的战斗结束逻辑
-        OnBattleEnded(victory, battleStats);
+        OnBattleEnded(victory, battleStats, billboardCurrencyReward);
     }
 
     /// <summary>
     /// 战斗结束回调（由TribeBuildPanel调用）
     /// </summary>
-    public void OnBattleEnded(bool victory, List<FighterBattleStats> battleStats = null)
+    public void OnBattleEnded(bool victory, List<FighterBattleStats> battleStats = null, int billboardCurrencyReward = 0)
     {
-        GameLogger.Log("GFC", $"OnBattleEnded victory={victory}");
+        GameLogger.Log("GFC", $"OnBattleEnded victory={victory} billboardCurrencyReward={billboardCurrencyReward}");
 
         if (battleStats == null)
             battleStats = CollectBattleStats();
@@ -931,7 +933,13 @@ public class GameFlowController : MonoBehaviour
         {
             int fullReward = campaign.GetCatFoodReward(_currentRound, difficulty);
             catFoodReward = victory ? fullReward : fullReward / 2;
+            GameLogger.Log("GFC", $"关卡奖励计算: battleNumber={_currentRound}, difficulty={difficulty}, fullReward={fullReward}, catFoodReward={catFoodReward}");
         }
+
+        // 加上看板货币奖励（根据敌方看板剩余血量百分比）
+        GameLogger.Log("GFC", $"看板血量奖励: {billboardCurrencyReward}");
+        catFoodReward += billboardCurrencyReward;
+        GameLogger.Log("GFC", $"最终猫粮奖励: {catFoodReward}");
 
         // 显示结算面板，等待玩家确认后继续
         ShowBattleResultPanel(victory, _currentRound, expReward, catFoodReward, battleStats);

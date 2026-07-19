@@ -100,8 +100,11 @@ namespace Combat.Fighter
 
             for (int i = 0; i < definitions.Length; i++)
             {
-                Vector3 spawnPosition = GetRandomSpawnPosition(config, occupiedPositions);
                 BattleFighterSpawnDefinition fighterDefinition = definitions[i];
+                // 敌方单位根据 deployZones 选择出生点，我方单位随机
+                Vector3 spawnPosition = (camp == BattleCamp.Enemy && fighterDefinition.DeployZones > 0)
+                    ? GetRandomSpawnPositionInZone(config, occupiedPositions, fighterDefinition.DeployZones)
+                    : GetRandomSpawnPosition(config, occupiedPositions);
                 string fighterName = string.IsNullOrEmpty(fighterDefinition.Name)
                     ? $"PlayerAvatar_{i + 1}"
                     : fighterDefinition.Name;
@@ -201,6 +204,88 @@ namespace Combat.Fighter
                 Random.Range(config.SpawnAreaMin.x, config.SpawnAreaMax.x),
                 Random.Range(config.SpawnAreaMin.y, config.SpawnAreaMax.y),
                 0f);
+        }
+
+        /// <summary>
+        /// 在指定部署区域内随机生成出生点（敌方单位用）
+        /// deployZones 为位标志：inner=1, middle=2, outer=4
+        /// </summary>
+        private static Vector3 GetRandomSpawnPositionInZone(BattleSpawnConfig config, List<Vector3> occupiedPositions, int deployZones)
+        {
+            float minDistance = Mathf.Max(0.1f, config.SpawnMinDistance);
+            int tryCount = Mathf.Max(1, config.SpawnTryCount) * 3; // 多尝试几次，因为区域受限
+
+            for (int i = 0; i < tryCount; i++)
+            {
+                Vector3 candidate = new Vector3(
+                    Random.Range(config.SpawnAreaMin.x, config.SpawnAreaMax.x),
+                    Random.Range(config.SpawnAreaMin.y, config.SpawnAreaMax.y),
+                    0f);
+
+                // 检查是否在允许的部署区域内
+                int zone = GetZoneForPosition(candidate);
+                if (zone == 0 || (zone & deployZones) == 0)
+                    continue;
+
+                bool tooClose = false;
+                for (int j = 0; j < occupiedPositions.Count; j++)
+                {
+                    if (Vector3.Distance(candidate, occupiedPositions[j]) < minDistance)
+                    {
+                        tooClose = true;
+                        break;
+                    }
+                }
+
+                if (!tooClose)
+                {
+                    return candidate;
+                }
+            }
+
+            // 回退：在最宽泛的允许区域内随机取点
+            return GetFallbackPositionInZone(config, deployZones);
+        }
+
+        /// <summary>
+        /// 判断坐标所在的部署区域（复用 BattleManager 的椭圆判定逻辑）
+        /// </summary>
+        private static int GetZoneForPosition(Vector3 pos)
+        {
+            float innerVal = (pos.x * pos.x) / (BattleManager.INNER_A * BattleManager.INNER_A) + (pos.y * pos.y) / (BattleManager.INNER_B * BattleManager.INNER_B);
+            if (innerVal <= 1f) return 1;
+
+            float middleVal = (pos.x * pos.x) / (BattleManager.MIDDLE_A * BattleManager.MIDDLE_A) + (pos.y * pos.y) / (BattleManager.MIDDLE_B * BattleManager.MIDDLE_B);
+            if (middleVal <= 1f) return 2;
+
+            float outerVal = (pos.x * pos.x) / (BattleManager.OUTER_A * BattleManager.OUTER_A) + (pos.y * pos.y) / (BattleManager.OUTER_B * BattleManager.OUTER_B);
+            if (outerVal <= 1f) return 4;
+
+            return 0;
+        }
+
+        /// <summary>
+        /// 回退：在允许的最外层区域内随机取点
+        /// </summary>
+        private static Vector3 GetFallbackPositionInZone(BattleSpawnConfig config, int deployZones)
+        {
+            // 选择允许的最大椭圆
+            float a, b;
+            if ((deployZones & 4) != 0)      { a = BattleManager.OUTER_A;   b = BattleManager.OUTER_B; }
+            else if ((deployZones & 2) != 0)  { a = BattleManager.MIDDLE_A;  b = BattleManager.MIDDLE_B; }
+            else                              { a = BattleManager.INNER_A;   b = BattleManager.INNER_B; }
+
+            // 在椭圆内随机取点（极坐标法）
+            for (int i = 0; i < 20; i++)
+            {
+                float angle = Random.Range(0f, Mathf.PI * 2f);
+                float r = Mathf.Sqrt(Random.Range(0f, 1f)); // 均匀分布
+                float x = r * a * Mathf.Cos(angle);
+                float y = r * b * Mathf.Sin(angle);
+                return new Vector3(x, y, 0f);
+            }
+
+            return Vector3.zero;
         }
 
         /// <summary>

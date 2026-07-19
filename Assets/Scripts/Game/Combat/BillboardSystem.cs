@@ -42,11 +42,11 @@ namespace Combat
         {
             camp = BillboardCamp.Player;
             state = BillboardState.Dormant;
-            maxHp = 1000f;
-            currentHp = 1000f;
-            attack = 50f;
-            attackRange = 10f;
-            attackSpeed = 1f;
+            maxHp = 100f;
+            currentHp = 100f;
+            attack = 5f;
+            attackRange = 5f;
+            attackSpeed = 0.5f;
             position = Vector3.zero;
         }
     }
@@ -60,16 +60,13 @@ namespace Combat
         private BillboardData _playerBillboard;
         private BillboardData _enemyBillboard;
 
-        private float _attackCooldown;
-        private float _dropTimer;
-        private const float DROP_INTERVAL = 1f; // 掉落间隔（秒）
-        private const int DROP_AMOUNT = 10;      // 每次掉落数量
+        private float _playerAttackCooldown;
+        private float _enemyAttackCooldown;
 
         // 事件
         public event Action<BillboardCamp, float> OnBillboardDamaged;
         public event Action<BillboardCamp> OnBillboardDestroyed;
         public event Action<BillboardCamp, BillboardState> OnBillboardStateChanged;
-        public event Action<int> OnCurrencyDropped;
 
         public BillboardSystem()
         {
@@ -79,22 +76,22 @@ namespace Combat
             _playerBillboard = new BillboardData
             {
                 camp = BillboardCamp.Player,
-                maxHp = playerCfg?.hp ?? 1000f,
-                currentHp = playerCfg?.hp ?? 1000f,
-                attack = playerCfg?.attack ?? 50f,
-                attackRange = 99999f,
-                attackSpeed = playerCfg?.attackSpeed ?? 1f
+                maxHp = playerCfg?.hp ?? 100f,
+                currentHp = playerCfg?.hp ?? 100f,
+                attack = playerCfg?.attack ?? 5f,
+                attackRange = playerCfg?.attackRange ?? 5f,
+                attackSpeed = playerCfg?.attackSpeed ?? 0.5f
             };
 
             var enemyCfg = loader.GetFighterConfig(9002);
             _enemyBillboard = new BillboardData
             {
                 camp = BillboardCamp.Enemy,
-                maxHp = enemyCfg?.hp ?? 200f,
-                currentHp = enemyCfg?.hp ?? 200f,
-                attack = enemyCfg?.attack ?? 0f,
-                attackRange = enemyCfg?.attackRange ?? 10f,
-                attackSpeed = enemyCfg?.attackSpeed ?? 1f
+                maxHp = enemyCfg?.hp ?? 100f,
+                currentHp = enemyCfg?.hp ?? 100f,
+                attack = enemyCfg?.attack ?? 5f,
+                attackRange = enemyCfg?.attackRange ?? 5f,
+                attackSpeed = enemyCfg?.attackSpeed ?? 0.5f
             };
         }
 
@@ -122,70 +119,52 @@ namespace Combat
         }
 
         /// <summary>
-        /// 更新看板状态
+        /// 更新看板状态和攻击冷却
         /// </summary>
         public void Update(float deltaTime, bool playerSoldiersAlive, bool enemySoldiersAlive)
         {
-            // 更新我方看板状态
-            UpdateBillboardState(_playerBillboard, playerSoldiersAlive, enemySoldiersAlive);
-
-            // 更新敌方看板状态
-            UpdateBillboardState(_enemyBillboard, enemySoldiersAlive, playerSoldiersAlive);
+            // 更新看板状态（一方全灭则该方看板激活，只激活一个）
+            UpdateBillboardStates(playerSoldiersAlive, enemySoldiersAlive);
 
             // 更新攻击冷却
-            _attackCooldown -= deltaTime;
-            if (_attackCooldown < 0)
-                _attackCooldown = 0;
+            _playerAttackCooldown -= deltaTime;
+            if (_playerAttackCooldown < 0)
+                _playerAttackCooldown = 0;
 
-            // 更新掉落计时器
-            if (_enemyBillboard.state == BillboardState.Active)
-            {
-                _dropTimer += deltaTime;
-                if (_dropTimer >= DROP_INTERVAL)
-                {
-                    _dropTimer -= DROP_INTERVAL;
-                    DropCurrency();
-                }
-            }
+            _enemyAttackCooldown -= deltaTime;
+            if (_enemyAttackCooldown < 0)
+                _enemyAttackCooldown = 0;
         }
 
         /// <summary>
-        /// 更新单个看板状态
+        /// 是否已有任一看板激活
         /// </summary>
-        private void UpdateBillboardState(BillboardData billboard, bool ownSoldiersAlive, bool enemySoldiersAlive)
+        public bool HasAnyBillboardActivated()
         {
-            BillboardState newState = billboard.state;
+            return _playerBillboard.state == BillboardState.Active ||
+                   _enemyBillboard.state == BillboardState.Active;
+        }
 
-            if (!ownSoldiersAlive)
-            {
-                // 我方小兵全灭，看板激活
-                if (billboard.state == BillboardState.Dormant)
-                {
-                    newState = BillboardState.Active;
-                }
-            }
-            else
-            {
-                // 我方小兵存活，看板休眠
-                if (billboard.state == BillboardState.Active)
-                {
-                    newState = BillboardState.Dormant;
-                }
-            }
+        /// <summary>
+        /// 更新看板状态
+        /// 规则：当己方小兵全灭且对方看板未激活时，己方看板激活
+        /// </summary>
+        public void UpdateBillboardStates(bool playerSoldiersAlive, bool enemySoldiersAlive)
+        {
+            // 已有看板激活则不再切换
+            if (HasAnyBillboardActivated()) return;
 
-            // 敌方小兵全灭，敌方看板激活（可被攻击）
-            if (!enemySoldiersAlive && billboard.camp == BillboardCamp.Enemy)
+            // 敌方小兵全灭 → 敌方看板激活
+            if (!enemySoldiersAlive)
             {
-                if (billboard.state == BillboardState.Dormant)
-                {
-                    newState = BillboardState.Active;
-                }
+                _enemyBillboard.state = BillboardState.Active;
+                OnBillboardStateChanged?.Invoke(BillboardCamp.Enemy, BillboardState.Active);
             }
-
-            if (newState != billboard.state)
+            // 我方小兵全灭 → 我方看板激活
+            else if (!playerSoldiersAlive)
             {
-                billboard.state = newState;
-                OnBillboardStateChanged?.Invoke(billboard.camp, newState);
+                _playerBillboard.state = BillboardState.Active;
+                OnBillboardStateChanged?.Invoke(BillboardCamp.Player, BillboardState.Active);
             }
         }
 
@@ -207,14 +186,29 @@ namespace Combat
             {
                 billboard.currentHp = 0;
                 OnBillboardDestroyed?.Invoke(camp);
-
-                // 摧毁看板时，爆发大量货币
-                if (camp == BillboardCamp.Enemy)
-                {
-                    int burstAmount = 100;
-                    OnCurrencyDropped?.Invoke(burstAmount);
-                }
             }
+        }
+
+        /// <summary>
+        /// 获取敌方看板剩余血量百分比（0~1）
+        /// </summary>
+        public float GetEnemyBillboardHpPercent()
+        {
+            if (_enemyBillboard.maxHp <= 0) return 0f;
+            return Mathf.Clamp01(_enemyBillboard.currentHp / _enemyBillboard.maxHp);
+        }
+
+        /// <summary>
+        /// 根据敌方看板剩余血量百分比计算货币奖励
+        /// 100%血量 = 0个，0%血量 = 200个，线性插值，向上取整
+        /// </summary>
+        public int CalculateBillboardCurrencyReward()
+        {
+            float hpPercent = GetEnemyBillboardHpPercent();
+            // 剩余血量百分比越高，奖励越少
+            // 100% -> 0, 0% -> 200
+            float reward = (1f - hpPercent) * 200f;
+            return Mathf.CeilToInt(reward);
         }
 
         /// <summary>
@@ -229,7 +223,8 @@ namespace Combat
                 return null;
 
             // 检查攻击冷却
-            if (_attackCooldown > 0)
+            float cooldown = camp == BillboardCamp.Player ? _playerAttackCooldown : _enemyAttackCooldown;
+            if (cooldown > 0)
                 return null;
 
             // 找到最近的目标
@@ -238,7 +233,10 @@ namespace Combat
                 return null;
 
             // 执行攻击
-            _attackCooldown = 1f / billboard.attackSpeed;
+            if (camp == BillboardCamp.Player)
+                _playerAttackCooldown = 1f / billboard.attackSpeed;
+            else
+                _enemyAttackCooldown = 1f / billboard.attackSpeed;
 
             return new BillboardAttackResult
             {
@@ -273,14 +271,6 @@ namespace Combat
         }
 
         /// <summary>
-        /// 掉落货币
-        /// </summary>
-        private void DropCurrency()
-        {
-            OnCurrencyDropped?.Invoke(DROP_AMOUNT);
-        }
-
-        /// <summary>
         /// 重置看板
         /// </summary>
         public void Reset()
@@ -291,8 +281,8 @@ namespace Combat
             _playerBillboard.state = BillboardState.Dormant;
             _enemyBillboard.state = BillboardState.Dormant;
 
-            _attackCooldown = 0;
-            _dropTimer = 0;
+            _playerAttackCooldown = 0;
+            _enemyAttackCooldown = 0;
         }
     }
 

@@ -207,20 +207,20 @@ namespace Combat
         /// </summary>
         private int[] GenerateEliteComposition(int cap)
         {
-            // 5000 cost=1, 5010 cost=1, 1002 cost=1, 5040 cost=5, 1005 cost=2, 1101 cost=2, 5020 cost=5
+            // 5000 cost=1, 5010 cost=1, 1002 cost=1, 5040 cost=4, 1005 cost=2, 1101 cost=2, 5020 cost=4
             var result = new List<int>();
             int remaining = cap;
 
             // 先确保至少有一只游侠(5040)或猫骑士(5020)
-            if (remaining >= 5 && _rng.Next(2) == 0)
+            if (remaining >= 4 && _rng.Next(2) == 0)
             {
-                result.Add(5020); // 猫骑士 cost=5
-                remaining -= 5;
+                result.Add(5020); // 猫骑士 cost=4
+                remaining -= 4;
             }
-            else if (remaining >= 5)
+            else if (remaining >= 4)
             {
-                result.Add(5040); // 游侠 cost=5
-                remaining -= 5;
+                result.Add(5040); // 游侠 cost=4
+                remaining -= 4;
             }
             else if (remaining >= 1)
             {
@@ -232,12 +232,12 @@ namespace Combat
             // 填充剩余人口
             while (remaining > 0)
             {
-                // 按概率选择单位：cost=1 45%, cost=2 35%, cost=5 20%
+                // 按概率选择单位：cost=1 45%, cost=2 35%, cost=4 20%
                 int roll = _rng.Next(100);
-                if (remaining >= 5 && roll < 20)
+                if (remaining >= 4 && roll < 20)
                 {
-                    result.Add(5020); // 猫骑士 cost=5
-                    remaining -= 5;
+                    result.Add(5020); // 猫骑士 cost=4
+                    remaining -= 4;
                 }
                 else if (remaining >= 2 && roll < 55)
                 {
@@ -260,26 +260,26 @@ namespace Combat
         /// </summary>
         private int[] GenerateBossComposition(int cap)
         {
-            // 5030 cost=8
+            // 5030 cost=5
             var result = new List<int>();
             int remaining = cap;
 
             // 必定放一只奶牛猫族长
             result.Add(5030);
-            remaining -= 8;
+            remaining -= 5;
 
             // 填充剩余人口（可用所有敌方单位）
             while (remaining > 0)
             {
-                if (remaining >= 8 && _rng.Next(100) < 20)
+                if (remaining >= 5 && _rng.Next(100) < 20)
                 {
-                    result.Add(5030); // 再来一只族长 cost=8
-                    remaining -= 8;
-                }
-                else if (remaining >= 5 && _rng.Next(100) < 25)
-                {
-                    result.Add(5020); // 猫骑士 cost=5
+                    result.Add(5030); // 再来一只族长 cost=5
                     remaining -= 5;
+                }
+                else if (remaining >= 4 && _rng.Next(100) < 25)
+                {
+                    result.Add(5020); // 猫骑士 cost=4
+                    remaining -= 4;
                 }
                 else if (remaining >= 2 && _rng.Next(100) < 35)
                 {

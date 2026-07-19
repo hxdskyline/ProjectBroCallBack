@@ -46,14 +46,19 @@ public class BattleResultPanel : UIPanel
         levelGo.rectTransform.sizeDelta = new Vector2(400, 35);
 
         // ── 奖励 ──
+        // 经验只在胜利时获得
         if (victory)
         {
             var expGo = MakeText("ExpReward", $"经验 +{expReward}", 22, new Color(0.4f, 1f, 0.4f));
             expGo.rectTransform.anchoredPosition = new Vector2(0, 270);
             expGo.rectTransform.sizeDelta = new Vector2(400, 30);
+        }
 
+        // 猫粮奖励在胜利和失败时都显示（失败时获得关卡奖励的一半 + 看板血量奖励）
+        if (catFoodReward > 0)
+        {
             var catFoodGo = MakeText("CatFoodReward", $"猫粮 +{catFoodReward}", 22, new Color(1f, 0.8f, 0.3f));
-            catFoodGo.rectTransform.anchoredPosition = new Vector2(0, 240);
+            catFoodGo.rectTransform.anchoredPosition = new Vector2(0, victory ? 240 : 270);
             catFoodGo.rectTransform.sizeDelta = new Vector2(400, 30);
         }
 

@@ -333,44 +333,105 @@ namespace Combat
         /// <summary>
         /// 濂剁埜鐚細涓嶆敾鍑绘晫鏂癸紝鏀诲嚮涓哄弸鏂瑰洖澶嶆敾鍑诲姏(6鐐?琛€閲忥紱寮哄寲鐗堣拷鍔?0%姒傜巼寮瑰皠
         /// </summary>
+        /// <summary>
+        /// 奶爸猫：不攻击敌方，为攻击范围内血量最低的友方（含自身）回复攻击力血量
+        /// 强化版：额外20%概率弹射至另一个受伤的随机友方
+        /// </summary>
         private void Skill_NaiLuoMao(BattleFighter f, SkillTrigger trigger, BattleFighter target)
         {
             if (trigger != SkillTrigger.OnAttackHit) return;
-            if (target == null || target == f || !target.IsAlive || target.Camp != f.Camp || target.RuntimeAttributes == null) return;
 
             var allies = GetAllies(f);
-            int healAmount = Mathf.Max(1, f.RuntimeAttributes.Attack);
-            target.RuntimeAttributes.CurrentHp = Mathf.Min(
-                target.RuntimeAttributes.MaxHp, target.CurrentHp + healAmount);
-            f.TotalHealingDone += healAmount;
-            RefreshHud(target);
-            GameLogger.Log("Skill", $"????????{target.Name} +{healAmount}HP");
+            float attackRange = f.RuntimeAttributes?.AttackRange ?? 5f;
+            int healAmount = Mathf.Max(1, f.RuntimeAttributes?.Attack ?? 10);
 
+            // 选择攻击范围内血量最低的友方（含自身）
+            BattleFighter healTarget = FindLowestHpAllyInRange(f, allies, attackRange);
+            if (healTarget == null) return;
+
+            // 治疗
+            int actualHeal = Mathf.Min(healAmount, healTarget.RuntimeAttributes.MaxHp - healTarget.CurrentHp);
+            if (actualHeal <= 0) return;
+
+            healTarget.RuntimeAttributes.CurrentHp += actualHeal;
+            f.TotalHealingDone += actualHeal;
+            RefreshHud(healTarget);
+            ShowHealPopup(healTarget, actualHeal);
+            GameLogger.Log("Skill", $"奶爸猫治疗 {healTarget.Name} +{actualHeal}HP");
+
+            // 强化版：20%概率弹射至另一个受伤的随机友方
             if (IsEnhanced(f) && _rng.NextDouble() < 0.2f)
             {
-                BattleFighter bounceTarget = null;
-                int lowestHpPercent = int.MaxValue;
+                var injuredAllies = new List<BattleFighter>();
                 foreach (var ally in allies)
                 {
-                    if (ally == null || !ally.IsAlive || ally == f || ally == target || ally.RuntimeAttributes == null) continue;
-                    int hpPercent = ally.RuntimeAttributes.MaxHp > 0 ?
-                        ally.CurrentHp * 100 / ally.RuntimeAttributes.MaxHp : 100;
-                    if (hpPercent < lowestHpPercent)
+                    if (ally == null || !ally.IsAlive || ally == healTarget || ally.RuntimeAttributes == null) continue;
+                    if (ally.CurrentHp < ally.RuntimeAttributes.MaxHp)
+                        injuredAllies.Add(ally);
+                }
+                // 自身也算受伤友方
+                if (f.IsAlive && f.CurrentHp < f.RuntimeAttributes.MaxHp && f != healTarget)
+                    injuredAllies.Add(f);
+
+                if (injuredAllies.Count > 0)
+                {
+                    var bounceTarget = injuredAllies[_rng.Next(injuredAllies.Count)];
+                    int bounceHeal = Mathf.Min(healAmount, bounceTarget.RuntimeAttributes.MaxHp - bounceTarget.CurrentHp);
+                    if (bounceHeal > 0)
                     {
-                        lowestHpPercent = hpPercent;
-                        bounceTarget = ally;
+                        bounceTarget.RuntimeAttributes.CurrentHp += bounceHeal;
+                        f.TotalHealingDone += bounceHeal;
+                        RefreshHud(bounceTarget);
+                        ShowHealPopup(bounceTarget, bounceHeal);
+                        GameLogger.Log("Skill", $"奶爸猫弹射治疗 {bounceTarget.Name} +{bounceHeal}HP");
                     }
                 }
+            }
+        }
 
-                if (bounceTarget != null)
+        /// <summary>
+        /// 找攻击范围内血量最低的友方（含自身）
+        /// </summary>
+        private BattleFighter FindLowestHpAllyInRange(BattleFighter self, BattleFighter[] allies, float range)
+        {
+            BattleFighter lowest = null;
+            int lowestHp = int.MaxValue;
+            float rangeSqr = range * range;
+
+            // 检查自身
+            if (self.IsAlive && self.RuntimeAttributes != null && self.CurrentHp < self.RuntimeAttributes.MaxHp)
+            {
+                lowest = self;
+                lowestHp = self.CurrentHp;
+            }
+
+            // 检查友方
+            foreach (var ally in allies)
+            {
+                if (ally == null || !ally.IsAlive || ally.RuntimeAttributes == null) continue;
+                if (ally.CurrentHp >= ally.RuntimeAttributes.MaxHp) continue; // 满血跳过
+
+                float distSqr = (ally.Transform.position - self.Transform.position).sqrMagnitude;
+                if (distSqr > rangeSqr) continue; // 超出攻击范围
+
+                if (ally.CurrentHp < lowestHp)
                 {
-                    bounceTarget.RuntimeAttributes.CurrentHp = Mathf.Min(
-                        bounceTarget.RuntimeAttributes.MaxHp, bounceTarget.CurrentHp + healAmount);
-                    f.TotalHealingDone += healAmount;
-                    RefreshHud(bounceTarget);
-                    GameLogger.Log("Skill", $"???????????{bounceTarget.Name} +{healAmount}HP");
+                    lowestHp = ally.CurrentHp;
+                    lowest = ally;
                 }
             }
+
+            return lowest;
+        }
+
+        /// <summary>
+        /// 在目标头顶弹出绿色治疗数字
+        /// </summary>
+        private void ShowHealPopup(BattleFighter target, int amount)
+        {
+            if (target?.Transform == null) return;
+            var hud = target.Transform.GetComponent<FighterHUD>();
+            hud?.ShowHeal(amount);
         }
 
         // ??????????????????????????????????????????????????????????????????

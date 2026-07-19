@@ -106,6 +106,14 @@ namespace Combat.Fighter
             StartCoroutine(DoShowDamage(amount, isCritical));
         }
 
+        /// <summary>
+        /// 显示绿色治疗数值弹字
+        /// </summary>
+        public void ShowHeal(int amount)
+        {
+            StartCoroutine(DoShowHeal(amount));
+        }
+
         private IEnumerator DoShowDamage(int amount, bool isCritical)
         {
             GameObject txtGo = new GameObject("DamageText", typeof(TextMeshPro));
@@ -128,6 +136,38 @@ namespace Combat.Fighter
                 float p = elapsed / duration;
                 txtGo.transform.localPosition = Vector3.Lerp(start, end, p);
                 // 抵消父级翻转，防止文字被镜像
+                float parentFlipX = transform.localScale.x;
+                float counterX = Mathf.Abs(parentFlipX) > 0.001f ? 1f / parentFlipX : 1f;
+                txtGo.transform.localScale = new Vector3(counterX, 1f, 1f);
+                tmp.color = new Color(tmp.color.r, tmp.color.g, tmp.color.b, 1f - p);
+                if (Camera.main != null) txtGo.transform.rotation = Camera.main.transform.rotation;
+                yield return null;
+            }
+
+            Object.Destroy(txtGo);
+        }
+
+        private IEnumerator DoShowHeal(int amount)
+        {
+            GameObject txtGo = new GameObject("HealText", typeof(TextMeshPro));
+            txtGo.transform.SetParent(transform, false);
+            txtGo.transform.localPosition = new Vector3(0f, VerticalOffset + 0.4f, -0.02f);
+            var tmp = txtGo.GetComponent<TextMeshPro>();
+            tmp.text = "+" + amount;
+            tmp.fontSize = 5f;
+            tmp.color = new Color(0.2f, 1f, 0.3f); // 绿色
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.rectTransform.sizeDelta = new Vector2(3f, 1.5f);
+
+            float elapsed = 0f;
+            float duration = 0.9f;
+            Vector3 start = txtGo.transform.localPosition;
+            Vector3 end = start + new Vector3(0f, 0.6f, 0f);
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float p = elapsed / duration;
+                txtGo.transform.localPosition = Vector3.Lerp(start, end, p);
                 float parentFlipX = transform.localScale.x;
                 float counterX = Mathf.Abs(parentFlipX) > 0.001f ? 1f / parentFlipX : 1f;
                 txtGo.transform.localScale = new Vector3(counterX, 1f, 1f);

@@ -24,7 +24,7 @@ namespace Combat
             AvatarAnimationDefinition enemyDefinition,
             int enemyFighterCount,
             BattleFighterSpawnDefinition[] playerFighterDefinitions,
-            Action<bool> onBattleEnded,
+            Action<bool, int> onBattleEnded,
             UnitStaticAttributes? enemyStats = null,
             TerrainType terrain = TerrainType.Plain,
             WeatherType weather = WeatherType.Sunny,
@@ -110,7 +110,7 @@ namespace Combat
             return _isPaused;
         }
 
-        public void StopAndDispose(Action<bool> onBattleEnded)
+        public void StopAndDispose(Action<bool, int> onBattleEnded)
         {
             _isPaused = false;
             Time.timeScale = 1f;

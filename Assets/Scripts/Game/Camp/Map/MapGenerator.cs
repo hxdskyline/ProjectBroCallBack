@@ -547,16 +547,16 @@ namespace Camp
             var result = new List<int>();
             int remaining = cap;
 
-            // 先确保至少有一只游侠(5040, cost=5)或猫骑士(5020, cost=5)
-            if (remaining >= 5 && _rng.Next(2) == 0)
+            // 先确保至少有一只游侠(5040, cost=4)或猫骑士(5020, cost=4)
+            if (remaining >= 4 && _rng.Next(2) == 0)
             {
                 result.Add(5020);
-                remaining -= 5;
+                remaining -= 4;
             }
-            else if (remaining >= 5)
+            else if (remaining >= 4)
             {
                 result.Add(5040);
-                remaining -= 5;
+                remaining -= 4;
             }
             else if (remaining >= 1)
             {
@@ -568,10 +568,10 @@ namespace Camp
             while (remaining > 0)
             {
                 int roll = _rng.Next(100);
-                if (remaining >= 5 && roll < 20)
+                if (remaining >= 4 && roll < 20)
                 {
                     result.Add(5020);
-                    remaining -= 5;
+                    remaining -= 4;
                 }
                 else if (remaining >= 2 && roll < 55)
                 {
@@ -588,7 +588,7 @@ namespace Camp
         }
 
         /// <summary>
-        /// Boss关卡敌人组合：必定至少一只奶牛猫族长(5030, cost=8)，加入奶爸猫/巫毒猫/苍蝇猫
+        /// Boss关卡敌人组合：必定至少一只奶牛猫族长(5030, cost=5)，加入奶爸猫/巫毒猫/苍蝇猫
         /// </summary>
         private int[] GenerateBossCompositionForMap(Combat.BattleCampaignRuntime campaign, int cap)
         {
@@ -597,20 +597,20 @@ namespace Camp
 
             // 必定放一只奶牛猫族长
             result.Add(5030);
-            remaining -= 8;
+            remaining -= 5;
 
             // 填充剩余人口
             while (remaining > 0)
             {
-                if (remaining >= 8 && _rng.Next(100) < 20)
+                if (remaining >= 5 && _rng.Next(100) < 20)
                 {
                     result.Add(5030);
-                    remaining -= 8;
+                    remaining -= 5;
                 }
-                else if (remaining >= 5 && _rng.Next(100) < 25)
+                else if (remaining >= 4 && _rng.Next(100) < 25)
                 {
                     result.Add(5020);
-                    remaining -= 5;
+                    remaining -= 4;
                 }
                 else if (remaining >= 2 && _rng.Next(100) < 35)
                 {
