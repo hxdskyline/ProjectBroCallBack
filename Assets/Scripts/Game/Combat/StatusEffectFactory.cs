@@ -12,9 +12,9 @@ namespace Combat.Effects
         // ── 异常伤害类 ──
 
         /// <summary>
-        /// 创建中毒效果（可叠加，每层每秒1点伤害，最高3层，持续2秒）
+        /// 创建中毒效果（可叠加，每层每秒3点伤害，最高5层，持续6秒）— 数值对齐 status_effect_config.json 标准配置
         /// </summary>
-        public static UnifiedBuff CreatePoison(float dpsPerStack = 1f, float duration = 2f, int maxStacks = 3)
+        public static UnifiedBuff CreatePoison(float dpsPerStack = 3f, float duration = 6f, int maxStacks = 5)
         {
             return new UnifiedBuff
             {
@@ -495,7 +495,7 @@ namespace Combat.Effects
             switch (buffId)
             {
                 // 异常伤害
-                case "poison":              return CreatePoison(1f, 2f, 3);
+                case "poison":              return CreatePoison();
                 case "burn":                return CreateBurn(5f, 3f);
                 case "bleed":               return CreateBleed(5f, 4f);
                 // 控制

@@ -252,7 +252,7 @@ namespace Combat
             float chance = IsEnhanced(f) ? 0.4f : 0.2f;
             if (_rng.NextDouble() < chance)
             {
-                target.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreatePoison(1f, 2f, 3));
+                target.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreatePoison());
                 GameLogger.Log("Skill", $"鑻嶈潎鐚柦姣?chance={chance}");
             }
         }
@@ -444,9 +444,9 @@ namespace Combat
         private void Skill_WuDuMao(BattleFighter f, SkillTrigger trigger, BattleFighter target)
         {
             if (trigger != SkillTrigger.OnAttackHit || target == null) return;
-            if (_rng.NextDouble() < 0.1f)
+            if (_rng.NextDouble() < 0.5f)
             {
-                target.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreatePoison(1f, 2f, 3));
+                target.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreatePoison());
             }
 
             var enemies = GetEnemies(f);
@@ -476,7 +476,7 @@ namespace Combat
                         FireBulletFromPosition(f, bounceTarget, dmg, hitPos);
 
                         if (_rng.NextDouble() < 0.1f)
-                            bounceTarget.RuntimeAttributes.ApplyBuff(StatusEffectFactory.CreatePoison(1f, 2f, 3));
+                            bounceTarget.RuntimeAttributes.ApplyBuff(StatusEffectFactory.CreatePoison());
                         GameLogger.Log("Skill", $"????????????????????? target={bounceTarget.Name} dmg={dmg}");
                     }
                 }

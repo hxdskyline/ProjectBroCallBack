@@ -537,6 +537,9 @@ namespace Combat
                     return reward;
                 if (byDifficulty.TryGetValue(DifficultyLevel.Normal, out var normalReward))
                     return normalReward;
+                // 目标难度和 Normal 都不存在时，回退到配置中任意可用难度的值
+                foreach (var kvp in byDifficulty)
+                    return kvp.Value;
             }
 
             // Fallback to legacy

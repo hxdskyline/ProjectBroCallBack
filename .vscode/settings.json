@@ -51,5 +51,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "ProjectBroCallBack.sln"
+    "dotnet.defaultSolution": "ProjectBroCallBack.sln",
+    "dotnet.preferCSharpExtension": true
 }
