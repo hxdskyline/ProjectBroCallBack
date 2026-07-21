@@ -696,9 +696,8 @@ namespace Combat
                     return;
                 }
 
-                // 杩滅▼鍗曚綅锛氬彂灏勫瓙寮癸紝涓嶈蛋 PendingHit
-                // 鍒ゆ柇鏍囧噯锛氭敾鍑昏窛绂?> 3.5m 瑙嗕负杩滅▼
-                bool isRanged = GetAttackRange(self) > 3.5f;
+                // 远程单位：发射子弹，不走 PendingHit
+                bool isRanged = self.Tags != null && self.Tags.Contains("ranged");
                 if (isRanged)
                 {
                     int damage = CalculateDamage(self, target);

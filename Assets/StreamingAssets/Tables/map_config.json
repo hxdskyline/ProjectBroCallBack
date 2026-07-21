@@ -4,12 +4,12 @@
   "specialLayerBoss": 15,
   "specialLayerHotSpringAndShop": 14,
   "startLayer": 1,
+  "fogViewDistance": 3,
   "normalLayerCounts": [2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4],
   "specialQuotaPerRegion": {
     "hotSpring": 3,
     "shop": 3,
-    "elite": 3,
-    "event": 3,
-    "fate": 3
+    "elite": 4,
+    "event": 3
   }
 }

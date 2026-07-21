@@ -473,6 +473,8 @@ namespace Combat.Fighter
             frozenSr.color = new Color(1f, 1f, 1f, 0.95f);
             frozenEffect.SetActive(false);
 
+            var config = Camp.TribeConfigLoader.Instance?.GetFighterConfig(definition.FighterId);
+
             return new BattleFighter
             {
                 Name = objectName,
@@ -485,11 +487,12 @@ namespace Combat.Fighter
                 BaseScale = scale,
                 TribeType = definition.TribeType,
                 FighterId = definition.FighterId,
+                Tags = config?.tags,
                 InnateBuffIds = innateBuffIds,
                 HitEffect = hitEffect,
                 FrozenEffect = frozenEffect,
                 EnhanceLevel = definition.EnhanceLevel,
-                SkillId = Camp.TribeConfigLoader.Instance?.GetFighterConfig(definition.FighterId)?.GetSkillId(definition.EnhanceLevel) ?? ""
+                SkillId = config?.GetSkillId(definition.EnhanceLevel) ?? ""
             };
         }
 
@@ -644,6 +647,8 @@ namespace Combat.Fighter
                 Debug.Log($"  [Buff] {bb.buffId} src={bb.source} stat={bb.statType} isPercent={bb.isPercent} val={bb.value} persistence={bb.persistence} stacks={bb.currentStacks}");
             }
 
+            var fighterCfg = fighterId > 0 ? Camp.TribeConfigLoader.Instance?.GetFighterConfig(fighterId) : null;
+
             return new BattleFighter
             {
                 Name = objectName,
@@ -656,10 +661,11 @@ namespace Combat.Fighter
                 BaseScale = scale,
                 TribeType = tribeType,
                 FighterId = fighterId,
+                Tags = fighterCfg?.tags,
                 InnateBuffIds = innateBuffIds,
                 HitEffect = hitEffect,
                 FrozenEffect = frozenEffect,
-                SkillId = fighterId > 0 ? (Camp.TribeConfigLoader.Instance?.GetFighterConfig(fighterId)?.GetSkillId(0) ?? "") : ""
+                SkillId = fighterCfg?.GetSkillId(0) ?? ""
             };
         }
 

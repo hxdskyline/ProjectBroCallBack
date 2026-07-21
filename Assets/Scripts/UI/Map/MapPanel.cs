@@ -600,7 +600,6 @@ public class MapPanel : UIPanel
             case MapNodeType.Event: return "事件";
             case MapNodeType.HotSpring: return "温泉";
             case MapNodeType.Boss: return "BOSS";
-            case MapNodeType.Fate: return "命运";
             default: return "?";
         }
     }
@@ -632,7 +631,6 @@ public class MapPanel : UIPanel
             case MapNodeType.Event: return new Color(0.9f, 0.6f, 0.15f);
             case MapNodeType.HotSpring: return new Color(0.2f, 0.8f, 0.4f);
             case MapNodeType.Boss: return new Color(0.7f, 0.1f, 0.15f);
-            case MapNodeType.Fate: return new Color(0.6f, 0.2f, 0.8f);
             default: return Color.white;
         }
     }

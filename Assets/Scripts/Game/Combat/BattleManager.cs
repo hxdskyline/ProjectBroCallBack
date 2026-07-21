@@ -953,7 +953,7 @@ namespace Combat
                     f.Avatar?.PlayAttackAndReturnIdle();
 
                     float damage = f.RuntimeAttributes.Attack;
-                    bool isRanged = attackRange > 2f;
+                    bool isRanged = f.Tags != null && f.Tags.Contains("ranged");
 
                     if (isRanged)
                     {

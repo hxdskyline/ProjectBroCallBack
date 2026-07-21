@@ -24,6 +24,7 @@ namespace Combat.Fighter
         public float FreezeTimer { get; set; }
         public TribeType TribeType;
         public int FighterId;
+        public List<string> Tags;
         public List<int> InnateBuffIds;
         public bool HasDoubleHit;
         public bool IsInvulnerable;

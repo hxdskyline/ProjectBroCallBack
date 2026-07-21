@@ -26,6 +26,8 @@ namespace Camp
         public int catFoodReward;
         public bool causesWeatherPenalty;   // "我全要了"触发天气惩罚
         public bool causesShopPenalty;      // 奸商陷阱：商店加价+禁刷新
+        public float shopPriceModifier;     // 商店价格倍率（1.0=原价，1.1=+10%，1.2=+20%），0=使用默认1.2
+        public bool shopRefreshLocked;      // 是否锁定商店刷新
         public int equipmentReward;         // 饰品数量奖励
         public int consumableReward;        // 消耗品奖励
     }
@@ -106,9 +108,17 @@ namespace Camp
             // 商店惩罚（奸商陷阱）
             if (option.causesShopPenalty)
             {
-                dm.SetShopPriceModifier(1.2f);
-                dm.SetShopRefreshLocked(true);
-                GameLogger.Log("Choice", "奸商陷阱：商店价格+20%，禁止刷新");
+                float priceMod = option.shopPriceModifier > 0f ? option.shopPriceModifier : 1.2f;
+                dm.SetShopPriceModifier(priceMod);
+                if (option.shopRefreshLocked)
+                {
+                    dm.SetShopRefreshLocked(true);
+                    GameLogger.Log("Choice", $"奸商陷阱：商店价格×{priceMod}，禁止刷新");
+                }
+                else
+                {
+                    GameLogger.Log("Choice", $"奸商陷阱：商店价格×{priceMod}");
+                }
             }
 
             // 应用buff效果
@@ -169,99 +179,135 @@ namespace Camp
         {
             return new List<ChoiceEvent>
             {
-                // ── 关卡组5：流浪猫的馈赠、古老的训练场、秘密训练营 ──
+                // ── 关卡组5 ──
+
+                // ① 流浪猫的馈赠
                 new ChoiceEvent
                 {
                     eventId = "stray_cat_gift", name = "流浪猫的馈赠",
                     description = "一只流浪猫向你献上了礼物", levelGroup = 5,
                     options = new List<ChoiceOption>
                     {
-                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "收下礼物", description = "获得200小鱼干", catFoodReward = 200 },
-                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "贪婪索取", description = "获得500小鱼干，但下场战斗攻击力降低10%", catFoodReward = 500,
+                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "收下礼物", description = "获得100小鱼干", catFoodReward = 100 },
+                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "贪婪索取", description = "获得300小鱼干，但下场战斗攻击力降低10%", catFoodReward = 300,
                             effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "Attack", isPercent = true, value = -0.1f, gameEffectType = 0 } } },
-                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "获得700小鱼干，但下场战斗出现2种天气效果", catFoodReward = 700, causesWeatherPenalty = true },
+                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "获得400小鱼干，但下场战斗攻击力降低15%", catFoodReward = 400,
+                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "Attack", isPercent = true, value = -0.15f, gameEffectType = 0 } } },
                     }
                 },
+
+                // ② 古老的训练场
                 new ChoiceEvent
                 {
                     eventId = "ancient_training", name = "古老的训练场",
                     description = "你发现了一处古老的训练场", levelGroup = 5,
                     options = new List<ChoiceOption>
                     {
-                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "轻松训练", description = "3回合内攻击力+20%",
-                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "Attack", isPercent = true, value = 0.2f, gameEffectType = 0 } } },
-                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "极限训练", description = "3回合内攻击力-10%，之后永久攻击力+5%",
-                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "Attack", isPercent = true, value = 0.05f, gameEffectType = 0 } } },
-                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "3回合内攻击力+30%，但下场战斗出现2种天气效果",
-                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "Attack", isPercent = true, value = 0.3f, gameEffectType = 0 } },
-                            causesWeatherPenalty = true },
+                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "轻松训练", description = "2回合内攻击力+10%",
+                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "Attack", isPercent = true, value = 0.1f, gameEffectType = 0, duration = 120f } } },
+                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "极限训练", description = "2回合内攻击力-20%，之后永久攻击力+10%",
+                            effects = new List<BuffEffectItem>
+                            {
+                                new BuffEffectItem { statType = "Attack", isPercent = true, value = -0.2f, gameEffectType = 0, duration = 120f },
+                                new BuffEffectItem { statType = "Attack", isPercent = true, value = 0.1f, gameEffectType = 0 }
+                            } },
+                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "加大强度", description = "2回合内攻击力-30%，之后永久攻击力+20%",
+                            effects = new List<BuffEffectItem>
+                            {
+                                new BuffEffectItem { statType = "Attack", isPercent = true, value = -0.3f, gameEffectType = 0, duration = 120f },
+                                new BuffEffectItem { statType = "Attack", isPercent = true, value = 0.2f, gameEffectType = 0 }
+                            } },
                     }
                 },
+
+                // ③ 秘密训练营
                 new ChoiceEvent
                 {
                     eventId = "secret_camp", name = "秘密训练营",
                     description = "一个秘密的训练营出现在前方", levelGroup = 5,
                     options = new List<ChoiceOption>
                     {
-                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "派遣新兵", description = "3回合内防御力+20%",
-                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "Defense", isPercent = true, value = 0.2f, gameEffectType = 1 } } },
-                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "全员训练", description = "2只猫咪前往训练，2回合后获得4只强化猫咪" },
-                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "3回合内防御力+30%，但下场战斗出现2种天气效果",
-                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "Defense", isPercent = true, value = 0.3f, gameEffectType = 1 } },
-                            causesWeatherPenalty = true },
+                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "休养生息", description = "2回合内开局回复20%最大血量",
+                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "Hp", isPercent = true, value = 0.2f, gameEffectType = 0, duration = 120f } } },
+                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "强化训练", description = "随机2只猫去训练（无法出战），2回合后获得2只强化猫" },
+                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "加大强度", description = "2回合内开局减少20%最大血量，随机2只猫去训练，2回合后获得4只强化猫",
+                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "Hp", isPercent = true, value = -0.2f, gameEffectType = 0, duration = 120f } } },
                     }
                 },
-                // ── 关卡组10：神秘商人、禁忌的力量、奸商的陷阱 ──
+
+                // ── 关卡组10 ──
+
+                // ④ 神秘商人
                 new ChoiceEvent
                 {
                     eventId = "mysterious_merchant", name = "神秘商人",
                     description = "一位神秘的商人向你走来", levelGroup = 10,
                     options = new List<ChoiceOption>
                     {
-                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "普通交易", description = "获得1个普通饰品", equipmentReward = 1 },
-                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "以物易物", description = "获得1个稀有饰品，但下场战斗移动速度降低15%",
+                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "普通交易", description = "获得1个随机消耗品", consumableReward = 1 },
+                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "以物易物", description = "获得1个随机饰品，但下场战斗移速-50%",
                             equipmentReward = 1,
-                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "MoveSpeed", isPercent = true, value = -0.15f, gameEffectType = 3 } } },
-                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "获得2个饰品，但下场战斗出现2种天气效果", equipmentReward = 2, causesWeatherPenalty = true },
+                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "MoveSpeed", isPercent = true, value = -0.5f, gameEffectType = 3 } } },
+                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "获得2个随机消耗品、2个随机饰品，但下场战斗移速-80%",
+                            consumableReward = 2, equipmentReward = 2,
+                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "MoveSpeed", isPercent = true, value = -0.8f, gameEffectType = 3 } } },
                     }
                 },
+
+                // ⑤ 禁忌的力量
                 new ChoiceEvent
                 {
                     eventId = "forbidden_power", name = "禁忌的力量",
                     description = "一股禁忌的力量在你面前涌动", levelGroup = 10,
                     options = new List<ChoiceOption>
                     {
-                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "谨慎汲取", description = "2回合内全属性+10%",
-                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "AllPercent", isPercent = true, value = 0.1f, gameEffectType = 4 } } },
-                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "过度汲取", description = "2回合内全属性-15%，之后永久全属性+8%",
-                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "AllPercent", isPercent = true, value = 0.08f, gameEffectType = 4 } } },
-                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "2回合内全属性+20%，但下场战斗出现2种天气效果",
-                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "AllPercent", isPercent = true, value = 0.2f, gameEffectType = 4 } },
-                            causesWeatherPenalty = true },
+                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "谨慎汲取", description = "2回合内全属性+5%",
+                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "AllPercent", isPercent = true, value = 0.05f, gameEffectType = 4, duration = 120f } } },
+                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "过度汲取", description = "2回合内全属性-10%，之后永久全属性+8%",
+                            effects = new List<BuffEffectItem>
+                            {
+                                new BuffEffectItem { statType = "AllPercent", isPercent = true, value = -0.1f, gameEffectType = 4, duration = 120f },
+                                new BuffEffectItem { statType = "AllPercent", isPercent = true, value = 0.08f, gameEffectType = 4 }
+                            } },
+                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "3回合内全属性-15%，之后永久全属性+15%",
+                            effects = new List<BuffEffectItem>
+                            {
+                                new BuffEffectItem { statType = "AllPercent", isPercent = true, value = -0.15f, gameEffectType = 4, duration = 180f },
+                                new BuffEffectItem { statType = "AllPercent", isPercent = true, value = 0.15f, gameEffectType = 4 }
+                            } },
                     }
                 },
+
+                // ⑥ 奸商的陷阱
                 new ChoiceEvent
                 {
                     eventId = "merchant_trap", name = "奸商的陷阱",
                     description = "一个看起来不太可靠的商人向你招手", levelGroup = 10,
                     options = new List<ChoiceOption>
                     {
-                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "小赚一笔", description = "获得300小鱼干", catFoodReward = 300 },
-                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "大捞一笔", description = "获得800小鱼干，但下回合商店价格+20%且无法刷新", catFoodReward = 800, causesShopPenalty = true },
-                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "获得1100小鱼干，但下场战斗出现2种天气效果", catFoodReward = 1100, causesWeatherPenalty = true },
+                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "小赚一笔", description = "+200小鱼干，下次商店物品价格+10%",
+                            catFoodReward = 200, causesShopPenalty = true, shopPriceModifier = 1.1f },
+                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "大捞一笔", description = "+500小鱼干，下回合商店无法刷新",
+                            catFoodReward = 500, causesShopPenalty = true, shopRefreshLocked = true },
+                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "+700小鱼干，下回合商店价格+20%且无法刷新",
+                            catFoodReward = 700, causesShopPenalty = true, shopPriceModifier = 1.2f, shopRefreshLocked = true },
                     }
                 },
-                // ── 关卡组15：流浪猫的馈赠、禁忌的力量、秘密训练营（复用带升级描述）──
+
+                // ── 关卡组15 ──
+
+                // ⑦ 流浪猫的馈赠（升级版）
                 new ChoiceEvent
                 {
                     eventId = "stray_cat_gift_15", name = "流浪猫的馈赠",
                     description = "又一只流浪猫出现了，这次带来了更好的东西", levelGroup = 15,
                     options = new List<ChoiceOption>
                     {
-                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "收下馈赠", description = "获得400小鱼干", catFoodReward = 400 },
-                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "讨价还价", description = "获得900小鱼干，但下场战斗防御力降低10%", catFoodReward = 900,
-                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "Defense", isPercent = true, value = -0.1f, gameEffectType = 1 } } },
-                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "获得1300小鱼干，但下场战斗出现2种天气效果", catFoodReward = 1300, causesWeatherPenalty = true },
+                        new ChoiceOption { type = ChoiceOptionType.LowRisk, name = "收下馈赠", description = "+200小鱼干", catFoodReward = 200 },
+                        new ChoiceOption { type = ChoiceOptionType.HighRisk, name = "讨价还价", description = "+500小鱼干，但下场战斗全属性-20%", catFoodReward = 500,
+                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "AllPercent", isPercent = true, value = -0.2f, gameEffectType = 4 } } },
+                        new ChoiceOption { type = ChoiceOptionType.AllIn, name = "我全要了", description = "+700小鱼干，但下场战斗全属性-30%", catFoodReward = 700,
+                            effects = new List<BuffEffectItem> { new BuffEffectItem { statType = "AllPercent", isPercent = true, value = -0.3f, gameEffectType = 4 } } },
                     }
                 },
             };

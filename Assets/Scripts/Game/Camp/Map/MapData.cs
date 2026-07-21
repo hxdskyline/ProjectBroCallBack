@@ -11,6 +11,7 @@ namespace Camp
     public class MapData
     {
         public List<MapNode> nodes = new List<MapNode>();
+        public int fogViewDistance = 3; // 迷雾可视距离（可从 map_config.json 配置）
 
         /// <summary>
         /// 获取指定 id 的节点
@@ -81,12 +82,12 @@ namespace Camp
         }
 
         /// <summary>
-        /// 更新迷雾状态：当前层+3以内可见，超过的设为 Fogged
+        /// 更新迷雾状态：当前层+fogViewDistance以内可见，超过的设为 Fogged
         /// 第12层后全部解锁
         /// </summary>
         public void UpdateFog(int currentLayer)
         {
-            int fogThreshold = currentLayer + 3;
+            int fogThreshold = currentLayer + fogViewDistance;
             bool unlockAll = currentLayer >= 12;
 
             for (int i = 0; i < nodes.Count; i++)

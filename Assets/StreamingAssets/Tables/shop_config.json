@@ -6,7 +6,7 @@
   "startRound": 5,
   "items": {
     "artifact": {
-      "basePrice": 500,
+      "basePrice": 300,
       "icons": {
         "LeaderHpFlat": "ui/sprite/itemicon/5",
         "CatAttackFlat": "ui/sprite/itemicon/8"

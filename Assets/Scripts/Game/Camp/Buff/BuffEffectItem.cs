@@ -14,6 +14,8 @@ namespace Camp
         public bool isPercent;        // true=百分比加成, false=固定值加成
         public float value;           // 加成数值
         public int gameEffectType;    // 对应 GameEffect 枚举值（0=纯属性修改）
+        public float duration;        // 持续时间（秒），0=永久，>0=限时（仅战斗内生效）
+        public bool isPersistent;     // true=永久生效（跨战斗），false=仅战斗内
 
         /// <summary>
         /// 将 statType 字符串转为 StatType 枚举

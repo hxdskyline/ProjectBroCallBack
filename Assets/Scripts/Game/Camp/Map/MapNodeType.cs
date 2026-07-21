@@ -10,7 +10,6 @@ namespace Camp
         Shop = 2,       // 猫市
         Event = 3,      // 抉择
         HotSpring = 4,  // 温泉
-        Boss = 5,
-        Fate = 6        // 命运
+        Boss = 5
     }
 }

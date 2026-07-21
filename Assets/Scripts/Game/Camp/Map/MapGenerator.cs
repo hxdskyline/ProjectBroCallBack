@@ -20,9 +20,9 @@ namespace Camp
         private List<int> _normalLayerCounts = new List<int> { 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4 };
         private int _quotaHotSpring = 3;
         private int _quotaShop = 3;
-        private int _quotaElite = 3;
+        private int _quotaElite = 4;
         private int _quotaEvent = 3;
-        private int _quotaFate = 3;
+        private int _fogViewDistance = 3;
 
         private float _columnSpacing = 333f;
         private float _rowSpacing = 107f;
@@ -64,8 +64,9 @@ namespace Camp
                     _quotaShop = ReadInt(q, "shop", _quotaShop);
                     _quotaElite = ReadInt(q, "elite", _quotaElite);
                     _quotaEvent = ReadInt(q, "event", _quotaEvent);
-                    _quotaFate = ReadInt(q, "fate", _quotaFate);
                 }
+
+                _fogViewDistance = ReadInt(data, "fogViewDistance", _fogViewDistance);
 
                 Debug.Log($"[MapGenerator] Config loaded: layers={_layersPerRegion}, regions={_regionCount}");
             }
@@ -95,7 +96,7 @@ namespace Camp
 
         private MapData GenerateRegion(int regionIndex)
         {
-            var map = new MapData();
+            var map = new MapData { fogViewDistance = _fogViewDistance };
             int nodeIdCounter = 0;
 
             // Phase A: 确定每层节点数
@@ -126,6 +127,9 @@ namespace Camp
 
             // Phase E: 为每个战斗节点填充敌方单位（同层不同敌人）
             AssignEnemies(layers, regionIndex);
+
+            // Phase F: 标记迷雾节点（超出可视距离的层）
+            ApplyFogStates(layers);
 
             return map;
         }
@@ -173,32 +177,53 @@ namespace Camp
             // 第15层：Boss
             layers[_specialLayerBoss - 1][0].nodeType = MapNodeType.Boss;
 
-            // Step 2: 构建特殊节点池
-            // 已固定：1温泉(14层) + 1商店(14层)。剩余：2温泉+2商店+3精英+3事件+3命运 = 13
+            // Step 2: 构建特殊节点池（2温泉+2商店+4精英+3事件 = 11个）
+            // 已固定：1温泉(14层) + 1商店(14层)
             var specialPool = new List<MapNodeType>();
             for (int i = 0; i < _quotaHotSpring - 1; i++) specialPool.Add(MapNodeType.HotSpring);
             for (int i = 0; i < _quotaShop - 1; i++) specialPool.Add(MapNodeType.Shop);
             for (int i = 0; i < _quotaElite; i++) specialPool.Add(MapNodeType.EliteBattle);
             for (int i = 0; i < _quotaEvent; i++) specialPool.Add(MapNodeType.Event);
-            for (int i = 0; i < _quotaFate; i++) specialPool.Add(MapNodeType.Fate);
             Shuffle(specialPool);
 
-            // Step 3: 按层段分配
-            // 前段(层4-8, index 3-7)：5个特殊节点分布到5层
-            DistributeSpecialsToLayers(specialPool, 0, 5, layers, 3, 7);
+            // Step 3: 按层段分配（前段5个、中段4个、后段2个）
+            // 前段(层2-8, index 1-7)：5个特殊节点分布到7层中
+            DistributeSpecialsToLayers(specialPool, 0, 5, layers, 1, 7);
 
             // 中段(层9-12, index 8-11)：4个特殊节点，每层恰好1个
             DistributeExactOnePerLayer(specialPool, 5, 4, layers, 8, 11);
 
-            // 后段(层13, index 12)：4个特殊节点（如果该层节点数足够）
+            // 后段(层13, index 12)：2个特殊节点
             var layer13 = layers[12];
-            int layer13Count = Mathf.Min(layer13.Count, 4);
+            int layer13Count = Mathf.Min(layer13.Count, 2);
             for (int i = 0; i < layer13Count; i++)
             {
                 layer13[i].nodeType = specialPool[9 + i];
             }
 
             // Step 4: 剩余槽位已经是 Battle（占位值），无需额外填充
+        }
+
+        // ====== Phase F: Fog States ======
+
+        /// <summary>
+        /// 标记超出可视距离的层为迷雾状态
+        /// 起点层始终可见，后续 _fogViewDistance 层可见，其余为 Fogged
+        /// </summary>
+        private void ApplyFogStates(List<List<MapNode>> layers)
+        {
+            int visibleEnd = _startLayer - 1 + _fogViewDistance; // 可见层的最后 index（0-based）
+            for (int layerIdx = 0; layerIdx < layers.Count; layerIdx++)
+            {
+                if (layerIdx > visibleEnd)
+                {
+                    foreach (var node in layers[layerIdx])
+                    {
+                        if (node.state != MapNodeState.Available)
+                            node.state = MapNodeState.Fogged;
+                    }
+                }
+            }
         }
 
         /// <summary>

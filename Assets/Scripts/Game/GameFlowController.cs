@@ -426,13 +426,6 @@ public class GameFlowController : MonoBehaviour
                 return;
             }
 
-            // 命运节点：显示命运面板
-            if (currentNode != null && currentNode.nodeType == MapNodeType.Fate)
-            {
-                ShowFateNodePanel();
-                return;
-            }
-
             // Boss关：全员上阵（包括生产区单位）
             if (currentNode != null && currentNode.nodeType == MapNodeType.Boss)
             {
@@ -542,34 +535,6 @@ public class GameFlowController : MonoBehaviour
         else
         {
             Debug.LogWarning("[GameFlowController] RandomEventPanel not found, skip");
-            CompleteNonBattleNode();
-        }
-    }
-
-    /// <summary>
-    /// 显示命运面板（地图上的命运节点）
-    /// </summary>
-    private void ShowFateNodePanel()
-    {
-        Debug.Log("[GameFlowController] 显示命运面板（节点）");
-
-        if (_fateSystem == null)
-        {
-            _fateSystem = new FateSystem();
-            _fateSystem.Initialize();
-        }
-
-        var panel = _uiManager?.ShowPanel<FatePanel>(UIManager.UILayer.Normal);
-        if (panel != null)
-        {
-            panel.ShowFate(_fateSystem, () =>
-            {
-                CompleteNonBattleNode();
-            });
-        }
-        else
-        {
-            Debug.LogWarning("[GameFlowController] FatePanel not found, skip");
             CompleteNonBattleNode();
         }
     }
@@ -1035,6 +1000,7 @@ public class GameFlowController : MonoBehaviour
                                 {
                                     _currentRegionMap.nodes[0].state = MapNodeState.Available;
                                 }
+                                _currentRegionMap.UpdateFog(1);
                                 _currentNodeId = -1;
                             }
                         });
@@ -1249,9 +1215,6 @@ public class GameFlowController : MonoBehaviour
             {
                 case MapNodeType.Shop:
                     result.Add("shop");
-                    break;
-                case MapNodeType.Fate:
-                    result.Add("ritual");
                     break;
                 case MapNodeType.Event:
                     result.Add("randomEvent");

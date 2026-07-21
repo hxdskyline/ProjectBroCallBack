@@ -1148,12 +1148,26 @@ public class DataManager : MonoBehaviour
         if (effects == null) return;
         foreach (var eff in effects)
         {
-            var buff = UnifiedBuff.CreateStatBuff(
-                $"aura_{uniqueId}_{eff.statType}", displayName,
-                BuffSource.Equipment, uniqueId,
-                eff.GetStatType(), eff.isPercent, eff.value,
-                gameEffectType: (GameEffect)eff.gameEffectType,
-                description: description);
+            UnifiedBuff buff;
+            if (eff.duration > 0f)
+            {
+                // 限时 buff（战斗内生效，到期自动移除）
+                buff = UnifiedBuff.CreateTimedBuff(
+                    $"aura_{uniqueId}_{eff.statType}", displayName,
+                    BuffSource.Equipment, uniqueId,
+                    eff.GetStatType(), eff.isPercent, eff.value,
+                    eff.duration, BuffStackRule.None, 1);
+            }
+            else
+            {
+                // 永久 buff
+                buff = UnifiedBuff.CreateStatBuff(
+                    $"aura_{uniqueId}_{eff.statType}", displayName,
+                    BuffSource.Equipment, uniqueId,
+                    eff.GetStatType(), eff.isPercent, eff.value,
+                    gameEffectType: (GameEffect)eff.gameEffectType,
+                    description: description);
+            }
             unit.AddUnifiedBuff(buff);
         }
     }

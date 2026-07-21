@@ -454,13 +454,8 @@ namespace Combat
 
             if (HasNewTribeEventForBattle(battleNumber))
                 events.Add(new System.Tuple<string, int>("newTribeEvent", GetPopupPriority("newTribeEvent")));
-            // 招募已由 ShowBattleResultRecruitment 单独处理，不加入构筑阶段事件
-            if (HasRitualForBattle(battleNumber))
-                events.Add(new System.Tuple<string, int>("ritual", GetPopupPriority("ritual")));
-            if (HasRandomEventForBattle(battleNumber))
-                events.Add(new System.Tuple<string, int>("randomEvent", GetPopupPriority("randomEvent")));
-            if (HasShopForBattle(battleNumber))
-                events.Add(new System.Tuple<string, int>("shop", GetPopupPriority("shop")));
+            // 招募已由 ShowBattleResultRecruitment 单独处理
+            // 命运、抉择、猫市均仅通过地图节点触发，不在构筑阶段弹出
 
             events.Sort((a, b) => b.Item2.CompareTo(a.Item2));
 
