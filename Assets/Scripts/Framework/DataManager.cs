@@ -12,14 +12,16 @@ public class DataManager : MonoBehaviour
 {
     private PlayerData _playerData;
     private string _savePath;
+    private bool _isSpecialMode = false;
 
     public PlayerData PlayerData => _playerData;
+    public bool IsSpecialMode => _isSpecialMode;
     public string SaveId => _playerData != null ? _playerData.playerId : string.Empty;
 
     public void Initialize()
     {
         _savePath = Path.Combine(Application.persistentDataPath, "PlayerData");
-        
+
         // 如果目录不存在则创建
         if (!Directory.Exists(_savePath))
         {
@@ -30,12 +32,22 @@ public class DataManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 设置特殊模式标志（切换存档文件）
+    /// </summary>
+    public void SetSpecialMode(bool isSpecial)
+    {
+        _isSpecialMode = isSpecial;
+        GameLogger.Log("Data", $"SpecialMode={isSpecial}");
+    }
+
+    /// <summary>
     /// 加载玩家数据
     /// </summary>
     public void LoadPlayerData()
     {
-        GameLogger.Log("Data", "Load");
-        string filePath = Path.Combine(_savePath, "playerdata.json");
+        GameLogger.Log("Data", $"Load (special={_isSpecialMode})");
+        string fileName = _isSpecialMode ? "special_playerdata.json" : "playerdata.json";
+        string filePath = Path.Combine(_savePath, fileName);
 
         if (File.Exists(filePath))
         {
@@ -63,14 +75,15 @@ public class DataManager : MonoBehaviour
     /// </summary>
     public void SavePlayerData()
     {
-        GameLogger.Log("Data", "Save");
+        GameLogger.Log("Data", $"Save (special={_isSpecialMode})");
         if (_playerData == null)
             return;
 
         try
         {
             _playerData.lastSaveTime = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            string filePath = Path.Combine(_savePath, "playerdata.json");
+            string fileName = _isSpecialMode ? "special_playerdata.json" : "playerdata.json";
+            string filePath = Path.Combine(_savePath, fileName);
             string json = JsonUtility.ToJson(_playerData, true);
             File.WriteAllText(filePath, json);
             Debug.Log("[DataManager] Player data saved successfully");
@@ -140,8 +153,9 @@ public class DataManager : MonoBehaviour
     /// </summary>
     public void ResetPlayerData()
     {
-        GameLogger.Log("Data", "Reset");
-        string filePath = Path.Combine(_savePath, "playerdata.json");
+        GameLogger.Log("Data", $"Reset (special={_isSpecialMode})");
+        string fileName = _isSpecialMode ? "special_playerdata.json" : "playerdata.json";
+        string filePath = Path.Combine(_savePath, fileName);
         if (File.Exists(filePath))
         {
             File.Delete(filePath);

@@ -10,6 +10,7 @@ namespace Camp
         Shop = 2,       // 猫市
         Event = 3,      // 抉择
         HotSpring = 4,  // 温泉
-        Boss = 5
+        Boss = 5,
+        Wish = 6        // 祈愿（特殊模式专用）
     }
 }

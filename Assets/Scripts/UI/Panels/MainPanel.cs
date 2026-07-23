@@ -15,13 +15,17 @@ public class MainPanel : UIPanel
         titleText.rectTransform.anchoredPosition = new Vector2(0, 200);
 
         var newGameBtn = CreateButton("NewGameButton", "新游戏", OnNewGame);
-        newGameBtn.anchoredPosition = new Vector2(0, 0);
+        newGameBtn.anchoredPosition = new Vector2(0, 40);
+
+        var specialBtn = CreateButton("SpecialModeButton", "特殊模式", OnSpecialMode);
+        specialBtn.anchoredPosition = new Vector2(0, -40);
+        specialBtn.GetComponent<Image>().color = new Color(0.3f, 0.4f, 0.7f);
 
         var continueBtn = CreateButton("ContinueButton", "继续游戏", OnContinue);
-        continueBtn.anchoredPosition = new Vector2(0, -80);
+        continueBtn.anchoredPosition = new Vector2(0, -120);
 
         var clearBtn = CreateButton("ClearSaveButton", "清除存档", OnClearSave);
-        clearBtn.anchoredPosition = new Vector2(0, -160);
+        clearBtn.anchoredPosition = new Vector2(0, -200);
         // 红色警示
         clearBtn.GetComponent<Image>().color = new Color(0.7f, 0.2f, 0.2f);
     }
@@ -39,6 +43,22 @@ public class MainPanel : UIPanel
 
         // 通知 GameFlowController 开始初始选择
         GameFlowController.Instance.RestartGame();
+    }
+
+    private void OnSpecialMode()
+    {
+        GameLogger.Log("MainP", "SpecialMode");
+        Debug.Log("[MainPanel] 特殊模式");
+
+        // 重置特殊模式存档
+        var dataManager = GameManager.Instance.DataManager;
+        dataManager.SetSpecialMode(true);
+        dataManager.ResetPlayerData();
+
+        Hide();
+
+        // 通知 GameFlowController 开始特殊模式
+        GameFlowController.Instance.StartSpecialMode();
     }
 
     private void OnContinue()

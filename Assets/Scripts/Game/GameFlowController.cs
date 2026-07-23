@@ -53,6 +53,11 @@ public class GameFlowController : MonoBehaviour
     private readonly List<int> _lastBattlePlayerFighterIds = new List<int>();
     private readonly List<int> _lastBattleEnemyFighterIds = new List<int>();
 
+    // 特殊模式
+    private bool _isSpecialMode = false;
+    private SpecialLevelConfig _specialLevelConfig;
+    public bool IsSpecialMode => _isSpecialMode;
+
     private int _currentRound = 1;
     private bool _isGameStarted = false;
     private BattleFlowController _battleFlowController;
@@ -283,7 +288,16 @@ public class GameFlowController : MonoBehaviour
     private void GenerateFullMap()
     {
         Debug.Log("[GameFlowController] 生成整局地图");
-        _mapDataList = _mapGenerator.GenerateFullMap();
+
+        if (_isSpecialMode)
+        {
+            var specialGenerator = new SpecialMapGenerator(_specialLevelConfig);
+            _mapDataList = specialGenerator.Generate();
+        }
+        else
+        {
+            _mapDataList = _mapGenerator.GenerateFullMap();
+        }
 
         // 设置第一个地区
         _currentRegion = 1;
@@ -426,6 +440,13 @@ public class GameFlowController : MonoBehaviour
                 return;
             }
 
+            // 祈愿节点：显示命运面板
+            if (currentNode != null && currentNode.nodeType == MapNodeType.Wish)
+            {
+                ShowWishNodePanel();
+                return;
+            }
+
             // Boss关：全员上阵（包括生产区单位）
             if (currentNode != null && currentNode.nodeType == MapNodeType.Boss)
             {
@@ -540,7 +561,35 @@ public class GameFlowController : MonoBehaviour
     }
 
     /// <summary>
-    /// 非战斗节点（温泉/商店/事件）完成后，标记已访问并回到地图
+    /// 显示祈愿面板（地图上的祈愿节点）
+    /// </summary>
+    private void ShowWishNodePanel()
+    {
+        Debug.Log("[GameFlowController] 显示祈愿面板（节点）");
+
+        if (_fateSystem == null)
+        {
+            _fateSystem = new FateSystem();
+            _fateSystem.Initialize();
+        }
+
+        var panel = _uiManager?.ShowPanel<FatePanel>(UIManager.UILayer.Normal);
+        if (panel != null)
+        {
+            panel.ShowFate(_fateSystem, () =>
+            {
+                CompleteNonBattleNode();
+            });
+        }
+        else
+        {
+            Debug.LogWarning("[GameFlowController] FatePanel not found, skip");
+            CompleteNonBattleNode();
+        }
+    }
+
+    /// <summary>
+    /// 非战斗节点（温泉/商店/事件/祈愿）完成后，标记已访问并回到地图
     /// </summary>
     private void CompleteNonBattleNode()
     {
@@ -603,6 +652,22 @@ public class GameFlowController : MonoBehaviour
         var scenarios = campaign.GetScenarioOptions(battleNumber);
         var scenario = scenarios.Count > 0 ? scenarios[0] : default;
         int enemyCount = enemyIds != null && enemyIds.Length > 0 ? enemyIds.Length : 3;
+
+        // 特殊模式：应用难度系数
+        if (_isSpecialMode && _currentRegionMap != null && _currentNodeId >= 0)
+        {
+            var currentNode = _currentRegionMap.GetNode(_currentNodeId);
+            if (currentNode != null)
+            {
+                float difficulty = GetSpecialModeDifficulty(currentNode);
+                if (difficulty != 1.0f)
+                {
+                    enemyStats.Attack = Mathf.RoundToInt(enemyStats.Attack * difficulty);
+                    enemyStats.MaxHp = Mathf.RoundToInt(enemyStats.MaxHp * difficulty);
+                    GameLogger.Log("GFC", $"SpecialMode difficulty={difficulty} ATK={enemyStats.Attack} HP={enemyStats.MaxHp}");
+                }
+            }
+        }
 
         // Avatar 定义
         var enemyAvatar = LoadAvatarDefinition("enemy");
@@ -1534,6 +1599,21 @@ public class GameFlowController : MonoBehaviour
     }
 
     /// <summary>
+    /// 获取特殊模式节点的难度系数
+    /// </summary>
+    private float GetSpecialModeDifficulty(MapNode node)
+    {
+        if (_specialLevelConfig == null) return 1.0f;
+
+        var layerCfg = _specialLevelConfig.GetLayer(node.layer);
+        if (layerCfg == null) return 1.0f;
+
+        // 根据节点索引选择 node1 或 node2
+        var nodeCfg = node.index == 1 ? layerCfg.node1 : layerCfg.node2;
+        return nodeCfg?.difficulty ?? 1.0f;
+    }
+
+    /// <summary>
     /// 改变游戏状态
     /// </summary>
     private void ChangeGameState(GameState newState)
@@ -1570,6 +1650,9 @@ public class GameFlowController : MonoBehaviour
     {
         GameLogger.Log("GFC", "RestartGame");
 
+        _isSpecialMode = false;
+        _dataManager.SetSpecialMode(false);
+
         _roundManager.Reset();
         _currentRound = 1;
         _isGameStarted = false;
@@ -1582,6 +1665,36 @@ public class GameFlowController : MonoBehaviour
             // 清空本局饰品
             _dataManager.ClearRunEquipment();
         }
+
+        ChangeGameState(GameState.InitialSelection);
+        SetupDefaultStartUnits();
+        OnInitialTribeSelectionComplete();
+    }
+
+    /// <summary>
+    /// 开始特殊模式
+    /// </summary>
+    public void StartSpecialMode()
+    {
+        GameLogger.Log("GFC", "StartSpecialMode");
+
+        _isSpecialMode = true;
+        _dataManager.SetSpecialMode(true);
+
+        _roundManager.Reset();
+        _currentRound = 1;
+        _isGameStarted = false;
+
+        if (_dataManager != null)
+        {
+            _dataManager.LoadPlayerData();
+            _dataManager.SetCurrentRound(1);
+            _dataManager.ClearRunEquipment();
+        }
+
+        // 加载特殊模式关卡配置
+        _specialLevelConfig = new SpecialLevelConfig();
+        _specialLevelConfig.Load();
 
         ChangeGameState(GameState.InitialSelection);
         SetupDefaultStartUnits();

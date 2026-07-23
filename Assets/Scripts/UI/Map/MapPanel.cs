@@ -363,124 +363,52 @@ public class MapPanel : UIPanel
     }
 
     /// <summary>
-    /// 在战斗类节点上显示敌方单位头像
+    /// 在战斗类节点上显示敌方单位信息
     /// </summary>
     private void CreateEnemyIcons(GameObject nodeGo, MapNode node)
     {
-        // 情报系统：根据街头情报等级决定显示内容
-        int intelLevel = GameManager.Instance?.DataManager?.GetStreetIntel() ?? 0;
-        if (intelLevel <= 0)
-        {
-            // Lv.0：不显示任何敌方信息
-            return;
-        }
-
         var campaign = GameManager.Instance?.BattleCampaignRuntime;
         if (campaign == null) return;
 
-        int[] enemyIds = campaign.GetEnemyUnitVariantsForBattle(node.battleNumber) != null
-            ? campaign.GetEnemyUnitIdsForBattle(node.battleNumber)
-            : (node.enemyUnitIds ?? campaign.GetEnemyUnitIdsForBattle(node.battleNumber));
+        int[] enemyIds = node.enemyUnitIds;
+        if (enemyIds == null || enemyIds.Length == 0)
+        {
+            enemyIds = campaign.GetEnemyUnitIdsForBattle(node.battleNumber);
+        }
         if (enemyIds == null || enemyIds.Length == 0) return;
 
-        // 去重，取最多5个
-        var uniqueIds = new HashSet<int>();
-        var displayIds = new List<int>();
+        // 统计每种敌人的数量
+        var typeCounts = new Dictionary<int, int>();
         foreach (int id in enemyIds)
         {
-            if (uniqueIds.Add(id) && displayIds.Count < 5)
-                displayIds.Add(id);
+            if (!typeCounts.ContainsKey(id)) typeCounts[id] = 0;
+            typeCounts[id]++;
         }
 
-        if (displayIds.Count == 0) return;
-
-        // Lv.1：模糊描述（只显示数量，不显示头像）
-        if (intelLevel <= 1)
+        // 构建描述文本：如 "鼠辈×2 苍蝇猫×2"
+        var parts = new List<string>();
+        foreach (var kv in typeCounts)
         {
-            var hintGo = new GameObject("EnemyHint");
-            hintGo.transform.SetParent(nodeGo.transform, false);
-            var hintRect = hintGo.AddComponent<RectTransform>();
-            hintRect.anchorMin = new Vector2(0, 0);
-            hintRect.anchorMax = new Vector2(1, 0.5f);
-            hintRect.sizeDelta = Vector2.zero;
-            var hintTxt = hintGo.AddComponent<Text>();
-            string desc = enemyIds.Length <= 3 ? "少量敌人" : enemyIds.Length <= 6 ? "中等数量" : "大量敌人";
-            hintTxt.text = desc;
-            try { hintTxt.font = GameManager.Instance.ResourceManager.LoadResource<Font>("assets/bundle/font/fzy3k_gbk"); } catch { }
-            hintTxt.fontSize = 16;
-            hintTxt.color = new Color(0.7f, 0.7f, 0.7f);
-            hintTxt.alignment = TextAnchor.MiddleCenter;
-            hintTxt.raycastTarget = false;
-            return;
+            var cfg = TribeConfigLoader.Instance?.GetFighterConfig(kv.Key);
+            string name = cfg?.fighterName ?? $"ID{kv.Key}";
+            parts.Add($"{name}×{kv.Value}");
         }
+        string desc = string.Join(" ", parts);
 
-        // Lv.2：大致范围（显示数量范围，不显示头像）
-        if (intelLevel <= 2)
-        {
-            var hintGo = new GameObject("EnemyHint");
-            hintGo.transform.SetParent(nodeGo.transform, false);
-            var hintRect = hintGo.AddComponent<RectTransform>();
-            hintRect.anchorMin = new Vector2(0, 0);
-            hintRect.anchorMax = new Vector2(1, 0.5f);
-            hintRect.sizeDelta = Vector2.zero;
-            var hintTxt = hintGo.AddComponent<Text>();
-            int min = Mathf.Max(1, enemyIds.Length - 3);
-            int max = enemyIds.Length + 3;
-            hintTxt.text = $"敌人约 {min}-{max} 只";
-            try { hintTxt.font = GameManager.Instance.ResourceManager.LoadResource<Font>("assets/bundle/font/fzy3k_gbk"); } catch { }
-            hintTxt.fontSize = 16;
-            hintTxt.color = new Color(0.8f, 0.8f, 0.8f);
-            hintTxt.alignment = TextAnchor.MiddleCenter;
-            hintTxt.raycastTarget = false;
-            return;
-        }
-
-        // Lv.3：精确数字 + 敌方头像（原逻辑继续）
-
-        // 创建头像容器
-        var iconsGo = new GameObject("EnemyIcons");
-        iconsGo.transform.SetParent(nodeGo.transform, false);
-        var iconsRect = iconsGo.AddComponent<RectTransform>();
-        iconsRect.anchorMin = new Vector2(0, 0);
-        iconsRect.anchorMax = new Vector2(1, 0.45f);
-        iconsRect.sizeDelta = Vector2.zero;
-        iconsRect.anchoredPosition = Vector2.zero;
-
-        int count = displayIds.Count;
-        float iconSize = 50f;
-        float gap = 4f;
-        float totalW = count * iconSize + (count - 1) * gap;
-        float startX = -totalW / 2f + iconSize / 2f;
-
-        for (int i = 0; i < count; i++)
-        {
-            var cfg = TribeConfigLoader.Instance?.GetFighterConfig(displayIds[i]);
-            if (cfg == null) continue;
-
-            var iconGo = new GameObject($"Icon_{displayIds[i]}");
-            iconGo.transform.SetParent(iconsGo.transform, false);
-            var iconRect = iconGo.AddComponent<RectTransform>();
-            iconRect.anchorMin = new Vector2(0.5f, 0.5f);
-            iconRect.anchorMax = new Vector2(0.5f, 0.5f);
-            iconRect.pivot = new Vector2(0.5f, 0.5f);
-            iconRect.sizeDelta = new Vector2(iconSize, iconSize);
-            iconRect.anchoredPosition = new Vector2(startX + i * (iconSize + gap), 0);
-
-            var iconImg = iconGo.AddComponent<Image>();
-            string addr = $"avatartemp/{cfg.avatarId}1";
-            var sprite = GameManager.Instance.ResourceManager.LoadResource<Sprite>(addr);
-            if (sprite != null)
-            {
-                iconImg.sprite = sprite;
-                iconImg.SetNativeSize();
-                iconRect.sizeDelta = new Vector2(iconSize, iconSize);
-            }
-            else
-            {
-                iconImg.color = new Color(0.5f, 0.5f, 0.5f, 0.6f);
-            }
-            iconImg.raycastTarget = false;
-        }
+        // 显示文本
+        var hintGo = new GameObject("EnemyHint");
+        hintGo.transform.SetParent(nodeGo.transform, false);
+        var hintRect = hintGo.AddComponent<RectTransform>();
+        hintRect.anchorMin = new Vector2(0, 0);
+        hintRect.anchorMax = new Vector2(1, 0.5f);
+        hintRect.sizeDelta = Vector2.zero;
+        var hintTxt = hintGo.AddComponent<Text>();
+        hintTxt.text = desc;
+        try { hintTxt.font = GameManager.Instance.ResourceManager.LoadResource<Font>("assets/bundle/font/fzy3k_gbk"); } catch { }
+        hintTxt.fontSize = 14;
+        hintTxt.color = new Color(0.85f, 0.85f, 0.85f);
+        hintTxt.alignment = TextAnchor.MiddleCenter;
+        hintTxt.raycastTarget = false;
     }
 
     // ====== ScrollView ======
@@ -600,6 +528,7 @@ public class MapPanel : UIPanel
             case MapNodeType.Event: return "事件";
             case MapNodeType.HotSpring: return "温泉";
             case MapNodeType.Boss: return "BOSS";
+            case MapNodeType.Wish: return "祈愿";
             default: return "?";
         }
     }
@@ -631,6 +560,7 @@ public class MapPanel : UIPanel
             case MapNodeType.Event: return new Color(0.9f, 0.6f, 0.15f);
             case MapNodeType.HotSpring: return new Color(0.2f, 0.8f, 0.4f);
             case MapNodeType.Boss: return new Color(0.7f, 0.1f, 0.15f);
+            case MapNodeType.Wish: return new Color(0.6f, 0.2f, 0.8f);
             default: return Color.white;
         }
     }
