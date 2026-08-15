@@ -45,6 +45,9 @@ namespace Combat.Fighter
         public string SkillId;              // 当前生效的技能ID
         public int EnhanceLevel;            // 强化等级
         public float SkillTimer;            // 定时技能计时器
+        public float SecondarySkillTimer;   // 同时存在多个周期效果时使用
+        public bool KnightDamageReductionApplied;
+        public bool CowLeaderRecovering;
         public int AttackCount;             // 攻击次数计数器
         public bool SkillInitialized;       // 技能是否已初始化
 

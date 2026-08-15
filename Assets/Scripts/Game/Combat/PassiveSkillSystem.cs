@@ -101,6 +101,14 @@ namespace Combat
             ProcessSkill(killer, SkillTrigger.OnKill, victim, 0f);
         }
 
+        /// <summary>只处理需要真实击杀归属的能力，避免沿用旧的全队击杀广播。</summary>
+        public void OnConfirmedKill(BattleFighter killer, BattleFighter victim)
+        {
+            if (killer != null && killer.IsAlive &&
+                killer.Camp == BattleCamp.Enemy && killer.FighterId == 5040)
+                Skill_EnemyRanger(killer, SkillTrigger.OnKill);
+        }
+
         /// <summary>
         /// 鑷韩姝讳骸鏃惰Е鍙?
         /// </summary>
@@ -124,6 +132,20 @@ namespace Combat
 
         private void ProcessSkill(BattleFighter fighter, SkillTrigger trigger, BattleFighter target, float deltaTime)
         {
+            // 敌方特殊单位没有配置技能ID，按fighterId挂接其固有能力。
+            if (fighter.Camp == BattleCamp.Enemy)
+            {
+                switch (fighter.FighterId)
+                {
+                    case 5020:
+                        Skill_EnemyKnight(fighter, trigger);
+                        break;
+                    case 5030:
+                        Skill_EnemyCowLeader(fighter, trigger, deltaTime);
+                        break;
+                }
+            }
+
             if (string.IsNullOrEmpty(fighter.SkillId)) return;
 
             switch (fighter.SkillId)
@@ -205,6 +227,121 @@ namespace Combat
         }
 
         private bool IsEnhanced(BattleFighter f) => f.EnhanceLevel >= 1;
+
+        private const float EnemyKnightChargeDistance = 7f;
+        private const float PositionClearance = 0.8f;
+
+        private void Skill_EnemyKnight(BattleFighter f, SkillTrigger trigger)
+        {
+            if (trigger != SkillTrigger.OnTick || f.SkillTimer < 5f) return;
+            f.SkillTimer = 0f;
+
+            BattleFighter target = FindNearestAlive(f, GetEnemies(f));
+            if (target == null) return;
+            Vector3 start = f.Transform.position;
+            Vector3 direction = (target.Transform.position - f.Transform.position).normalized;
+            Vector3 desired = f.Transform.position + direction * EnemyKnightChargeDistance;
+            f.Transform.position = FindNearestValidPosition(f, desired, f.Transform.position);
+            GameLogger.LogFileOnly("EnemySkill",
+                $"KnightCharge fighter={Describe(f)} target={Describe(target)} start={FormatPosition(start)} desired={FormatPosition(desired)} actual={FormatPosition(f.Transform.position)} distance={Vector3.Distance(start, f.Transform.position):F2}");
+        }
+
+        private void Skill_EnemyRanger(BattleFighter f, SkillTrigger trigger)
+        {
+            if (trigger != SkillTrigger.OnKill) return;
+            BattleFighter farthest = FindFarthestAlive(f, GetEnemies(f));
+            if (farthest == null) return;
+
+            Vector3 facing = farthest.PendingTarget != null && farthest.PendingTarget.Transform != null
+                ? (farthest.PendingTarget.Transform.position - farthest.Transform.position).normalized
+                : new Vector3(farthest.Transform.localScale.x < 0f ? 1f : -1f, 0f, 0f);
+            Vector3 desired = farthest.Transform.position - facing * 1.2f;
+            Vector3 start = f.Transform.position;
+            f.Transform.position = FindNearestValidPosition(f, desired, farthest.Transform.position);
+            GameLogger.LogFileOnly("EnemySkill",
+                $"RangerKillTeleport fighter={Describe(f)} farthest={Describe(farthest)} start={FormatPosition(start)} desired={FormatPosition(desired)} actual={FormatPosition(f.Transform.position)}");
+        }
+
+        private void Skill_EnemyCowLeader(BattleFighter f, SkillTrigger trigger, float deltaTime)
+        {
+            if (trigger != SkillTrigger.OnTick) return;
+            float hpRatio = (float)f.CurrentHp / f.RuntimeAttributes.MaxHp;
+            if (hpRatio < 0.2f && !f.CowLeaderRecovering)
+            {
+                f.CowLeaderRecovering = true;
+                GameLogger.LogFileOnly("EnemySkill",
+                    $"CowLeaderRecoveryStart fighter={Describe(f)} threshold={f.RuntimeAttributes.MaxHp * 0.2f:F1} holdPosition=true stopAttack=true");
+            }
+
+            if (f.CowLeaderRecovering)
+            {
+                f.SecondarySkillTimer += deltaTime;
+                if (f.SecondarySkillTimer >= 1f)
+                {
+                    f.SecondarySkillTimer -= 1f;
+                    int before = f.CurrentHp;
+                    int actual = Heal(f, Mathf.CeilToInt(f.RuntimeAttributes.MaxHp * 0.05f), f);
+                    GameLogger.LogFileOnly("EnemySkill",
+                        $"CowLeaderRegenerate fighter={Describe(f)} heal={actual} hp={before}->{f.CurrentHp} threshold={f.RuntimeAttributes.MaxHp * 0.2f:F1}");
+                    if (f.CurrentHp >= f.RuntimeAttributes.MaxHp)
+                    {
+                        f.CowLeaderRecovering = false;
+                        f.SecondarySkillTimer = 0f;
+                        f.SkillTimer = 0f;
+                        GameLogger.LogFileOnly("EnemySkill", $"CowLeaderRecoveryComplete fighter={Describe(f)} resumeAttack=true");
+                    }
+                }
+                return;
+            }
+
+            f.SecondarySkillTimer = 0f;
+            if (f.SkillTimer < 3f) return;
+            f.SkillTimer = 0f;
+            var lowestAllies = GetLowestHpAllies(f, 3);
+            if (lowestAllies.Count == 0) return;
+            int budgetPerTarget = Mathf.FloorToInt(f.RuntimeAttributes.MaxHp * 0.05f);
+            int healthCost = Mathf.Min(budgetPerTarget, f.CurrentHp - 1);
+            if (healthCost <= 0) return;
+            f.RuntimeAttributes.CurrentHp -= healthCost;
+            var healResults = new List<string>();
+            foreach (var ally in lowestAllies)
+            {
+                int before = ally.CurrentHp;
+                int actual = Heal(ally, healthCost, f);
+                healResults.Add($"{Describe(ally)}:{before}->{ally.CurrentHp}(actual={actual})");
+            }
+            RefreshHud(f);
+            GameLogger.LogFileOnly("EnemySkill",
+                $"CowLeaderTripleHeal fighter={Describe(f)} cost={healthCost} hpAfterCost={f.CurrentHp} targets=[{string.Join(",", healResults)}]");
+        }
+
+        public bool TryCowLeaderRescue(BattleFighter dying)
+        {
+            BattleFighter[] allies = GetAllies(dying);
+            for (int i = 0; i < allies.Length; i++)
+            {
+                BattleFighter leader = allies[i];
+                if (leader == null || !leader.IsAlive || leader == dying ||
+                    leader.Camp != BattleCamp.Enemy || leader.FighterId != 5030) continue;
+                int transfer = Mathf.Min(dying.RuntimeAttributes.MaxHp - dying.CurrentHp, leader.CurrentHp - 1);
+                if (transfer <= 0) continue;
+                int leaderHpBefore = leader.CurrentHp;
+                int targetHpBefore = dying.CurrentHp;
+                leader.RuntimeAttributes.CurrentHp -= transfer;
+                int actual = Heal(dying, transfer, leader);
+                RefreshHud(leader);
+                GameLogger.LogFileOnly("EnemySkill",
+                    $"CowLeaderEmergencyRescue leader={Describe(leader)} target={Describe(dying)} transfer={transfer} actualHeal={actual} leaderHp={leaderHpBefore}->{leader.CurrentHp} targetHp={targetHpBefore}->{dying.CurrentHp} rescued={dying.CurrentHp > 0}");
+                return dying.CurrentHp > 0;
+            }
+            return false;
+        }
+
+        public bool ShouldHoldPosition(BattleFighter fighter)
+        {
+            return fighter != null && fighter.Camp == BattleCamp.Enemy && fighter.FighterId == 5030 &&
+                   fighter.CowLeaderRecovering;
+        }
 
         // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
         // 鏅€氬搧璐ㄦ妧鑳?
@@ -492,7 +629,7 @@ namespace Combat
             if (f.SkillTimer >= 10f)
             {
                 f.SkillTimer = 0f;
-                var currentTarget = f.PendingTarget;
+                var currentTarget = f.PendingTarget ?? FindNearestAlive(f, GetEnemies(f));
                 if (currentTarget != null && currentTarget.IsAlive)
                 {
                     currentTarget.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateRoot(2f));
@@ -581,7 +718,7 @@ namespace Combat
                 if (currentTarget != null && currentTarget.IsAlive)
                 {
                     currentTarget.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateFreeze(2f, 10f));
-                    GameLogger.Log("Skill", $"鍐板啺鐚啺鍐烩啋{currentTarget.Name}");
+                    GameLogger.LogFileOnly("PlayerSkill", $"IceCatFreeze caster={Describe(f)} target={Describe(currentTarget)} duration=2.00 enhanced={IsEnhanced(f)}");
                 }
                 if (IsEnhanced(f))
                 {
@@ -601,7 +738,7 @@ namespace Combat
                     if (highestAtk != null)
                     {
                         highestAtk.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateFreeze(2f, 10f));
-                        GameLogger.Log("Skill", $"鍐板啺鐚己鍖栧啺鍐烩啋{highestAtk.Name}");
+                        GameLogger.LogFileOnly("PlayerSkill", $"IceCatEnhancedFreeze caster={Describe(f)} target={Describe(highestAtk)} targetAttack={highestAttack} duration=2.00");
                     }
                 }
             }
@@ -656,12 +793,11 @@ namespace Combat
                     bool killBounce = IsEnhanced(f) && _rng.NextDouble() < 0.5f;
                     var enemiesRef = enemies;
 
-                    // 鍏堟柦鍔犵伡鐑э紙瀛愬脊鍛戒腑鍓嶉鎸傦級
-                    fireballTarget.RuntimeAttributes.ApplyBuff(StatusEffectFactory.CreateBurn(5f, 3f));
-
                     BattleSimulation.FireBulletWithBounce(f, fireballTarget, dmg,
                         (attacker, hitTarget, hitPos) =>
                         {
+                            hitTarget.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateBurn(5f, 3f));
+                            GameLogger.LogFileOnly("PlayerSkill", $"FireCatHit caster={Describe(attacker)} target={Describe(hitTarget)} burnDps=5 burnDuration=3.00");
                             // 鍛戒腑寮瑰皠50%
                             if (bounceOnHit)
                             {
@@ -693,7 +829,7 @@ namespace Combat
                                 }
                             }
                         });
-                    GameLogger.Log("Skill", $"鐏悆鐚伀鐞冣啋鍙戝皠瀛愬脊 target={fireballTarget.Name} dmg={dmg} bounceOnHit={bounceOnHit}");
+                    GameLogger.LogFileOnly("PlayerSkill", $"FireCatLaunch caster={Describe(f)} target={Describe(fireballTarget)} damage={dmg} enhanced={IsEnhanced(f)} bounceOnHit={bounceOnHit} bounceOnKill={killBounce}");
                 }
             }
         }
@@ -713,14 +849,17 @@ namespace Combat
             }
             if (bounceTarget != null)
             {
-                // 寮瑰皠闄勫甫鐏肩儳
-                bounceTarget.RuntimeAttributes.ApplyBuff(StatusEffectFactory.CreateBurn(5f, 3f));
                 // 浠庡懡涓綅缃垱寤哄瓙寮?
                 var go = new GameObject("BounceBullet");
                 go.transform.position = hitPos;
                 var bullet = go.AddComponent<Combat.Fighter.BattleBullet>();
-                bullet.Setup(attacker, bounceTarget, bounceDmg, false, null);
-                GameLogger.Log("Skill", $"寮瑰皠鈫掍粠鍛戒腑鐐瑰彂灏勫瓙寮?target={bounceTarget.Name} dmg={bounceDmg}");
+                bullet.Setup(attacker, bounceTarget, bounceDmg, false,
+                    (source, hit, position) =>
+                    {
+                        hit.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateBurn(5f, 3f));
+                        GameLogger.LogFileOnly("PlayerSkill", $"FireCatBounceHit caster={Describe(source)} target={Describe(hit)} damage={bounceDmg} burnDps=5 burnDuration=3.00");
+                    });
+                GameLogger.LogFileOnly("PlayerSkill", $"FireCatBounceLaunch caster={Describe(attacker)} target={Describe(bounceTarget)} damage={bounceDmg}");
             }
         }
 
@@ -772,29 +911,39 @@ namespace Combat
             {
                 f.SkillTimer = 0f;
                 f.RuntimeAttributes?.ApplyBuff(StatusEffectFactory.CreateSuperArmor(3f));
-                GameLogger.Log("Skill", "QiShiMao gained super armor");
+                GameLogger.LogFileOnly("PlayerSkill", $"KnightCatSuperArmor fighter={Describe(f)} duration=3.00 enhanced={IsEnhanced(f)}");
             }
             if (trigger == SkillTrigger.OnTick)
             {
-                // 妫€鏌ュ満涓婃槸鍚︽湁闇镐綋鍙嬫柟锛堝惈鑷繁锛?
                 var allies = GetAllies(f);
                 bool hasArmoredAlly = false;
+                bool hasEnhancedKnight = false;
                 foreach (var ally in allies)
                 {
                     if (ally?.RuntimeAttributes?.HasSuperArmor == true)
-                    {
                         hasArmoredAlly = true;
-                        if (IsEnhanced(f))
-                        {
-                            // 寮哄寲鐗堬細鎵€鏈夐湼浣撳弸鍐涘噺浼?0%
-                            ally.RuntimeAttributes.DamageReceivePercentBuff = Mathf.Max(ally.RuntimeAttributes.DamageReceivePercentBuff, -0.2f);
-                        }
-                    }
+                    if (ally != null && ally.IsAlive && ally.SkillId == "qishimao_enhanced")
+                        hasEnhancedKnight = true;
                 }
-                if (hasArmoredAlly && !IsEnhanced(f))
+
+                foreach (var ally in allies)
                 {
-                    // 鍘熺増锛氫粎鑷韩鍑忎激20%
-                    f.RuntimeAttributes.DamageReceivePercentBuff = Mathf.Max(f.RuntimeAttributes.DamageReceivePercentBuff, -0.2f);
+                    if (ally == null || !ally.IsAlive || ally.RuntimeAttributes == null) continue;
+                    bool originalSelfProtection = hasArmoredAlly && ally.SkillId == "qishimao_original";
+                    bool enhancedArmorProtection = hasEnhancedKnight && ally.RuntimeAttributes.HasSuperArmor;
+                    bool shouldProtect = originalSelfProtection || enhancedArmorProtection;
+                    if (shouldProtect && !ally.KnightDamageReductionApplied)
+                    {
+                        ally.RuntimeAttributes.DamageReceivePercentBuff -= 0.2f;
+                        ally.KnightDamageReductionApplied = true;
+                        GameLogger.LogFileOnly("PlayerSkill", $"KnightCatDamageReductionApply target={Describe(ally)} modifier=-0.20");
+                    }
+                    else if (!shouldProtect && ally.KnightDamageReductionApplied)
+                    {
+                        ally.RuntimeAttributes.DamageReceivePercentBuff += 0.2f;
+                        ally.KnightDamageReductionApplied = false;
+                        GameLogger.LogFileOnly("PlayerSkill", $"KnightCatDamageReductionRemove target={Describe(ally)} modifier=0.00");
+                    }
                 }
             }
         }
@@ -897,7 +1046,7 @@ namespace Combat
                 if (f.StaticAttributes.MaxHp <= 1) return;
                 // 绠€鍖栵細鍙敜2涓垎韬紙鐢盨ummonManager澶勭悊锛?
                 _simulation?.SummonManager?.SummonClone(f, 2);
-                GameLogger.Log("Skill", $"閾€235鐚鍙?hp={f.StaticAttributes.MaxHp}");
+                GameLogger.LogFileOnly("PlayerSkill", $"U235Fission fighter={Describe(f)} maxHp={f.StaticAttributes.MaxHp} cloneCount=2 enhanced={IsEnhanced(f)}");
             }
         }
 
@@ -951,6 +1100,85 @@ namespace Combat
             }
 
             hud.UpdateHp(fighter.RuntimeAttributes.CurrentHp);
+        }
+
+        private int Heal(BattleFighter target, int amount, BattleFighter healer)
+        {
+            int actual = Mathf.Min(amount, target.RuntimeAttributes.MaxHp - target.CurrentHp);
+            if (actual <= 0) return 0;
+            target.RuntimeAttributes.CurrentHp += actual;
+            healer.TotalHealingDone += actual;
+            RefreshHud(target);
+            ShowHealPopup(target, actual);
+            return actual;
+        }
+
+        private static string Describe(BattleFighter fighter)
+        {
+            return fighter == null ? "null" : $"{fighter.Name}(id={fighter.FighterId},camp={fighter.Camp},hp={fighter.CurrentHp})";
+        }
+
+        private static string FormatPosition(Vector3 position)
+        {
+            return $"({position.x:F2},{position.y:F2})";
+        }
+
+        private List<BattleFighter> GetLowestHpAllies(BattleFighter self, int count)
+        {
+            var result = new List<BattleFighter>();
+            foreach (var ally in GetAllies(self))
+            {
+                if (ally != null && ally.IsAlive && ally != self)
+                    result.Add(ally);
+            }
+            result.Sort((a, b) => a.CurrentHp.CompareTo(b.CurrentHp));
+            if (result.Count > count) result.RemoveRange(count, result.Count - count);
+            return result;
+        }
+
+        private BattleFighter FindNearestAlive(BattleFighter self, BattleFighter[] fighters)
+        {
+            BattleFighter result = null;
+            float best = float.MaxValue;
+            foreach (var fighter in fighters)
+            {
+                if (fighter == null || !fighter.IsAlive) continue;
+                float distance = (fighter.Transform.position - self.Transform.position).sqrMagnitude;
+                if (distance < best) { best = distance; result = fighter; }
+            }
+            return result;
+        }
+
+        private BattleFighter FindFarthestAlive(BattleFighter self, BattleFighter[] fighters)
+        {
+            BattleFighter result = null;
+            float best = -1f;
+            foreach (var fighter in fighters)
+            {
+                if (fighter == null || !fighter.IsAlive) continue;
+                float distance = (fighter.Transform.position - self.Transform.position).sqrMagnitude;
+                if (distance > best) { best = distance; result = fighter; }
+            }
+            return result;
+        }
+
+        private Vector3 FindNearestValidPosition(BattleFighter mover, Vector3 desired, Vector3 fallback)
+        {
+            for (int step = 0; step <= 20; step++)
+            {
+                Vector3 candidate = Vector3.Lerp(desired, fallback, step / 20f);
+                float ellipse = candidate.x * candidate.x / (BattleManager.OUTER_A * BattleManager.OUTER_A) +
+                                candidate.y * candidate.y / (BattleManager.OUTER_B * BattleManager.OUTER_B);
+                if (ellipse > 1f) continue;
+                bool occupied = false;
+                foreach (var ally in GetAllies(mover))
+                    if (ally != null && ally.IsAlive && ally != mover && Vector3.Distance(candidate, ally.Transform.position) < PositionClearance) { occupied = true; break; }
+                if (!occupied)
+                    foreach (var enemy in GetEnemies(mover))
+                        if (enemy != null && enemy.IsAlive && Vector3.Distance(candidate, enemy.Transform.position) < PositionClearance) { occupied = true; break; }
+                if (!occupied) return candidate;
+            }
+            return mover.Transform.position;
         }
 
         private int CalculateSkillDamage(BattleFighter attacker, BattleFighter defender)

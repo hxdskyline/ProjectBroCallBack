@@ -60,6 +60,7 @@ namespace Camp
         public object OwnerFighter;
         public object[] Allies;
         public object[] Enemies;
+        private int _pendingElementDamage;
 
         public UnitRuntimeAttributes(UnitStaticAttributes stats)
         {
@@ -195,10 +196,34 @@ namespace Camp
         {
             if (buff == null) return;
             buff = buff.Clone();
+
+            // 冰火联动统一在状态入口处理，保证技能、道具和攻击附带效果行为一致。
+            if (buff.gameEffect == GameEffect.Burn && HasActiveEffect(GameEffect.Freeze))
+            {
+                int breakDamage = GetFreezeBreakDamage() * 2;
+                RemoveEffect(GameEffect.Freeze);
+                _pendingElementDamage += breakDamage;
+                GameLogger.LogFileOnly("Element",
+                    $"BurnBreakFreeze target={GetOwnerLogName()} queuedDamage={breakDamage} hp={CurrentHp} freezeRemoved=true burnDuration={buff.remainingDuration:F2}");
+            }
+            else if (buff.gameEffect == GameEffect.Freeze && HasActiveEffect(GameEffect.Burn))
+            {
+                // 文档要求先进入0.1秒冰冻，结束时结算双倍破冰伤害。
+                float requestedDuration = buff.remainingDuration;
+                buff.remainingDuration = Mathf.Min(buff.remainingDuration, 0.1f);
+                buff.effectParam2 *= 2f;
+                GameLogger.LogFileOnly("Element",
+                    $"FreezeOnBurn target={GetOwnerLogName()} requestedDuration={requestedDuration:F2} actualDuration={buff.remainingDuration:F2} breakDamage={buff.effectParam2:F0} hp={CurrentHp}");
+            }
             if (buff.gameEffect == GameEffect.Freeze)
             {
                 GameLogger.LogFileOnly("Buff",
                     $"ApplyFreeze buffId={buff.buffId} source={buff.source} sourceId={buff.sourceId} duration={buff.remainingDuration:F2} breakDamage={buff.effectParam2:F2} currentHp={CurrentHp}");
+            }
+            else if (buff.gameEffect == GameEffect.Burn)
+            {
+                GameLogger.LogFileOnly("Element",
+                    $"ApplyBurn target={GetOwnerLogName()} dps={buff.effectParam1:F2} duration={buff.remainingDuration:F2} hp={CurrentHp}");
             }
 
             // 霸体免疫控制效果
@@ -268,6 +293,22 @@ namespace Camp
             ActiveBuffs.Add(buff);
         }
 
+        private int GetFreezeBreakDamage()
+        {
+            for (int i = 0; i < ActiveBuffs.Count; i++)
+            {
+                if (ActiveBuffs[i].gameEffect == GameEffect.Freeze && !ActiveBuffs[i].IsExpired)
+                    return Mathf.Max(1, Mathf.RoundToInt(ActiveBuffs[i].effectParam2));
+            }
+            return 10;
+        }
+
+        private string GetOwnerLogName()
+        {
+            var fighter = OwnerFighter as Combat.Fighter.BattleFighter;
+            return fighter == null ? "unknown" : $"{fighter.Name}(id={fighter.FighterId},camp={fighter.Camp})";
+        }
+
         /// <summary>
         /// 移除指定 GameEffect 的所有 buff
         /// </summary>
@@ -281,6 +322,15 @@ namespace Camp
             }
         }
 
+        public void MultiplyActiveEffectParam2(GameEffect effect, float multiplier)
+        {
+            for (int i = 0; i < ActiveBuffs.Count; i++)
+            {
+                if (ActiveBuffs[i].gameEffect == effect && !ActiveBuffs[i].IsExpired)
+                    ActiveBuffs[i].effectParam2 *= multiplier;
+            }
+        }
+
         /// <summary>
         /// 每帧 tick 所有 buff：递减持续时间、执行 DoT、移除过期 buff
         /// </summary>
@@ -288,6 +338,14 @@ namespace Camp
         {
             TickBuffResult result = new TickBuffResult();
             if (ActiveBuffs == null) return result;
+
+            if (_pendingElementDamage > 0)
+            {
+                result.dotDamage += _pendingElementDamage;
+                GameLogger.LogFileOnly("Element",
+                    $"ResolveElementDamage target={GetOwnerLogName()} damage={_pendingElementDamage} hpBefore={CurrentHp}");
+                _pendingElementDamage = 0;
+            }
 
             int pendingHeal = 0;
             int pendingFreezeBreakDamage = 0;
@@ -317,6 +375,11 @@ namespace Camp
                             case GameEffect.Burn:
                                 int dotDmg = Mathf.RoundToInt(buff.effectParam1 * buff.currentStacks);
                                 result.dotDamage += dotDmg;
+                                if (buff.gameEffect == GameEffect.Burn)
+                                {
+                                    GameLogger.LogFileOnly("Element",
+                                        $"DotTick target={GetOwnerLogName()} effect={buff.gameEffect} damage={dotDmg} stacks={buff.currentStacks} remaining={buff.remainingDuration:F2} hpBefore={CurrentHp}");
+                                }
                                 break;
                         }
                     }
@@ -352,6 +415,8 @@ namespace Camp
                     if (buff.gameEffect == GameEffect.Freeze)
                     {
                         pendingFreezeBreakDamage += Mathf.RoundToInt(buff.effectParam2);
+                        GameLogger.LogFileOnly("Element",
+                            $"FreezeExpired target={GetOwnerLogName()} breakDamage={buff.effectParam2:F0} hpBefore={CurrentHp}");
                     }
 
                     // 移除时清理
@@ -378,7 +443,6 @@ namespace Camp
             // 应用破冰伤害
             if (pendingFreezeBreakDamage > 0)
             {
-                CurrentHp = Mathf.Max(0, CurrentHp - pendingFreezeBreakDamage);
                 result.dotDamage += pendingFreezeBreakDamage;
             }
 

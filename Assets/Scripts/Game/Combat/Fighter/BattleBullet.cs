@@ -102,7 +102,11 @@ namespace Combat.Fighter
             {
                 var sim = BattleSimulation.CurrentSimulation;
                 if (sim != null)
+                {
                     sim.StartDeath(_target);
+                    if (_target.IsDying)
+                        sim.NotifyConfirmedKill(_attacker, _target);
+                }
                 else
                     _target.IsDying = true;
             }

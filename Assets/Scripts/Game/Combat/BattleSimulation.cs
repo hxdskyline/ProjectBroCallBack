@@ -47,6 +47,11 @@ namespace Combat
             OnBulletFired?.Invoke(data);
         }
 
+        public void NotifyConfirmedKill(BattleFighter killer, BattleFighter victim)
+        {
+            _passiveSkillSystem?.OnConfirmedKill(killer, victim);
+        }
+
         /// <summary>
         /// 澶栭儴璋冪敤锛氬彂灏勫甫寮瑰皠鍥炶皟鐨勫瓙寮癸紙渚?PassiveSkillSystem 浣跨敤锛?
         /// 寮瑰皠瀛愬脊鍛戒腑鍚庝粠鍛戒腑浣嶇疆鍙戝皠鏂板瓙寮规墦鍙︿竴涓晫浜?
@@ -553,6 +558,13 @@ namespace Combat
                     continue;
                 }
 
+                if (_passiveSkillSystem != null && _passiveSkillSystem.ShouldHoldPosition(self))
+                {
+                    self.PendingTarget = null;
+                    self.Avatar?.PlayIdle();
+                    continue;
+                }
+
                 // 鍊掑湴鐘舵€侊細鏃犳硶琛屽姩
                 if (self.KnockdownTimer > 0f)
                 {
@@ -839,6 +851,8 @@ namespace Combat
             if (defenderRuntime.CurrentHp <= 0)
             {
                 StartDeath(defender);
+                if (defender.IsDying)
+                    _passiveSkillSystem?.OnConfirmedKill(attacker, defender);
             }
 
             // 鏀诲嚮瑙﹀彂鐘舵€佹晥鏋?
@@ -963,19 +977,8 @@ namespace Combat
                         break;
                     case GameEffect.Burn:
                         // 鏀诲嚮闄勫姞鐕冪儳
-                        // 鍐扮伀鑱斿姩锛氬鍐板喕鍗曚綅鏂藉姞鐏肩儳 鈫?鐮村啺鍙屽€嶄激瀹?0鐐癸紝鍐板喕瑙ｉ櫎
-                        if (defenderRuntime.HasActiveEffect(GameEffect.Freeze))
-                        {
-                            int breakDamage = 20;
-                            // 妫€鏌ラ湝涔嬪搥浼ゅ湥鐗╋細鐮村啺浼ゅ缈诲€?
-                            if (HasRelic("Relic_FrostSorrow", attacker))
-                                breakDamage *= 2;
-                            defenderRuntime.CurrentHp = Mathf.Max(0, defenderRuntime.CurrentHp - breakDamage);
-                            defenderRuntime.RemoveEffect(GameEffect.Freeze);
-                            defender.FreezeTimer = 0f;
-                            GameLogger.Log("Link", $"鍐扮伀鑱斿姩: 鐏肩儳鈫掔牬鍐?{breakDamage}浼ゅ");
-                            // 浠嶇劧鏂藉姞鐏肩儳
-                        }
+                        if (defenderRuntime.HasActiveEffect(GameEffect.Freeze) && HasRelic("Relic_FrostSorrow", attacker))
+                            defenderRuntime.MultiplyActiveEffectParam2(GameEffect.Freeze, 2f);
                         defenderRuntime.ApplyBuff(StatusEffectFactory.CreateBurn(buff.effectParam1, buff.effectParam2));
                         break;
                     case GameEffect.Slow:
@@ -1251,6 +1254,9 @@ namespace Combat
                 Debug.Log($"[StartDeath] Skipped: fighter={fighter?.Name} isRemoved={fighter?.IsRemoved} isDying={fighter?.IsDying}");
                 return;
             }
+
+            if (_passiveSkillSystem != null && _passiveSkillSystem.TryCowLeaderRescue(fighter))
+                return;
 
             Debug.Log($"[StartDeath] Killing {fighter.Name} fighterId={fighter.FighterId} hp={fighter.CurrentHp}");
             _skillRuntime?.RaiseEvent(fighter, new SkillEventData(SkillEventType.UnitDied, fighter, fighter));
