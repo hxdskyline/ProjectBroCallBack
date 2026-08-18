@@ -24,5 +24,9 @@ namespace Camp
 
         public float x;           // UI 坐标
         public float y;
+
+        // 战斗结果记录（用于显示标记）
+        public bool battleCompleted;  // 是否完成过战斗
+        public bool battleVictory;    // 战斗是否胜利
     }
 }

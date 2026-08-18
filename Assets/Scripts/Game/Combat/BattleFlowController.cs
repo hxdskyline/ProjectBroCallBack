@@ -28,8 +28,7 @@ namespace Combat
             UnitStaticAttributes? enemyStats = null,
             TerrainType terrain = TerrainType.Plain,
             WeatherType weather = WeatherType.Sunny,
-            BattleFighterSpawnDefinition[] enemyDefinitions = null,
-            bool hasEnemyBillboard = true)
+            BattleFighterSpawnDefinition[] enemyDefinitions = null)
         {
             EnsureBattleManager();
 
@@ -40,7 +39,6 @@ namespace Combat
             _battleManager.ConfigureEnemyFighterCount(enemyFighterCount);
             _battleManager.ConfigurePlayerFighters(playerFighterDefinitions);
             _battleManager.ConfigureTerrainWeather(terrain, weather);
-            _battleManager.ConfigureHasEnemyBillboard(hasEnemyBillboard);
 
             if (enemyDefinitions != null && enemyDefinitions.Length > 0)
             {
@@ -67,15 +65,13 @@ namespace Combat
             UnitStaticAttributes? enemyStats = null,
             TerrainType terrain = TerrainType.Plain,
             WeatherType weather = WeatherType.Sunny,
-            BattleFighterSpawnDefinition[] enemyDefinitions = null,
-            bool hasEnemyBillboard = true)
+            BattleFighterSpawnDefinition[] enemyDefinitions = null)
         {
             EnsureBattleManager();
 
             _battleManager.ConfigureDemoAvatars(null, enemyDefinition);
             _battleManager.ConfigureEnemyFighterCount(enemyFighterCount);
             _battleManager.ConfigureTerrainWeather(terrain, weather);
-            _battleManager.ConfigureHasEnemyBillboard(hasEnemyBillboard);
 
             if (enemyDefinitions != null && enemyDefinitions.Length > 0)
             {

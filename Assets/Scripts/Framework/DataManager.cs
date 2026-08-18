@@ -115,6 +115,7 @@ public class DataManager : MonoBehaviour
         _playerData.leaderExp = 0;       // 主角经验值初始值0
         _playerData.leaderExpToNextLevel = 100; // 升级所需经验值初始值100
         _playerData.leaderSkillPoints = 0; // 技能点初始值0
+        _playerData.livesRemaining = 3;  // 初始3颗红心
 
         // Initialize tribe fields
         _playerData.tribes = new System.Collections.Generic.List<TribeRecord>();
@@ -472,6 +473,39 @@ public class DataManager : MonoBehaviour
     }
 
     // --- 主角属性方法 ---
+
+    /// <summary>
+    /// 获取剩余红心数
+    /// </summary>
+    public int GetLivesRemaining()
+    {
+        if (_playerData == null) return 3;
+        EnsurePlayerDataDefaults();
+        return _playerData.livesRemaining;
+    }
+
+    /// <summary>
+    /// 扣除一颗红心，返回扣除后是否还有红心
+    /// </summary>
+    public bool DeductLife()
+    {
+        if (_playerData == null) return false;
+        EnsurePlayerDataDefaults();
+        _playerData.livesRemaining = Mathf.Max(0, _playerData.livesRemaining - 1);
+        SavePlayerData();
+        GameLogger.Log("Data", $"红心扣除，剩余: {_playerData.livesRemaining}");
+        return _playerData.livesRemaining > 0;
+    }
+
+    /// <summary>
+    /// 重置红心数（新局开始时调用）
+    /// </summary>
+    public void ResetLives(bool saveImmediately = true)
+    {
+        if (_playerData == null) return;
+        _playerData.livesRemaining = 3;
+        if (saveImmediately) SavePlayerData();
+    }
 
     /// <summary>
     /// 获取领导力（决定人口上限）
@@ -869,6 +903,10 @@ public class DataManager : MonoBehaviour
         {
             _playerData.leaderSkillPoints = 0; // 技能点初始值0
         }
+        if (_playerData.livesRemaining <= 0)
+        {
+            _playerData.livesRemaining = 3; // 红心初始值3
+        }
 
         // Ensure tribe collections exist
         if (_playerData.tribes == null)
@@ -1208,6 +1246,9 @@ public class PlayerData
     public int leaderExp;           // 主角经验值
     public int leaderExpToNextLevel; // 升级所需经验值
     public int leaderSkillPoints;   // 技能点（每次升级获得1点）
+
+    // 生命值系统（整局游戏）
+    public int livesRemaining;      // 剩余红心数（初始3，战斗失败扣1，为0时游戏结束）
 
     // Tribe persistent fields
     public System.Collections.Generic.List<TribeRecord> tribes;

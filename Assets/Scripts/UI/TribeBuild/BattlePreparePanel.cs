@@ -143,7 +143,6 @@ public class BattlePreparePanel : UIPanel
         }
 
         _prepBattleFlow = new BattleFlowController();
-        bool hasEnemyBillboard = GameManager.Instance.BattleCampaignRuntime.HasEnemyBillboardForBattle(_battleNumber);
         _prepBattleFlow.StartBattlePrepare(
             levelId: _battleNumber,
             enemyDefinition: enemyAvatar,
@@ -151,8 +150,7 @@ public class BattlePreparePanel : UIPanel
             enemyStats: enemyDefs == null ? enemyStats : null,
             terrain: scenario.terrain,
             weather: scenario.weather,
-            enemyDefinitions: enemyDefs,
-            hasEnemyBillboard: hasEnemyBillboard);
+            enemyDefinitions: enemyDefs);
 
         _prepBattleManager = _prepBattleFlow.BattleManager;
     }

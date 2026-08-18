@@ -60,6 +60,9 @@ public class MapPanel : UIPanel
         title.rectTransform.pivot = new Vector2(0.5f, 1);
         title.rectTransform.anchoredPosition = new Vector2(0, -20);
 
+        // 显示红心（固定在顶部中间上方）
+        CreateLivesDisplay();
+
         if (mapData?.nodes == null) return;
 
         // 创建 ScrollView 结构
@@ -337,7 +340,7 @@ public class MapPanel : UIPanel
         txt.alignment = TextAnchor.MiddleCenter;
         txt.raycastTarget = false;
 
-        // 已访问节点：加勾号
+        // 已访问节点：加标记
         if (node.state == MapNodeState.Visited)
         {
             var checkGo = new GameObject("Check");
@@ -349,12 +352,29 @@ public class MapPanel : UIPanel
             checkRect.sizeDelta = new Vector2(24, 24);
             checkRect.anchoredPosition = new Vector2(-3, -3);
             var checkTxt = checkGo.AddComponent<Text>();
-            checkTxt.text = "✓";
             checkTxt.font = GameManager.Instance.ResourceManager.LoadResource<Font>("assets/bundle/font/fzy3k_gbk");
             checkTxt.fontSize = 18;
-            checkTxt.color = new Color(0.5f, 1f, 0.5f);
             checkTxt.alignment = TextAnchor.MiddleCenter;
             checkTxt.raycastTarget = false;
+
+            // 判断是否为战斗关卡且失败
+            bool isBattleNode = node.nodeType == MapNodeType.Battle ||
+                               node.nodeType == MapNodeType.EliteBattle ||
+                               node.nodeType == MapNodeType.Boss;
+            bool isDefeat = isBattleNode && node.battleCompleted && !node.battleVictory;
+
+            if (isDefeat)
+            {
+                // 战斗失败：显示红色X
+                checkTxt.text = "✗";
+                checkTxt.color = new Color(1f, 0.3f, 0.3f);
+            }
+            else
+            {
+                // 胜利或非战斗关卡：显示绿色勾
+                checkTxt.text = "✓";
+                checkTxt.color = new Color(0.5f, 1f, 0.5f);
+            }
         }
 
         // 可用节点：加入呼吸动画列表
@@ -562,6 +582,45 @@ public class MapPanel : UIPanel
             case MapNodeType.Boss: return new Color(0.7f, 0.1f, 0.15f);
             case MapNodeType.Wish: return new Color(0.6f, 0.2f, 0.8f);
             default: return Color.white;
+        }
+    }
+
+    /// <summary>
+    /// 创建红心显示（固定在顶部中间上方）
+    /// </summary>
+    private void CreateLivesDisplay()
+    {
+        int livesRemaining = GameManager.Instance?.DataManager?.GetLivesRemaining() ?? 3;
+
+        // 创建红心容器
+        var livesGo = new GameObject("LivesDisplay");
+        livesGo.transform.SetParent(transform, false);
+        var livesRect = livesGo.AddComponent<RectTransform>();
+        livesRect.anchorMin = new Vector2(0.5f, 1);
+        livesRect.anchorMax = new Vector2(0.5f, 1);
+        livesRect.pivot = new Vector2(0.5f, 1);
+        livesRect.anchoredPosition = new Vector2(0, -70);
+        livesRect.sizeDelta = new Vector2(300, 50);
+
+        // 创建3颗红心
+        float heartSize = 40f;
+        float spacing = 10f;
+        float startX = -((livesRemaining - 1) * (heartSize + spacing)) * 0.5f;
+
+        for (int i = 0; i < 3; i++)
+        {
+            var heartGo = new GameObject($"Heart_{i}");
+            heartGo.transform.SetParent(livesGo.transform, false);
+            var heartRect = heartGo.AddComponent<RectTransform>();
+            heartRect.anchorMin = new Vector2(0.5f, 0.5f);
+            heartRect.anchorMax = new Vector2(0.5f, 0.5f);
+            heartRect.pivot = new Vector2(0.5f, 0.5f);
+            heartRect.anchoredPosition = new Vector2(startX + i * (heartSize + spacing), 0);
+            heartRect.sizeDelta = new Vector2(heartSize, heartSize);
+
+            var heartImg = heartGo.AddComponent<Image>();
+            // 根据红心数量设置颜色：有红心为红色，无红心为灰色
+            heartImg.color = i < livesRemaining ? new Color(1f, 0.3f, 0.3f) : new Color(0.4f, 0.4f, 0.4f);
         }
     }
 

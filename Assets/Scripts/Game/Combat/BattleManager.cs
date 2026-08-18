@@ -54,15 +54,7 @@ namespace Combat
         private int _artifactAtkPerDeadCat;
         private int _artifactLeaderLastDeadCount;
 
-        // 看板系统
-        private BillboardSystem _billboardSystem;
         private int _lastEnemyDeathCount;
-        private bool _soldiersPhaseEnded;
-        private bool _enemyBillboardDestroyed;
-        private bool _playerBillboardDestroyed;
-        private bool _hasEnemyBillboard = true;
-        private GameObject _playerBillboardGo;
-        private GameObject _enemyBillboardGo;
 
         // 胜利延迟
         private bool _victoryPending;
@@ -75,6 +67,7 @@ namespace Combat
         private GameObject _retryButtonGo;
         private GameObject _instantWinButtonGo;
         private GameObject _consumableBarGo;
+        private GameObject _livesDisplayGo;
         private readonly List<ConsumableSlotUi> _consumableSlotUis = new List<ConsumableSlotUi>();
         private float _consumableSharedCooldownRemaining;
         private const float ConsumableSharedCooldown = 5f;
@@ -132,11 +125,6 @@ namespace Combat
             _enemyFighterCount = Mathf.Max(1, enemyFighterCount);
         }
 
-        public void ConfigureHasEnemyBillboard(bool hasEnemyBillboard)
-        {
-            _hasEnemyBillboard = hasEnemyBillboard;
-        }
-
         public void ConfigureEnemyStats(UnitStaticAttributes stats)
         {
             _enemyStaticAttributes = stats;
@@ -164,9 +152,6 @@ namespace Combat
             Debug.Log("[BattleManager] Battle started");
 
             BuildDemoFighters();
-
-            // 初始化看板系统
-            InitializeBillboardSystem();
 
             // 初始化奇物动态效果（亡猫之力等）— 从 runEquipments 读取
             InitArtifactEffects();
@@ -254,9 +239,6 @@ namespace Combat
             _enemyFighters = result.EnemyFighters;
             _playerFighters = new BattleFighter[0];
 
-            // 初始化看板视觉（仅视觉，不激活攻击）
-            InitializeBillboardVisuals();
-
             Debug.Log($"[BattleManager] Prepare scene: {_enemyFighters.Length} enemies placed (fromDefs={_enemyDefinitions != null})");
         }
 
@@ -312,9 +294,6 @@ namespace Combat
         {
             _isInBattle = true;
 
-            // 初始化看板系统
-            InitializeBillboardSystem();
-
             // 初始化奇物动态效果
             InitArtifactEffects();
 
@@ -346,6 +325,9 @@ namespace Combat
             // 显示重新布阵按钮
             CreateRetryButton();
 
+            // 显示红心
+            CreateLivesDisplay();
+
             Debug.Log("[BattleManager] Battle started from prepare");
         }
 
@@ -359,17 +341,6 @@ namespace Combat
             _isInBattle = false;
             BattleSimulation.OnBulletFired -= SpawnBullet;
             BattleSimulation.ClearAllHitEffects();
-
-            // 计算看板货币奖励（根据敌方看板剩余血量百分比）
-            int billboardCurrencyReward = 0;
-            if (_billboardSystem != null)
-            {
-                billboardCurrencyReward = _billboardSystem.CalculateBillboardCurrencyReward();
-                Debug.Log($"[BattleManager] 看板货币奖励: {billboardCurrencyReward} (敌方看板剩余血量: {_billboardSystem.GetEnemyBillboardHpPercent() * 100:F1}%)");
-            }
-
-            // 清理看板系统
-            CleanupBillboardSystem();
 
             if (_battleCoroutine != null)
             {
@@ -415,7 +386,7 @@ namespace Combat
             // Ensure settlement UI appears over a clean battlefield.
             // 注意：ClearBattlefield 会将 _playerFighters 置 null，
             // 必须在 BattleEnded 事件触发之后才能清理，否则外部无法收集战斗统计。
-            BattleEnded?.Invoke(victory, billboardCurrencyReward);
+            BattleEnded?.Invoke(victory, 0);
             ClearBattlefield();
         }
 
@@ -433,8 +404,6 @@ namespace Combat
             BattleSimulation.OnBulletFired -= SpawnBullet;
             BattleSimulation.ClearAllHitEffects();
 
-            CleanupBillboardSystem();
-
             if (_battleCoroutine != null)
             {
                 StopCoroutine(_battleCoroutine);
@@ -446,26 +415,6 @@ namespace Combat
 
             ClearBattlefield();
             Debug.Log("[BattleManager] Battle cancelled (retry)");
-        }
-
-        /// <summary>
-        /// 清理看板系统
-        /// </summary>
-        private void CleanupBillboardSystem()
-        {
-            if (_billboardSystem != null)
-            {
-                // 取消订阅事件
-                _billboardSystem.OnBillboardStateChanged -= OnBillboardStateChanged;
-                _billboardSystem.OnBillboardDamaged -= OnBillboardDamaged;
-                _billboardSystem.OnBillboardDestroyed -= OnBillboardDestroyed;
-
-                _billboardSystem = null;
-            }
-
-            // 清除看板 GameObject 引用
-            _playerBillboardGo = null;
-            _enemyBillboardGo = null;
         }
 
         public void PauseBattle()
@@ -670,87 +619,6 @@ namespace Combat
             Debug.Log($"[BattleManager] Demo fighters ready. Player={_playerFighters.Length}, Enemy={_enemyFighters.Length} (fromDefs={_enemyDefinitions != null})");
         }
 
-        /// <summary>
-        /// 初始化看板系统
-        /// </summary>
-        private void InitializeBillboardSystem()
-        {
-            _billboardSystem = new BillboardSystem();
-
-            // 设置看板位置（我方在左侧，敌方在右侧）
-            Vector3 playerBillboardPos = new Vector3(-8.4f, 2.66f, 0f);
-            Vector3 enemyBillboardPos = new Vector3(8.4f, 2.66f, 0f);
-            _billboardSystem.Initialize(playerBillboardPos, enemyBillboardPos);
-
-            // 创建看板视觉
-            var playerCfg = Camp.TribeConfigLoader.Instance.GetFighterConfig(9001);
-            var enemyCfg = Camp.TribeConfigLoader.Instance.GetFighterConfig(9002);
-            SpawnBillboardVisual("PlayerBillboard", playerBillboardPos, playerCfg?.avatarId ?? "jiaorouche", new Color(0.6f, 0.9f, 1f, 0.8f), flipX: true);
-            SpawnBillboardVisual("EnemyBillboard", enemyBillboardPos, enemyCfg?.avatarId ?? "jiaorouche", new Color(1f, 0.7f, 0.7f, 0.8f));
-
-            // 订阅看板事件
-            _billboardSystem.OnBillboardStateChanged += OnBillboardStateChanged;
-            _billboardSystem.OnBillboardDamaged += OnBillboardDamaged;
-            _billboardSystem.OnBillboardDestroyed += OnBillboardDestroyed;
-
-            Debug.Log("[BattleManager] BillboardSystem initialized");
-        }
-
-        /// <summary>
-        /// 仅创建看板视觉（准备阶段用，不创建 BillboardSystem）
-        /// </summary>
-        private void InitializeBillboardVisuals()
-        {
-            Vector3 playerBillboardPos = new Vector3(-8.4f, 2.66f, 0f);
-            Vector3 enemyBillboardPos = new Vector3(8.4f, 2.66f, 0f);
-
-            var playerCfg = Camp.TribeConfigLoader.Instance.GetFighterConfig(9001);
-            var enemyCfg = Camp.TribeConfigLoader.Instance.GetFighterConfig(9002);
-            SpawnBillboardVisual("PlayerBillboard", playerBillboardPos, playerCfg?.avatarId ?? "jiaorouche", new Color(0.6f, 0.9f, 1f, 0.8f), flipX: true);
-            SpawnBillboardVisual("EnemyBillboard", enemyBillboardPos, enemyCfg?.avatarId ?? "jiaorouche", new Color(1f, 0.7f, 0.7f, 0.8f));
-        }
-
-        private void SpawnBillboardVisual(string name, Vector3 position, string avatarId, Color tint, bool flipX = false)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(transform, false);
-            go.transform.position = position;
-
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.color = tint;
-            sr.flipX = flipX;
-
-            // 加载 avatar 精灵
-            string spriteAddress = $"avatartemp/{avatarId}1";
-            var sprite = GameManager.Instance.ResourceManager.LoadResource<Sprite>(spriteAddress);
-            if (sprite != null)
-            {
-                sr.sprite = sprite;
-            }
-
-            // 与 fighter 相同的缩放（0.6）和近大远小逻辑
-            go.transform.localScale = new Vector3(_fighterScale, _fighterScale, 1f);
-
-            var sortByY = go.AddComponent<Combat.Avatar.SortByY>();
-            sortByY.BaseOrder = 10;
-            sortByY.Multiplier = 100;
-            sortByY.EnableScaleEffect = true;
-
-            // 添加血条 HUD
-            bool isEnemy = name.Contains("Enemy");
-            var fighterConfig = Camp.TribeConfigLoader.Instance.GetFighterConfig(isEnemy ? 9002 : 9001);
-            int maxHp = fighterConfig?.hp ?? 100;
-            var hud = go.AddComponent<FighterHUD>();
-            hud.VerticalOffset = 2.0f; // 看板较高，血条位置也相应提高
-            hud.Initialize(maxHp, isEnemy);
-
-            // 存储看板 GameObject 引用
-            if (isEnemy)
-                _enemyBillboardGo = go;
-            else
-                _playerBillboardGo = go;
-        }
-
         private IEnumerator DemoBattleLoop()
         {
             if (_simulation == null || !_simulation.IsReady)
@@ -770,257 +638,46 @@ namespace Combat
                 // 战斗内成长触发
                 UpdateBattleGrowth();
 
-                bool playerSoldiersAlive = AreSoldiersAlive(_playerFighters);
+                // 战斗模拟
+                _simulation.Tick(dt, out bool _);
+
+                // 检查敌方是否全灭（胜利条件）
                 bool enemySoldiersAlive = AreSoldiersAlive(_enemyFighters);
-
-                // 更新攻击冷却（看板阶段也需要）
-                if (_billboardSystem != null)
+                if (!enemySoldiersAlive && !_victoryPending)
                 {
-                    _billboardSystem.Update(dt, playerSoldiersAlive, enemySoldiersAlive);
+                    Debug.Log("[BattleManager] 敌方猫全部死亡，进入胜利延迟");
+                    _victoryPending = true;
+                    _victoryTimer = VICTORY_DELAY;
+                    _victoryHealApplied = false;
                 }
 
-                if (!_soldiersPhaseEnded)
+                // 胜利延迟：延迟结束后结算
+                if (_victoryPending)
                 {
-                    // ── 小兵阶段：双方小兵互殴，看板休眠 ──
-                    // 检测一方小兵全灭（HP=0），不等死亡动画
-                    if (!enemySoldiersAlive || !playerSoldiersAlive)
+                    if (!_victoryHealApplied)
                     {
-                        _soldiersPhaseEnded = true;
-                        _billboardSystem.UpdateBillboardStates(playerSoldiersAlive, enemySoldiersAlive);
-                        Debug.Log($"[BattleManager] 小兵阶段结束，进入看板阶段 playerAlive={playerSoldiersAlive} enemyAlive={enemySoldiersAlive}");
+                        ApplyVictoryHeal();
+                        _victoryHealApplied = true;
                     }
-                    else
+                    _victoryTimer -= dt;
+                    if (_victoryTimer <= 0f)
                     {
-                        _simulation.Tick(dt, out bool _);
-                    }
-                }
-
-                if (_soldiersPhaseEnded)
-                {
-                    // ── 看板阶段 ──
-                    HandleBillboardCombat(dt, playerSoldiersAlive, enemySoldiersAlive);
-                    UpdateBillboardPhaseDeathStates(dt);
-
-                    // 失败判定：我方看板被摧毁
-                    if (_playerBillboardDestroyed && !_victoryPending)
-                    {
-                        Debug.Log("[BattleManager] 我方看板被摧毁，玩家失败");
-                        EndBattle(false);
+                        Debug.Log("[BattleManager] 胜利延迟结束，战斗结束");
+                        EndBattle(true);
                         yield break;
                     }
+                }
 
-                    // 敌方小兵全灭 → 进入胜利延迟（期间继续看板战斗）
-                    if (!enemySoldiersAlive && !_victoryPending)
-                    {
-                        Debug.Log("[BattleManager] 敌方小兵全灭，进入胜利延迟");
-                        _victoryPending = true;
-                        _victoryTimer = VICTORY_DELAY;
-                        _victoryHealApplied = false;
-                    }
-
-                    // 胜利延迟：继续看板战斗，延迟结束后结算
-                    if (_victoryPending)
-                    {
-                        if (!_victoryHealApplied)
-                        {
-                            ApplyVictoryHeal();
-                            _victoryHealApplied = true;
-                        }
-                        _victoryTimer -= dt;
-                        if (_victoryTimer <= 0f)
-                        {
-                            Debug.Log("[BattleManager] 胜利延迟结束，战斗结束");
-                            EndBattle(true);
-                            yield break;
-                        }
-                    }
+                // 检查我方是否全灭（失败条件）
+                bool playerSoldiersAlive = AreSoldiersAlive(_playerFighters);
+                if (!playerSoldiersAlive)
+                {
+                    Debug.Log("[BattleManager] 我方猫全部死亡，玩家失败");
+                    EndBattle(false);
+                    yield break;
                 }
 
                 yield return null;
-            }
-        }
-
-        /// <summary>
-        /// 看板阶段：激活的看板与对方小兵互搏
-        /// - 敌方看板激活（敌方小兵先全灭）：我方小兵攻击敌方看板，敌方看板攻击我方小兵
-        /// - 我方看板激活（我方小兵先全灭）：敌方小兵攻击我方看板，我方看板攻击敌方小兵
-        /// </summary>
-        private void HandleBillboardCombat(float deltaTime, bool playerSoldiersAlive, bool enemySoldiersAlive)
-        {
-            if (_billboardSystem == null) return;
-
-            var playerBB = _billboardSystem.GetBillboard(BillboardCamp.Player);
-            var enemyBB = _billboardSystem.GetBillboard(BillboardCamp.Enemy);
-
-            if (enemyBB.state == BillboardState.Active)
-            {
-                // 敌方看板激活（敌方小兵先全灭）：我方小兵攻击敌方看板
-                if (!_enemyBillboardDestroyed && playerSoldiersAlive)
-                {
-                    Vector3 targetPos = enemyBB.position;
-                    CommandFightersToAttackBillboard(_playerFighters, targetPos, BillboardCamp.Enemy, deltaTime);
-                }
-                // 敌方看板攻击我方小兵
-                BillboardAttackCamp(BillboardCamp.Enemy, _playerFighters);
-            }
-            else if (playerBB.state == BillboardState.Active)
-            {
-                // 我方看板激活（我方小兵先全灭）：敌方小兵攻击我方看板
-                if (!_playerBillboardDestroyed && enemySoldiersAlive)
-                {
-                    Vector3 targetPos = playerBB.position;
-                    CommandFightersToAttackBillboard(_enemyFighters, targetPos, BillboardCamp.Player, deltaTime);
-                }
-                // 我方看板攻击敌方小兵
-                BillboardAttackCamp(BillboardCamp.Player, _enemyFighters);
-            }
-        }
-
-        /// <summary>
-        /// 指定阵营的看板攻击目标小兵组
-        /// </summary>
-        private void BillboardAttackCamp(BillboardCamp camp, BattleFighter[] targets)
-        {
-            if (_billboardSystem == null || targets == null) return;
-
-            var targetList = new System.Collections.Generic.List<BattleFighter>(targets);
-            var result = _billboardSystem.Attack(camp, targetList);
-            if (result != null && result.target != null)
-            {
-                SpawnBillboardToFighterBullet(
-                    _billboardSystem.GetBillboard(camp).position,
-                    result.target, Mathf.RoundToInt(result.damage), camp);
-            }
-        }
-
-        /// <summary>
-        /// 生成看板→小兵的子弹，到达目标时造成伤害
-        /// </summary>
-        private void SpawnBillboardToFighterBullet(Vector3 startPos, BattleFighter target, int damage, BillboardCamp camp)
-        {
-            GameObject bulletGo = new GameObject("BillboardToFighterBullet");
-            bulletGo.transform.SetParent(transform);
-            bulletGo.transform.position = startPos;
-
-            var sr = bulletGo.AddComponent<SpriteRenderer>();
-            sr.color = Color.white;
-            sr.sortingOrder = 100;
-            var sprite = GameManager.Instance.ResourceManager.LoadResource<Sprite>("2deffect/changmao");
-            if (sprite != null)
-                sr.sprite = sprite;
-            bulletGo.transform.localScale = new Vector3(0.5f, 0.5f, 1f);
-
-            bulletGo.AddComponent<BillboardToFighterBullet>().Setup(target, camp, damage, _simulation);
-        }
-
-        /// <summary>
-        /// 指挥小兵走向并攻击看板（近战走过去砍，远程发射子弹）
-        /// </summary>
-        private void CommandFightersToAttackBillboard(BattleFighter[] fighters, Vector3 billboardPos, BillboardCamp camp, float deltaTime)
-        {
-            for (int i = 0; i < fighters.Length; i++)
-            {
-                var f = fighters[i];
-                if (f == null || !f.IsAlive || f.Transform == null || f.RuntimeAttributes == null) continue;
-
-                Vector3 toTarget = billboardPos - f.Transform.position;
-                float distance = toTarget.magnitude;
-                float attackRange = Mathf.Max(0.1f, f.RuntimeAttributes.AttackRange);
-
-                if (distance > attackRange)
-                {
-                    // 走向看板
-                    Vector3 direction = toTarget.normalized;
-                    float speed = Mathf.Max(0.001f, f.RuntimeAttributes.CorrectedMoveSpeed);
-                    f.Transform.position += direction * (speed * deltaTime);
-                    UpdateFighterFacing(f, direction.x);
-                    f.Avatar?.PlayRun();
-                }
-                else
-                {
-                    // 在攻击范围内
-                    UpdateFighterFacing(f, toTarget.x);
-
-                    if (f.AttackCooldownTimer > 0f)
-                    {
-                        f.AttackCooldownTimer -= deltaTime;
-                        continue;
-                    }
-
-                    // 攻击冷却: attackSpeed为次/秒，冷却=1/attackSpeed
-                    float atkSpd = Mathf.Max(0.1f, f.RuntimeAttributes.CorrectedAttackSpeed);
-                    f.AttackCooldownTimer = 1f / atkSpd;
-                    f.Avatar?.PlayAttackAndReturnIdle();
-
-                    float damage = f.RuntimeAttributes.Attack;
-                    bool isRanged = f.Tags != null && f.Tags.Contains("ranged");
-
-                    if (isRanged)
-                    {
-                        // 远程：发射子弹飞向看板
-                        SpawnBillboardBullet(f.Transform.position, billboardPos, camp, damage);
-                    }
-                    else
-                    {
-                        // 近战：直接造成伤害
-                        _billboardSystem.DamageBillboard(camp, damage);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// 朝向更新（看向目标方向）
-        /// </summary>
-        private void UpdateFighterFacing(BattleFighter fighter, float xDirection)
-        {
-            if (fighter == null || fighter.Transform == null) return;
-            if (Mathf.Abs(xDirection) < 0.001f) return;
-
-            float scale = Mathf.Max(0.1f, fighter.BaseScale);
-            float signedX = xDirection >= 0f ? -scale : scale;
-            Vector3 localScale = fighter.Transform.localScale;
-            fighter.Transform.localScale = new Vector3(signedX, Mathf.Abs(localScale.y), 1f);
-        }
-
-        /// <summary>
-        /// 生成飞向看板的子弹
-        /// </summary>
-        private void SpawnBillboardBullet(Vector3 startPos, Vector3 targetPos, BillboardCamp camp, float damage)
-        {
-            GameObject bulletGo = new GameObject("BillboardBullet");
-            bulletGo.transform.SetParent(transform);
-
-            var bullet = bulletGo.AddComponent<BillboardBullet>();
-            bullet.Setup(startPos, targetPos, _billboardSystem, camp, damage);
-        }
-
-        /// <summary>
-        /// 看板阶段更新死亡状态（小兵被看板击杀后的清理）
-        /// </summary>
-        private void UpdateBillboardPhaseDeathStates(float deltaTime)
-        {
-            UpdateFighterDeathStates(_playerFighters, deltaTime);
-            UpdateFighterDeathStates(_enemyFighters, deltaTime);
-        }
-
-        private void UpdateFighterDeathStates(BattleFighter[] fighters, float deltaTime)
-        {
-            if (fighters == null) return;
-            for (int i = 0; i < fighters.Length; i++)
-            {
-                var fighter = fighters[i];
-                if (fighter == null || !fighter.IsDying || fighter.IsRemoved) continue;
-
-                fighter.DeathTimer -= deltaTime;
-                if (fighter.DeathTimer > 0f) continue;
-
-                if (fighter.Transform != null)
-                    Destroy(fighter.Transform.gameObject);
-
-                fighter.Transform = null;
-                fighter.Avatar = null;
-                fighter.IsRemoved = true;
             }
         }
 
@@ -1040,110 +697,12 @@ namespace Combat
             return false;
         }
 
-        /// <summary>
-        /// 应用看板伤害
-        /// </summary>
-        private void ApplyBillboardDamage(BattleFighter target, float damage)
-        {
-            if (target == null || target.IsDead || target.IsDying) return;
-
-            target.RuntimeAttributes.CurrentHp -= Mathf.RoundToInt(damage);
-            if (target.RuntimeAttributes.CurrentHp <= 0)
-            {
-                target.RuntimeAttributes.CurrentHp = 0;
-                // 触发死亡
-                _simulation?.StartDeath(target);
-            }
-
-            // 更新HUD
-            var hud = target.Transform?.GetComponent<FighterHUD>();
-            if (hud != null)
-            {
-                hud.UpdateHp(target.RuntimeAttributes.CurrentHp);
-            }
-        }
-
-        /// <summary>
-        /// 看板状态改变事件处理
-        /// </summary>
-        private void OnBillboardStateChanged(BillboardCamp camp, BillboardState state)
-        {
-            Debug.Log($"[BattleManager] 看板状态改变: {camp} -> {state}");
-
-            // 激活时去掉透明度
-            if (state == BillboardState.Active)
-            {
-                var billboardGo = camp == BillboardCamp.Player ? _playerBillboardGo : _enemyBillboardGo;
-                if (billboardGo != null)
-                {
-                    var sr = billboardGo.GetComponent<SpriteRenderer>();
-                    if (sr != null)
-                    {
-                        var c = sr.color;
-                        sr.color = new Color(c.r, c.g, c.b, 1f);
-                    }
-                }
-            }
-
-            // 更新环形战场UI中的看板状态
-            if (_battlefieldRing != null)
-            {
-                bool isPlayer = camp == BillboardCamp.Player;
-                bool isActive = state == BillboardState.Active;
-                BillboardData billboardData = _billboardSystem.GetBillboard(camp);
-                _battlefieldRing.UpdateBillboardState(isPlayer, isActive, billboardData.currentHp, billboardData.maxHp);
-            }
-        }
-
-        /// <summary>
-        /// 看板受到伤害事件处理
-        /// </summary>
-        private void OnBillboardDamaged(BillboardCamp camp, float damage)
-        {
-            Debug.Log($"[BattleManager] 看板受到伤害: {camp}, 伤害: {damage}");
-
-            // 更新看板血条
-            var billboard = _billboardSystem.GetBillboard(camp);
-            var go = camp == BillboardCamp.Player ? _playerBillboardGo : _enemyBillboardGo;
-            if (go != null)
-            {
-                var hud = go.GetComponent<FighterHUD>();
-                if (hud != null)
-                {
-                    hud.UpdateHp((int)billboard.currentHp);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 看板被摧毁事件处理
-        /// - 我方看板被摧毁 → 失败
-        /// - 敌方看板被摧毁 → 仅记录，不直接触发胜利（胜利由敌方小兵全灭判定）
-        /// </summary>
-        private void OnBillboardDestroyed(BillboardCamp camp)
-        {
-            Debug.Log($"[BattleManager] 看板被摧毁: {camp}");
-
-            if (camp == BillboardCamp.Player)
-            {
-                _playerBillboardDestroyed = true;
-            }
-            else if (camp == BillboardCamp.Enemy)
-            {
-                _enemyBillboardDestroyed = true;
-            }
-        }
-
         private void ClearOldAvatars()
         {
             for (int i = transform.childCount - 1; i >= 0; i--)
             {
                 Destroy(transform.GetChild(i).gameObject);
             }
-
-            // 清除看板 GameObject 引用
-            _playerBillboardGo = null;
-            _enemyBillboardGo = null;
         }
 
         private void SpawnBattleBackground()
@@ -1301,15 +860,13 @@ namespace Combat
             _artifactAtkPerDeadCat = 0;
             _artifactLeaderLastDeadCount = 0;
             _lastEnemyDeathCount = 0;
-            _soldiersPhaseEnded = false;
-            _enemyBillboardDestroyed = false;
-            _playerBillboardDestroyed = false;
             _victoryPending = false;
             _victoryTimer = 0f;
             _victoryHealApplied = false;
             _consumableSharedCooldownRemaining = 0f;
             DestroyRetryButton();
             DestroyConsumableBar();
+            DestroyLivesDisplay();
             ClearOldAvatars();
         }
 
@@ -1692,6 +1249,66 @@ namespace Combat
             }
 
             return "Consumable";
+        }
+
+        /// <summary>
+        /// 创建红心显示（战斗UI我方UI上方）
+        /// </summary>
+        private void CreateLivesDisplay()
+        {
+            DestroyLivesDisplay();
+
+            int livesRemaining = GameManager.Instance?.DataManager?.GetLivesRemaining() ?? 3;
+
+            // 找到主 Canvas
+            var canvas = FindObjectOfType<Canvas>();
+            if (canvas == null) return;
+
+            // 找到或创建 Top 层
+            var topLayer = GetOrCreateTopLayer(canvas.transform);
+
+            _livesDisplayGo = new GameObject("LivesDisplay", typeof(RectTransform));
+            _livesDisplayGo.transform.SetParent(topLayer, false);
+
+            var rect = _livesDisplayGo.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0);
+            rect.anchorMax = new Vector2(0.5f, 0);
+            rect.pivot = new Vector2(0.5f, 0);
+            rect.anchoredPosition = new Vector2(0, 120);
+            rect.sizeDelta = new Vector2(300, 50);
+
+            // 创建3颗红心
+            float heartSize = 40f;
+            float spacing = 10f;
+            float startX = -((3 - 1) * (heartSize + spacing)) * 0.5f;
+
+            for (int i = 0; i < 3; i++)
+            {
+                var heartGo = new GameObject($"Heart_{i}");
+                heartGo.transform.SetParent(_livesDisplayGo.transform, false);
+                var heartRect = heartGo.AddComponent<RectTransform>();
+                heartRect.anchorMin = new Vector2(0.5f, 0.5f);
+                heartRect.anchorMax = new Vector2(0.5f, 0.5f);
+                heartRect.pivot = new Vector2(0.5f, 0.5f);
+                heartRect.anchoredPosition = new Vector2(startX + i * (heartSize + spacing), 0);
+                heartRect.sizeDelta = new Vector2(heartSize, heartSize);
+
+                var heartImg = heartGo.AddComponent<Image>();
+                // 根据红心数量设置颜色：有红心为红色，无红心为灰色
+                heartImg.color = i < livesRemaining ? new Color(1f, 0.3f, 0.3f) : new Color(0.4f, 0.4f, 0.4f);
+            }
+        }
+
+        /// <summary>
+        /// 销毁红心显示
+        /// </summary>
+        private void DestroyLivesDisplay()
+        {
+            if (_livesDisplayGo != null)
+            {
+                Destroy(_livesDisplayGo);
+                _livesDisplayGo = null;
+            }
         }
 
         /// <summary>

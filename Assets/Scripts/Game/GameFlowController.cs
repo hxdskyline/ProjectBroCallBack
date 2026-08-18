@@ -213,6 +213,9 @@ public class GameFlowController : MonoBehaviour
     {
         GameLogger.Log("GFC", "SetupDefaultStartUnits");
 
+        // 重置红心数
+        _dataManager.ResetLives();
+
         // 确保配置已加载
         var loader = TribeConfigLoader.Instance;
         if (!loader.IsLoaded) loader.LoadAllConfigs();
@@ -713,9 +716,6 @@ public class GameFlowController : MonoBehaviour
 
         GameLogger.Log("GFC", $"BattleStart enemies={enemyCount} scenario={scenario.terrain}/{scenario.weather} fromDefs={enemyDefs != null}");
 
-        // 是否有敌方看板
-        bool hasEnemyBillboard = campaign.HasEnemyBillboardForBattle(battleNumber);
-
         // 启动战斗
         _battleFlowController = new BattleFlowController();
         _battleFlowController.StartBattle(
@@ -729,8 +729,7 @@ public class GameFlowController : MonoBehaviour
             enemyStats: enemyDefs == null ? enemyStats : null,
             terrain: scenario.terrain,
             weather: scenario.weather,
-            enemyDefinitions: enemyDefs,
-            hasEnemyBillboard: hasEnemyBillboard);
+            enemyDefinitions: enemyDefs);
     }
 
     private BattleFighterSpawnDefinition[] BuildPlayerFighterDefinitions(AvatarAnimationDefinition fallbackAvatar)
@@ -906,7 +905,7 @@ public class GameFlowController : MonoBehaviour
 
     private void OnBattleEndedFromScene(bool victory, int billboardCurrencyReward)
     {
-        GameLogger.Log("GFC", $"BattleEndedFromScene victory={victory} billboardCurrencyReward={billboardCurrencyReward}");
+        GameLogger.Log("GFC", $"BattleEndedFromScene victory={victory}");
 
         // 在销毁前收集战斗统计
         var battleStats = CollectBattleStats();
@@ -919,15 +918,15 @@ public class GameFlowController : MonoBehaviour
         }
 
         // 调用原有的战斗结束逻辑
-        OnBattleEnded(victory, battleStats, billboardCurrencyReward);
+        OnBattleEnded(victory, battleStats);
     }
 
     /// <summary>
     /// 战斗结束回调（由TribeBuildPanel调用）
     /// </summary>
-    public void OnBattleEnded(bool victory, List<FighterBattleStats> battleStats = null, int billboardCurrencyReward = 0)
+    public void OnBattleEnded(bool victory, List<FighterBattleStats> battleStats = null)
     {
-        GameLogger.Log("GFC", $"OnBattleEnded victory={victory} billboardCurrencyReward={billboardCurrencyReward}");
+        GameLogger.Log("GFC", $"OnBattleEnded victory={victory}");
 
         if (battleStats == null)
             battleStats = CollectBattleStats();
@@ -966,9 +965,6 @@ public class GameFlowController : MonoBehaviour
             GameLogger.Log("GFC", $"关卡奖励计算: battleNumber={_currentRound}, difficulty={difficulty}, fullReward={fullReward}, catFoodReward={catFoodReward}");
         }
 
-        // 加上看板货币奖励（根据敌方看板剩余血量百分比）
-        GameLogger.Log("GFC", $"看板血量奖励: {billboardCurrencyReward}");
-        catFoodReward += billboardCurrencyReward;
         GameLogger.Log("GFC", $"最终猫粮奖励: {catFoodReward}");
 
         // 显示结算面板，等待玩家确认后继续
@@ -1031,6 +1027,14 @@ public class GameFlowController : MonoBehaviour
             {
                 _currentRegionMap.MarkNodeVisited(_currentNodeId);
                 _currentRegionMap.UpdateAvailableNodes(_currentNodeId);
+
+                // 记录战斗结果
+                var currentNode = _currentRegionMap.GetNode(_currentNodeId);
+                if (currentNode != null)
+                {
+                    currentNode.battleCompleted = true;
+                    currentNode.battleVictory = true;
+                }
             }
 
             // 结算生产区产出
@@ -1080,17 +1084,44 @@ public class GameFlowController : MonoBehaviour
         else
         {
             _lastBattleDeployedUnits.Clear();
-            bool isBossBattle = _currentRegionMap != null &&
-                               _currentNodeId >= 0 &&
-                               _currentRegionMap.GetNode(_currentNodeId)?.nodeType == MapNodeType.Boss;
-            if (isBossBattle)
+
+            // 扣除一颗红心
+            bool hasLivesLeft = _dataManager.DeductLife();
+            GameLogger.Log("GFC", $"战斗失败，红心扣除，剩余: {_dataManager.GetLivesRemaining()}");
+
+            if (!hasLivesLeft)
             {
+                // 红心为0，整局游戏结束
+                GameLogger.Log("GFC", "红心为0，游戏结束");
                 EndGame();
             }
             else
             {
-                // 普通关失败：回到地图选关（可重新选择关卡）
-                EnterMapSelection();
+                bool isBossBattle = _currentRegionMap != null &&
+                                   _currentNodeId >= 0 &&
+                                   _currentRegionMap.GetNode(_currentNodeId)?.nodeType == MapNodeType.Boss;
+                if (isBossBattle)
+                {
+                    EndGame();
+                }
+                else
+                {
+                    // 普通关失败：标记节点已访问，解锁后续节点，进入下一关选择
+                    if (_currentRegionMap != null && _currentNodeId >= 0)
+                    {
+                        _currentRegionMap.MarkNodeVisited(_currentNodeId);
+                        _currentRegionMap.UpdateAvailableNodes(_currentNodeId);
+
+                        // 记录战斗结果（失败）
+                        var currentNode = _currentRegionMap.GetNode(_currentNodeId);
+                        if (currentNode != null)
+                        {
+                            currentNode.battleCompleted = true;
+                            currentNode.battleVictory = false;
+                        }
+                    }
+                    EnterMapSelection();
+                }
             }
         }
     }

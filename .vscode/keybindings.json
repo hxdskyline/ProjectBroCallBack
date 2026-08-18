@@ -1,0 +1,12 @@
+[
+    {
+        "key": "enter",
+        "command": "editor.action.insertLineAfter",
+        "when": "editorTextFocus && scmInputFocus"
+    },
+    {
+        "key": "shift+enter",
+        "command": "git.commit",
+        "when": "scmInputFocus"
+    }
+]
